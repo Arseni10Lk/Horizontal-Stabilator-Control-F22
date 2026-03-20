@@ -1,22 +1,46 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
-.vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-file
-*.flf
-#Test results file
-TestResults.xml
+# MATLAB temporary and backup files
+*.asv
+*.m~ 
+*.mlx~
+*.fig~
+*.bak
+
+# Simulink autosave and backup files
+*.slx.autosave
+*.slx.bak
+*.slx.r20*
+*.mdl.autosave
+*.mdl.bak
+*.mdl.r20*
+
+# Simulink cache and code generation
+slprj/
+sccprj/
+codegen/
+*_ert_rtw/
+*_grt_rtw/
+*_slrt_rtw/
+*_rti_rtw/
+*_rtw/
+*_tlc_rtw/
+
+# MATLAB preferences and history
+matlabprefs.mat
+matlabprefs.mat.lock
+history.m
+.history
+
+# MATLAB crash dumps
+matlab_crash_dump.*
+java.log.*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project-specific generated files
+*.mex*
+*.p
+*.prj~
+*.autosave
