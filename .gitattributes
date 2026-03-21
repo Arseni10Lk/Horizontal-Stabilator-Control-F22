@@ -1,0 +1,9 @@
+# Treat Simulink models as binary to prevent text-based auto-merging and diffs
+*.slx binary
+*.slxp binary
+*.mdl binary
+
+# Just in case, other MATLAB binary formats
+*.mat binary
+*.mlapp binary
+*.mlx binary
