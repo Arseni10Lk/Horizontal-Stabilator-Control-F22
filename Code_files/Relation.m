@@ -1,7 +1,7 @@
 % 1. Providing the required data
 
-d = 0.5; % m
-a = 0.7; % m
+d = 1.36124; % m
+a = 1.37276; % m
 
 % 2. Calculating stuff
 
@@ -21,9 +21,9 @@ extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha+deflection))) - d;
 % 5. Plotting
 
 figure('Name', 'Actuator vs Deflection Relation')
-plot(extension, deflection, 'black', LineWidth=2);
+plot(extension*100, deflection, 'black', LineWidth=2);
 ylabel('Deflection (degrees)');
-xlabel('Actuator Extension (m)');
-xlim([min(extension) max(extension)])
+xlabel('Actuator Extension (cm)');
+xlim([min(extension*100) max(extension*100)])
 title('Deflection vs. Actuator Extension');
 grid on;
