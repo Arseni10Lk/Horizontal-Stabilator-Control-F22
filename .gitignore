@@ -5,10 +5,11 @@
 *.fig~
 *.bak
 
-# Simulink autosave and backup files
+# Simulink autosave, cash and backup files
 *.slx.autosave
 *.slx.bak
 *.slx.r20*
+*.slxc
 *.mdl.autosave
 *.mdl.bak
 *.mdl.r20*
