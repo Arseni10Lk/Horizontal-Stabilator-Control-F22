@@ -1,0 +1,99 @@
+\documentclass{turabian-researchpaper}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsfonts} % For math equations
+\usepackage{csquotes, ellipsis}
+\usepackage[scaled=0.85]{beramono}
+\usepackage{xcolor}     % For code coloring
+\usepackage{subcaption}
+\usepackage[numbered,framed]{matlab-prettifier} 
+\usepackage{listings}   % For code snippets
+\lstset{
+	inputencoding=utf8,
+	extendedchars=true,
+	literate={θ}{{$\theta$}}1
+}
+\usepackage{graphicx}   % For images
+\usepackage{float}      % For figure placement
+
+\usepackage{booktabs} % Required for TABLE
+\usepackage{siunitx}  % Required for TABLE
+
+\usepackage{pdflscape}
+
+\usepackage[notes, backend=biber]{biblatex-chicago}
+\addbibresource{works-cited.bib}
+
+% Specify paper size
+\usepackage[pass, letterpaper]{geometry}
+\setcounter{tocdepth}{2}
+% Code Listing Style Definition
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{myMatlabStyle}{
+	backgroundcolor=\color{backcolour},   % Your light beige background
+	commentstyle=\color{codegreen},       % Your green comments
+	keywordstyle=\color{blue},            % Standard blue keywords
+	numberstyle=\tiny\color{codegray},    % Gray line numbers
+	stringstyle=\color{codepurple},       % Purple strings
+	basicstyle=\ttfamily\footnotesize,    % Monospace font
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	language=Matlab                       % Enforce Matlab syntax highlighting
+}
+
+% --- Title Page Setup ---
+\title{Lockheed Martin–Boeing F-22 Raptor}
+\subtitle{Horizontal Stabilator Control Simulation}
+\author{Arseni Lysak 336013, }
+
+\course{Simulation of Aeronautical Systems}
+
+\date{\today}
+
+\begin{document}
+	\maketitle
+	
+	\tableofcontents
+	\newpage
+	\section{Introduction}
+	
+	Introduction
+	
+	\section{Geometry}
+	
+	\subsection{Plane general description and geometrical parameters}
+	
+	\subsection{Stabilator geometry and description}
+	
+	\subsection{Actuator location and function}
+	
+	\subsection{Assumptions}
+	
+	\subsection{Actuator geometry}
+	
+	\section{Actuator function analysis}
+
+	\subsection{Extension-Deflection relation}
+	
+	\section{Conclusion}
+	
+%	\printbibliography
+	\newpage
+	\appendix
+	\section{Any MATLAB file}
+	
+	\begin{lstlisting}[style=myMatlabStyle]
+	MATLAB code goes here
+	\end{lstlisting}
+\end{document}
