@@ -45,3 +45,14 @@ desktop.ini
 *.p
 *.prj~
 *.autosave
+
+# And LaTeX also
+*.pdf
+*.toc
+*.aux
+*.bcf
+*.blg
+*.bbl
+*.log
+*.run.xml
+*.synctex.gz
