@@ -27,3 +27,12 @@ xlabel('Actuator Extension (cm)');
 xlim([min(extension*100) max(extension*100)])
 title('Deflection vs. Actuator Extension');
 grid on;
+
+% 6. Save the figure
+
+script_dir = fileparts(mfilename('fullpath'));
+
+% Build the relative path to the Media folder
+save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Actuator_Deflection.png');
+
+exportgraphics(gcf, save_path);
