@@ -19,8 +19,7 @@ deflection = deflection_max:0.01:deflection_min;
 extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha+deflection))) - d;
 
 % 5. Plotting
-
-if(~Running_in_Simulink)
+if ~exist('Running_in_Simulink', 'var') || ~Running_in_Simulink
     figure('Name', 'Actuator vs Deflection Relation')
     plot(extension*100, deflection, 'black', LineWidth=2);
     ylabel('Deflection (degrees)');
