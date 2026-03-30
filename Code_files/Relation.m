@@ -20,13 +20,17 @@ extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha+deflection))) - d;
 
 % 5. Plotting
 
-figure('Name', 'Actuator vs Deflection Relation')
-plot(extension*100, deflection, 'black', LineWidth=2);
-ylabel('Deflection (degrees)');
-xlabel('Actuator Extension (cm)');
-xlim([min(extension*100) max(extension*100)])
-title('Deflection vs. Actuator Extension');
-grid on;
+if(~Running_in_Simulink)
+    figure('Name', 'Actuator vs Deflection Relation')
+    plot(extension*100, deflection, 'black', LineWidth=2);
+    ylabel('Deflection (degrees)');
+    xlabel('Actuator Extension (cm)');
+    xlim([min(extension*100) max(extension*100)])
+    title('Deflection vs. Actuator Extension');
+    grid on;
+end
+
+Running_in_Simulink = 0;
 
 % 6. Save the figure
 
