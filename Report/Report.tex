@@ -67,12 +67,35 @@
 	\tableofcontents
 	\newpage
 	\section{Introduction}
+		The F-22 Raptor uses all-moving horizontal tailplanes, also known as stabilators, to manage longitudinal stability and control. 
+	    This report presents a mathematical model of the F-22 Raptor horizontal tail stabilator using MATLAB and Simulink. The modelling process begins with defining the system geometry.
 	
-	Introduction (7)
 	
 	\section{Geometry}
 	
 	\subsection{Plane general description and geometrical parameters}
+	
+	The F-22 Raptor is the world's first operational  fifth generation fighter jet built by Lockheed Martin. Since its initial flight in 1997 and entry to service in 2005, it has maintained air superiority by integrating stealth, supercruise, and advanced sensor suites.
+	The aircraft features an open system architecture that allows for continuous digital moderization. Mentioned features combined with high perfomance engines and integrated flight controls allows the Raptor to dominate contested airspace. 
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{||c c c c||} 
+		\hline
+		Parameter & Symbol & Value & Unit \\ [0.5ex] 
+		\hline\hline
+		Length & L & 18.90 & m \\
+		Height & h & 5.08 & m \\
+		Wingspan & b & 13.56 & m\\
+		Wing Area & S & 78.04 & $m^{2}$ \\
+		Aspect Ratio & AR & 2.36 & -\\
+		Horizontal Tail Span & $b_{h}$ & 8.84 & m\\ [1ex] 
+		\hline
+	\end{tabular}
+	
+	\caption{Table 1 shows the F-22 Geometrical parameters}
+	\label{table:data}
+\end{table}
+	
 	
 	Number 1
 	
@@ -92,6 +115,18 @@
 	Its function is to provide angular deflection of the Stabilator by linearly deflecting with hydraulic actuation.
 	
 	\subsection{Assumptions}
+	
+	The following assumptions were made to simplify the modeling
+	
+	\begin{enumerate}
+		\item Rigid Body Motion
+		 \begin{itemize}
+			 \item Internal deformation is neglected
+			 \item Focus on Translation and Rotational motion
+		\end{itemize}
+		\item Approximate sizing by visual data
+		\item 3D to 2D mapping
+	\end{enumerate}
 	
 	Number 4
 	
