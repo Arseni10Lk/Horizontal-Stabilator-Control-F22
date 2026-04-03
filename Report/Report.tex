@@ -142,20 +142,65 @@
 	
 	\section{Actuator function analysis}
 	
-	The distance between the pin where the actuator connects to the fuselage and the pin connecting the actuator shaft to the pivot shaft at 0 $\deg$ deflection is denoted by letter d. The distance between the first mentioned pin and the center of the pivot shaft is denoted by a. $\Delta x$ represents actuator extension.
+	Based on the geometric layout of the actuator mechanism, a mathematical relationship between the linear extension of the actuator ($\Delta x$) and the resulting angular deflection of the stabilator ($\Delta \alpha$) can be established.
+	
+	Let us define the geometric parameters (fig. \ref {fig:relationanalytical-solution}):
+	\begin{itemize}
+		\item $a$ is the distance between the pin connecting the actuator to the fuselage and the center of the stabilator pivot shaft.
+		\item $d$ is the distance between the fuselage pin and the actuator shaft pin at $0^\circ$ deflection.
+		\item $\Delta x$ represents the actuator extension.
+		\item $r$ is the radius from the pivot shaft center to the actuator pin (lever arm).
+		\item $\alpha$ is the initial angle between the segment $a$ and the lever arm $r$ at the pivot shaft.
+	\end{itemize}
+	
+	At the neutral position, the arrangement forms a right-angled triangle at the actuator pin connection. Using the Pythagorean theorem, the radius $r$ can be determined as:
+	\begin{equation}
+		r = \sqrt{a^2 - d^2}
+	\end{equation}
+	
+	The initial angle $\alpha$ can be found using basic right-triangle trigonometry:
+	\begin{equation}
+		\alpha = \arcsin\left(\frac{d}{a}\right)
+	\end{equation}
+	
+	When the actuator extends by $\Delta x$, the new length of the actuator assembly becomes $d + \Delta x$. The pin rotates along a circular trajectory (the pivot shaft), changing the internal angle at the pivot to $\alpha + \Delta \alpha$. 
+	
+	Applying the Law of Cosines to the newly formed oblique triangle with sides $a$, $r$, and $(d + \Delta x)$:
+	\begin{equation}
+		(d + \Delta x)^2 = a^2 + r^2 - 2ar \cos(\alpha + \Delta \alpha)
+	\end{equation}
+	
+	To find the stabilator deflection angle $\Delta \alpha$ as a function of the actuator extension $\Delta x$, the Law of Cosines equation is rearranged to isolate $\cos(\alpha + \Delta \alpha)$:
+	\begin{equation}
+		-2ar \cos(\alpha + \Delta \alpha) = (d + \Delta x)^2 - a^2 - r^2
+	\end{equation}
+	\begin{equation}
+		\cos(\alpha + \Delta \alpha) = \frac{a^2 + r^2 - (d + \Delta x)^2}{2ar}
+	\end{equation}
+	
+	Taking the inverse cosine ($\arccos$) of both sides yields the total angle:
+	\begin{equation}
+		\alpha + \Delta \alpha = \arccos\left( \frac{a^2 + r^2 - (d + \Delta x)^2}{2ar} \right)
+	\end{equation}
+	
+	Finally, subtracting the initial angle $\alpha$ gives the analytical solution for the stabilator's angular deflection:
+	\begin{equation}
+		\Delta \alpha = \arccos\left( \frac{a^2 + r^2 - (d + \Delta x)^2}{2ar} \right) - \alpha
+		\label{eq:analyt-relation}
+	\end{equation}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[angle=90,trim=14cm 0 0 0, clip, width=1\linewidth]{"Media/Relation_analytical solution"}
-		\caption{}
+		\caption{Simplified geometry of the system}
 		\label{fig:relationanalytical-solution}
 	\end{figure}
 	
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=1\linewidth]{Media/Actuator_Deflection}
-		\caption{}
+		\includegraphics[trim=0 0 0 0.33cm, clip, width=1\linewidth]{Media/Actuator_Deflection}
+		\caption{Stabilator deflection as a function of the actuator extension. The graph is based on the equation \ref{eq:analyt-relation}.}
 		\label{fig:actuatordeflection}
 	\end{figure}	
 	
