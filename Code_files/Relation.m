@@ -18,28 +18,6 @@ deflection = deflection_min:0.01:deflection_max;
 
 extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha-deflection))) - d;
 
-% 5. Plotting
-if ~exist('Running_in_Simulink', 'var') || ~Running_in_Simulink
-    figure('Name', 'Actuator vs Deflection Relation')
-    plot(extension*100, deflection, 'black', LineWidth=2);
-    ylabel('Deflection (degrees)');
-    xlabel('Actuator Extension (cm)');
-    xlim([min(extension*100) max(extension*100)])
-    title('Deflection vs. Actuator Extension');
-    grid on;
-end
-
-Running_in_Simulink = 0;
-
-% 6. Save the figure
-
-script_dir = fileparts(mfilename('fullpath'));
-
-% Build the relative path to the Media folder
-save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Actuator_Deflection.png');
-
-exportgraphics(gcf, save_path);
-
 % -----------------------------------------------------------------------
 % Now, reactions
 
@@ -75,3 +53,5 @@ semi_P = (d + extension + a + r)/2;
 triangle_area = sqrt(semi_P.*(semi_P-d-extension).*(semi_P-a).*(semi_P-r));
 lever_arm_actuator = 2 .* triangle_area ./ (d+extension); 
 F_act = M_pivot ./ lever_arm_actuator; % [N]
+
+plot_data(deflection, extension, F_act)
