@@ -53,9 +53,11 @@ velocity = 300; % m/s
 
 q = 0.5 * density * velocity^2; % kg / m2 / s2
 
-CL = interp1(airfoil_Re40_000.alpha, airfoil_Re40_000.CL, deflection);
-CD = interp1(airfoil_Re40_000.alpha, airfoil_Re40_000.CD, deflection);
-Cm = interp1(airfoil_Re40_000.alpha, airfoil_Re40_000.Cm, deflection);
+import_aerodynamic_coefficients
+
+CL = interp1(airfoil_data.alpha, airfoil_data.CL, deflection);
+CD = interp1(airfoil_data.alpha, airfoil_data.CD, deflection);
+Cm = interp1(airfoil_data.alpha, airfoil_data.Cm, deflection);
 
 % Forces applied at 25% MAC from the leading edge
 F_y_stab = CL .* stab_area * q; % [N]
