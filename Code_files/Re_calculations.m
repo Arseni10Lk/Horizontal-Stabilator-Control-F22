@@ -124,6 +124,15 @@ function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calcu
     ylabel('Span (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold');
     
     set(gca, 'YDir','reverse', 'FontSize', 10); 
-    set(gcf,'Position',[100 100 850 500]); 
+    set(gcf, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]); 
     hold(ax, 'off')
+
+    script_dir = fileparts(mfilename('fullpath'));
+
+    % Build the relative path to the Media folder
+    save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Top_View_Stabilator.png');
+    
+    exportgraphics(gcf, save_path);
+
+
 end
