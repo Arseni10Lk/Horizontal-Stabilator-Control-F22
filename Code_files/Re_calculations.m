@@ -1,35 +1,60 @@
-function [MAC, Re_SL, Re_Alt, y_MAC, Lambda_LE] = calculate_F22_stabilator_Re()
-  
-    c_root = 3.739; 
-    c_tip  = 1.261; 
-    b_exposed = 2.5;       %(approximated)
-    lambda = c_tip / c_root;
+function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = calculate_F22_stabilator_Re()
     
-    MAC = (2/3) * c_root * ((1 + lambda + lambda^2) / (1 + lambda));
-    y_MAC = (b_exposed / 6) * ((1 + 2*lambda) / (1 + lambda));
-    Lambda_LE = rad2deg(atan((c_root - c_tip) / b_exposed));
+    % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
+    y_stations = [0, 1.25, 2.5];        % [m] Spanwise locations (Root, Kink, Tip)
+    chords     = [3.739, 3.130, 1.261]; % [m] Chord lengths at those stations
+    num_panels = length(y_stations) - 1;
+    b_exposed  = y_stations(end);       % Total span = 2.5m
     
-    %% Extreme Case 1: (Max Dynamic Pressure)
+    total_area = 0;
+    sum_area_mac = 0;
+    sum_area_y_mac = 0;
+    
+    fprintf('--- Panel Breakdown ---\n');
+    for i = 1:num_panels
+        c_root_i = chords(i);
+        c_tip_i  = chords(i+1);
+        b_i      = y_stations(i+1) - y_stations(i); 
+        lambda_i = c_tip_i / c_root_i; 
+        
+        S_i = (c_root_i + c_tip_i) / 2 * b_i;
+        MAC_i = (2/3) * c_root_i * ((1 + lambda_i + lambda_i^2) / (1 + lambda_i));
+        y_MAC_local = (b_i / 6) * ((1 + 2*lambda_i) / (1 + lambda_i));
+        
+        total_area = total_area + S_i;
+        sum_area_mac = sum_area_mac + (S_i * MAC_i);
+        sum_area_y_mac = sum_area_y_mac + (S_i * (y_stations(i) + y_MAC_local));
+        
+        fprintf('Panel %d: Area = %.3f m^2, Local MAC = %.3f m, local_y_MAC = %.3f m\n', i, S_i, MAC_i, y_stations(i) + y_MAC_local);
+    end
+    
+    % --- 2. GLOBAL AERODYNAMIC & GEOMETRIC PARAMETERS ---
+    MAC_total   = sum_area_mac / total_area; 
+    y_MAC_total = sum_area_y_mac / total_area; 
+    Lambda_LE   = rad2deg(atan((chords(1) - chords(end)) / b_exposed)); 
+    
+    % Calculate the "D" distance (X-coordinate of LE at the y_MAC station)
+    x_LE_MAC    = y_MAC_total * tan(deg2rad(Lambda_LE));
+    
+    % --- 3. EXTREME FLIGHT CASES ---
     rho_SL = 1.225;        % [kg/m^3]
     mu_SL  = 1.789e-5;     % [kg/(m*s)]
     a_SL   = 340.3;        % [m/s]
     V_SL   = 1.5 * a_SL;   % [m/s]
-    Re_SL = (rho_SL * V_SL * MAC) / mu_SL; 
+    Re_SL  = (rho_SL * V_SL * MAC_total) / mu_SL; 
     
-    %% Extreme Case 2: (High Altitude Supercruise 60kft(18.288 km) elevation)
     rho_alt = 0.116;       % [kg/m^3]
     mu_alt  = 1.422e-5;    % [kg/(m*s)]
     a_alt   = 295.2;       % [m/s]
     V_alt   = 2.25 * a_alt;% [m/s]
-    Re_Alt = (rho_alt * V_alt * MAC) / mu_alt;
+    Re_Alt  = (rho_alt * V_alt * MAC_total) / mu_alt; 
    
-    fprintf('--- F-22 Stabilator Aerodynamic Parameters ---\n');
-    fprintf('Root Chord (c_root)       : %.3f m\n', c_root);
-    fprintf('Tip Chord (c_tip)         : %.3f m\n', c_tip);
-    fprintf('Exposed Span (b_exposed)  : %.3f m\n', b_exposed);
-    fprintf('Taper Ratio (lambda)      : %.3f\n', lambda);
-    fprintf('Mean Aero Chord (MAC)     : %.3f m\n', MAC);
-    fprintf('Spanwise Dist. to MAC     : %.3f m\n', y_MAC);
+    % --- 4. PRINT OUTPUTS ---
+    fprintf('\n--- F-22 Stabilator Aerodynamic Parameters (Multi-Panel) ---\n');
+    fprintf('Total Exposed Area (S)    : %.3f m^2\n', total_area);
+    fprintf('Global Mean Aero Chord    : %.3f m\n', MAC_total);
+    fprintf('Global y_MAC location     : %.3f m from Root\n', y_MAC_total);
+    fprintf('Distance to LE at MAC (D) : %.3f m\n', x_LE_MAC);
     fprintf('Leading Edge Sweep Angle  : %.2f deg\n\n', Lambda_LE);
     
     fprintf('--- Extreme Case 1: Sea Level, Mach 1.5 ---\n');
@@ -39,5 +64,66 @@ function [MAC, Re_SL, Re_Alt, y_MAC, Lambda_LE] = calculate_F22_stabilator_Re()
     fprintf('--- Extreme Case 2: 60k ft (18.288 km), Mach 2.25 ---\n');
     fprintf('Velocity                  : %.2f m/s\n', V_alt);
     fprintf('Reynolds Number (Re)      : %.2e\n', Re_Alt);
-    fprintf('----------------------------------------------\n');
+    fprintf('----------------------------------------------------------\n');
+
+    % --- 5. GENERATE PLANFORM IMAGE WITH MAC ---
+    
+    figure('Name', 'F-22 Stabilator Multi-Panel Model', 'Color', 'w');
+    ax = axes('Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
+    hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on'); axis(ax, 'equal');
+    
+    tan_Lambda_LE = tan(deg2rad(Lambda_LE));
+    
+    x_coords = [0, y_stations(2)*tan_Lambda_LE, y_stations(3)*tan_Lambda_LE, ...
+                y_stations(3)*tan_Lambda_LE + chords(3), y_stations(2)*tan_Lambda_LE + chords(2), ...
+                0 + chords(1)];
+    y_coords = [y_stations(1), y_stations(2), y_stations(3), ...
+                y_stations(3), y_stations(2), ...
+                y_stations(1)];
+    
+    p_stab = patch(x_coords, y_coords, [0.7 0.7 0.7], 'FaceAlpha', 0.8, 'EdgeColor', 'k', 'LineWidth', 1.5);
+
+    % Plot the Local Chord at the MAC Station
+    c_at_MAC = interp1(y_stations, chords, y_MAC_total);
+    x_TE_at_MAC = x_LE_MAC + c_at_MAC; 
+    
+    l_mac = line([x_LE_MAC, x_TE_at_MAC], [y_MAC_total, y_MAC_total], ...
+                'Color', [0 0 1], 'LineStyle', '--', 'LineWidth', 3);
+
+    % Plot the Distance 'D' Line (Red)
+    l_dist = line([0, x_LE_MAC], [y_MAC_total, y_MAC_total], ...
+                'Color', [1 0 0], 'LineWidth', 2.5);
+    
+    text(x_LE_MAC / 2, y_MAC_total - 0.05, sprintf('D = %.3f m', x_LE_MAC), ...
+        'Color', [1 0 0], 'FontSize', 12, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+
+    % --- Plot Leading Edge Sweep Angle Arc ---
+    arc_radius = 0.4; % Reduced radius to ensure it does not overlap with the D line
+    theta = linspace(0, deg2rad(Lambda_LE), 30);
+    arc_x = arc_radius * sin(theta);
+    arc_y = arc_radius * cos(theta);
+    plot(ax, arc_x, arc_y, 'k-', 'LineWidth', 1.5);
+    
+    % Add angle text centered outside the arc, with a smaller font size
+    half_angle = deg2rad(Lambda_LE) / 2;
+    text_x = (arc_radius + 0.12) * sin(half_angle);
+    text_y = (arc_radius + 0.12) * cos(half_angle);
+    text(text_x, text_y, sprintf('\\Lambda_{LE} = %.1f^\\circ', Lambda_LE), ...
+        'Color', 'k', 'FontSize', 9, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+
+    % Add remaining Text Labels
+    text(x_coords(end)+0.1, 0.1, sprintf(' \\lambda_{overall}: %.3f', chords(end)/chords(1)), 'Color', 'k', 'FontSize', 11);
+
+    % Legend
+    l = legend([p_stab, l_mac, l_dist], {'Stabilator Area', sprintf('Local Chord at MAC Station (c = %.3f m)', c_at_MAC), 'Distance D to LE'}, ...
+                'Location', 'northeastoutside');
+    set(l, 'FontSize', 11, 'TextColor', 'k', 'EdgeColor', 'k', 'Color', 'w');
+    
+    title('F-22 Horizontal Stabilator (Movable Area) - Top View', 'Color', 'k', 'FontSize', 13, 'FontWeight', 'bold');
+    xlabel('Chord (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold'); 
+    ylabel('Span (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold');
+    
+    set(gca, 'YDir','reverse', 'FontSize', 10); 
+    set(gcf,'Position',[100 100 850 500]); 
+    hold(ax, 'off');
 end
