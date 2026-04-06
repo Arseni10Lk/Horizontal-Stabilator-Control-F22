@@ -1,4 +1,4 @@
-function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations()
+function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations(do_plot)
     
     % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
     y_stations = [0, 1.25, 2.5];        % [m] Spanwise locations (Root, Kink, Tip)
@@ -10,7 +10,6 @@ function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calcu
     sum_area_mac = 0;
     sum_area_y_mac = 0;
     
-    fprintf('--- Panel Breakdown ---\n');
     for i = 1:num_panels
         c_root_i = chords(i);
         c_tip_i  = chords(i+1);
@@ -24,8 +23,6 @@ function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calcu
         total_area = total_area + S_i;
         sum_area_mac = sum_area_mac + (S_i * MAC_i);
         sum_area_y_mac = sum_area_y_mac + (S_i * (y_stations(i) + y_MAC_local));
-        
-        fprintf('Panel %d: Area = %.3f m^2, Local MAC = %.3f m, local_y_MAC = %.3f m\n', i, S_i, MAC_i, y_stations(i) + y_MAC_local);
     end
     
     % --- 2. GLOBAL AERODYNAMIC & GEOMETRIC PARAMETERS ---
@@ -48,91 +45,76 @@ function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calcu
     a_alt   = 295.2;       % [m/s]
     V_alt   = 2.25 * a_alt;% [m/s]
     Re_Alt  = (rho_alt * V_alt * MAC_total) / mu_alt; 
-   
-    % --- 4. PRINT OUTPUTS ---
-    fprintf('\n--- F-22 Stabilator Aerodynamic Parameters (Multi-Panel) ---\n');
-    fprintf('Total Exposed Area (S)    : %.3f m^2\n', total_area);
-    fprintf('Global Mean Aero Chord    : %.3f m\n', MAC_total);
-    fprintf('Global y_MAC location     : %.3f m from Root\n', y_MAC_total);
-    fprintf('Distance to LE at MAC (D) : %.3f m\n', x_LE_MAC);
-    fprintf('Leading Edge Sweep Angle  : %.2f deg\n\n', Lambda_LE);
-    
-    fprintf('--- Extreme Case 1: Sea Level, Mach 1.5 ---\n');
-    fprintf('Velocity                  : %.2f m/s\n', V_SL);
-    fprintf('Reynolds Number (Re)      : %.2e\n\n', Re_SL);
-    
-    fprintf('--- Extreme Case 2: 60k ft (18.288 km), Mach 2.25 ---\n');
-    fprintf('Velocity                  : %.2f m/s\n', V_alt);
-    fprintf('Reynolds Number (Re)      : %.2e\n', Re_Alt);
-    fprintf('----------------------------------------------------------\n');
 
-    % --- 5. GENERATE PLANFORM IMAGE WITH MAC ---
+    if(do_plot)
     
-    figure('Name', 'F-22 Stabilator Multi-Panel Model', 'Color', 'w');
-    ax = axes('Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
-    hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on'); axis(ax, 'equal');
+        % --- 5. GENERATE PLANFORM IMAGE WITH MAC ---
+        
+        figure('Name', 'F-22 Stabilator Multi-Panel Model', 'Color', 'w');
+        ax = axes('Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
+        hold(ax, 'on'); box(ax, 'on'); grid(ax, 'on'); axis(ax, 'equal');
+        
+        tan_Lambda_LE = tan(deg2rad(Lambda_LE));
+        
+        x_coords = [0, y_stations(2)*tan_Lambda_LE, y_stations(3)*tan_Lambda_LE, ...
+                    y_stations(3)*tan_Lambda_LE + chords(3), y_stations(2)*tan_Lambda_LE + chords(2), ...
+                    0 + chords(1)];
+        y_coords = [y_stations(1), y_stations(2), y_stations(3), ...
+                    y_stations(3), y_stations(2), ...
+                    y_stations(1)];
+        
+        p_stab = patch(x_coords, y_coords, [0.7 0.7 0.7], 'FaceAlpha', 0.8, 'EdgeColor', 'k', 'LineWidth', 1.5);
     
-    tan_Lambda_LE = tan(deg2rad(Lambda_LE));
+        % Plot the Local Chord at the MAC Station
+        c_at_MAC = interp1(y_stations, chords, y_MAC_total);
+        x_TE_at_MAC = x_LE_MAC + c_at_MAC; 
+        
+        l_mac = line([x_LE_MAC, x_TE_at_MAC], [y_MAC_total, y_MAC_total], ...
+                    'Color', [0 0 1], 'LineStyle', '--', 'LineWidth', 3);
     
-    x_coords = [0, y_stations(2)*tan_Lambda_LE, y_stations(3)*tan_Lambda_LE, ...
-                y_stations(3)*tan_Lambda_LE + chords(3), y_stations(2)*tan_Lambda_LE + chords(2), ...
-                0 + chords(1)];
-    y_coords = [y_stations(1), y_stations(2), y_stations(3), ...
-                y_stations(3), y_stations(2), ...
-                y_stations(1)];
+        % Plot the Distance 'D' Line (Red)
+        l_dist = line([0, x_LE_MAC], [y_MAC_total, y_MAC_total], ...
+                    'Color', [1 0 0], 'LineWidth', 2.5);
+        
+        text(x_LE_MAC / 2, y_MAC_total - 0.05, sprintf('D = %.3f m', x_LE_MAC), ...
+            'Color', [1 0 0], 'FontSize', 12, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     
-    p_stab = patch(x_coords, y_coords, [0.7 0.7 0.7], 'FaceAlpha', 0.8, 'EdgeColor', 'k', 'LineWidth', 1.5);
-
-    % Plot the Local Chord at the MAC Station
-    c_at_MAC = interp1(y_stations, chords, y_MAC_total);
-    x_TE_at_MAC = x_LE_MAC + c_at_MAC; 
+        % --- Plot Leading Edge Sweep Angle Arc ---
+        arc_radius = 0.4; % Reduced radius to ensure it does not overlap with the D line
+        theta = linspace(0, deg2rad(Lambda_LE), 30);
+        arc_x = arc_radius * sin(theta);
+        arc_y = arc_radius * cos(theta);
+        plot(ax, arc_x, arc_y, 'k-', 'LineWidth', 1.5);
+        
+        % Add angle text centered outside the arc, with a smaller font size
+        half_angle = deg2rad(Lambda_LE) / 2;
+        text_x = (arc_radius + 0.12) * sin(half_angle);
+        text_y = (arc_radius + 0.12) * cos(half_angle);
+        text(text_x, text_y, sprintf('\\Lambda_{LE} = %.1f^\\circ', Lambda_LE), ...
+            'Color', 'k', 'FontSize', 9, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     
-    l_mac = line([x_LE_MAC, x_TE_at_MAC], [y_MAC_total, y_MAC_total], ...
-                'Color', [0 0 1], 'LineStyle', '--', 'LineWidth', 3);
-
-    % Plot the Distance 'D' Line (Red)
-    l_dist = line([0, x_LE_MAC], [y_MAC_total, y_MAC_total], ...
-                'Color', [1 0 0], 'LineWidth', 2.5);
+        % Add remaining Text Labels
+        text(x_coords(end)+0.1, 0.1, sprintf(' \\lambda_{overall}: %.3f', chords(end)/chords(1)), 'Color', 'k', 'FontSize', 11);
     
-    text(x_LE_MAC / 2, y_MAC_total - 0.05, sprintf('D = %.3f m', x_LE_MAC), ...
-        'Color', [1 0 0], 'FontSize', 12, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
-
-    % --- Plot Leading Edge Sweep Angle Arc ---
-    arc_radius = 0.4; % Reduced radius to ensure it does not overlap with the D line
-    theta = linspace(0, deg2rad(Lambda_LE), 30);
-    arc_x = arc_radius * sin(theta);
-    arc_y = arc_radius * cos(theta);
-    plot(ax, arc_x, arc_y, 'k-', 'LineWidth', 1.5);
+        % Legend
+        l = legend([p_stab, l_mac, l_dist], {'Stabilator Area', sprintf('Local Chord at MAC Station (c = %.3f m)', c_at_MAC), 'Distance D to LE'}, ...
+                    'Location', 'northeastoutside');
+        set(l, 'FontSize', 11, 'TextColor', 'k', 'EdgeColor', 'k', 'Color', 'w');
+        
+        title('F-22 Horizontal Stabilator (Movable Area) - Top View', 'Color', 'k', 'FontSize', 13, 'FontWeight', 'bold');
+        xlabel('Chord (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold'); 
+        ylabel('Span (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold');
+        
+        set(gca, 'YDir','reverse', 'FontSize', 10); 
+        set(gcf, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]); 
+        hold(ax, 'off')
     
-    % Add angle text centered outside the arc, with a smaller font size
-    half_angle = deg2rad(Lambda_LE) / 2;
-    text_x = (arc_radius + 0.12) * sin(half_angle);
-    text_y = (arc_radius + 0.12) * cos(half_angle);
-    text(text_x, text_y, sprintf('\\Lambda_{LE} = %.1f^\\circ', Lambda_LE), ...
-        'Color', 'k', 'FontSize', 9, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
-
-    % Add remaining Text Labels
-    text(x_coords(end)+0.1, 0.1, sprintf(' \\lambda_{overall}: %.3f', chords(end)/chords(1)), 'Color', 'k', 'FontSize', 11);
-
-    % Legend
-    l = legend([p_stab, l_mac, l_dist], {'Stabilator Area', sprintf('Local Chord at MAC Station (c = %.3f m)', c_at_MAC), 'Distance D to LE'}, ...
-                'Location', 'northeastoutside');
-    set(l, 'FontSize', 11, 'TextColor', 'k', 'EdgeColor', 'k', 'Color', 'w');
+        script_dir = fileparts(mfilename('fullpath'));
     
-    title('F-22 Horizontal Stabilator (Movable Area) - Top View', 'Color', 'k', 'FontSize', 13, 'FontWeight', 'bold');
-    xlabel('Chord (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold'); 
-    ylabel('Span (m)', 'Color', 'k', 'FontSize', 11, 'FontWeight', 'bold');
-    
-    set(gca, 'YDir','reverse', 'FontSize', 10); 
-    set(gcf, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]); 
-    hold(ax, 'off')
-
-    script_dir = fileparts(mfilename('fullpath'));
-
-    % Build the relative path to the Media folder
-    save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Top_View_Stabilator.png');
-    
-    exportgraphics(gcf, save_path);
-
+        % Build the relative path to the Media folder
+        save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Top_View_Stabilator.png');
+        
+        exportgraphics(gcf, save_path);
+    end
 
 end
