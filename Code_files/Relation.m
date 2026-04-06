@@ -24,7 +24,7 @@ extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha-deflection))) - d;
 stab_area = 6.315; % m2 
 
 % All the following parameters must be changed later, I guessed all of them:
-MAC = 2.5; % m 
+[MAC, ~, ~] = Re_calculations;
 arm = 0.35*MAC; % m 
 density = 1; % kg/m3
 velocity = 300; % m/s

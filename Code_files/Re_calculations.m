@@ -1,4 +1,4 @@
-function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = calculate_F22_stabilator_Re()
+function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations()
     
     % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
     y_stations = [0, 1.25, 2.5];        % [m] Spanwise locations (Root, Kink, Tip)
@@ -125,5 +125,5 @@ function [MAC_total, Re_SL, Re_Alt, y_MAC_total, Lambda_LE, x_LE_MAC] = calculat
     
     set(gca, 'YDir','reverse', 'FontSize', 10); 
     set(gcf,'Position',[100 100 850 500]); 
-    hold(ax, 'off');
+    hold(ax, 'off')
 end
