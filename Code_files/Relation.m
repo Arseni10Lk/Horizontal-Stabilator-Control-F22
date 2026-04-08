@@ -1,7 +1,9 @@
-%% If you need images change do_plot to 1
+%% If you need images change plotting vars to 1
 
-do_plot = 0; % change this
-should_plot = (do_plot == 1) && ~exist("Running_in_Simulink", 'var');
+draw_stabilator = 0;
+plot_data_ = 1;
+draw_stabilator = (draw_stabilator == 1) && ~exist("Running_in_Simulink", 'var');
+should_plot_data = (plot_data_ == 1) && ~exist("Running_in_Simulink", 'var');
 
 %% 1. Providing the required data
 
@@ -29,7 +31,7 @@ extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha-deflection))) - d;
 stab_area = 6.315; % m2 
 pivot_axis_pos = 1.982; % m from root chord LE
 
-[MAC, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, ~, ~, MAC_offset] = Re_calculations(should_plot);
+[MAC, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, ~, ~, MAC_offset] = Re_calculations(draw_stabilator);
 arm = MAC_offset-MAC*0.25-pivot_axis_pos; % m 
 density = [rho_SL; rho_alt]; % kg/m3
 velocity = [V_SL; V_alt]; % m/s
@@ -62,6 +64,6 @@ triangle_area = sqrt(semi_P.*(semi_P-d-extension).*(semi_P-a).*(semi_P-r));
 lever_arm_actuator = 2 .* triangle_area ./ (d+extension); 
 F_act = M_pivot ./ lever_arm_actuator; % [N]
 
-if should_plot
+if should_plot_data
     plot_data(deflection, extension, F_act, CL, CD, Cm)
 end

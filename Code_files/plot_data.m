@@ -20,10 +20,13 @@ exportgraphics(gcf, save_path);
 
 % 2.1 Plotting
 figure('Name', 'Force on the Actuator vs Deflection Relation')
-plot(deflection, F_act, 'black', LineWidth=2);
+plot(deflection, F_act(1, :), 'black', LineStyle = '-', LineWidth=2);
+hold on
+plot(deflection, F_act(2, :), 'black', LineStyle = '--', LineWidth=2);
 ylabel('Force on the Actuator (Newtons)');
 xlabel('Deflection (degrees)');
 xlim([min(deflection) max(deflection)])
+legend('High Re', 'Low Re', Location='best')
 title('Force on the Actuator vs Deflection Relation');
 grid on;
 
@@ -36,18 +39,19 @@ exportgraphics(gcf, save_path);
 % 3.1 Plotting
 figure('Name', 'Aerodynamic Coefficients')
 yyaxis left
-plot(deflection, CL(1), 'black', LineStyle="-", LineWidth=2);
-plot(deflection, CL(2), 'black', LineStyle="--", LineWidth=2);
-ylabel('C_L');
+plot(deflection, CL(1, :), 'black', LineStyle="-", LineWidth=2);
 hold on
+plot(deflection, CL(2, :), 'black', LineStyle="--", LineWidth=2);
+ylabel('C_L');
 yyaxis right
-plot(deflection, CD, LineStyle="-", LineWidth=2);
-plot(deflection, CD, LineStyle="--", LineWidth=2);
-plot(deflection, CM, 'red', LineStyle="-", LineWidth=2);
+plot(deflection, CD(1, :), LineStyle="-", Color=[1, 0.5, 0], LineWidth=2);
+plot(deflection, CD(2, :), LineStyle="--", Color=[1, 0.5, 0], LineWidth=2);
+plot(deflection, CM(1, :), 'red', LineStyle="-", LineWidth=2);
+plot(deflection, CM(2, :), 'red', LineStyle="--", LineWidth=2);
 ylabel('C_D and C_M');
 xlabel('Deflection (degrees)');
 xlim([min(deflection) max(deflection)])
-legend('CL', 'CD', 'CM')
+legend('CL high Re', 'CL low Re', 'CD high Re', 'CD low Re','CM high Re', 'CM low Re', Location='northwest')
 title('Aerodynamic Coefficients vs Deflection Relation');
 grid on;
 
