@@ -36,11 +36,13 @@ exportgraphics(gcf, save_path);
 % 3.1 Plotting
 figure('Name', 'Aerodynamic Coefficients')
 yyaxis left
-plot(deflection, CL, 'black', LineWidth=2);
+plot(deflection, CL(1), 'black', LineStyle="-", LineWidth=2);
+plot(deflection, CL(2), 'black', LineStyle="--", LineWidth=2);
 ylabel('C_L');
 hold on
 yyaxis right
 plot(deflection, CD, LineStyle="-", LineWidth=2);
+plot(deflection, CD, LineStyle="--", LineWidth=2);
 plot(deflection, CM, 'red', LineStyle="-", LineWidth=2);
 ylabel('C_D and C_M');
 xlabel('Deflection (degrees)');
