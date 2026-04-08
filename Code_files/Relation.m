@@ -65,5 +65,5 @@ lever_arm_actuator = 2 .* triangle_area ./ (d+extension);
 F_act = M_pivot ./ lever_arm_actuator; % [N]
 
 if should_plot_data
-    plot_data(deflection, extension, F_act, CL, CD, Cm)
+    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_SL, Re_Alt)
 end
