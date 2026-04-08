@@ -70,13 +70,13 @@ yyaxis left
 plot(deflection, F_y_stab(1, :), 'black', LineStyle="-", LineWidth=2);
 hold on
 plot(deflection, F_y_stab(2, :), 'black', LineStyle="--", LineWidth=2);
-ylabel('C_L');
+ylabel('N');
+plot(deflection, F_x_stab(1, :), LineStyle="-", Color='blue', LineWidth=2);
+plot(deflection, F_x_stab(2, :), LineStyle="--", Color='blue', LineWidth=2);
 yyaxis right
-plot(deflection, F_x_stab(1, :), LineStyle="-", Color=[1, 0.5, 0], LineWidth=2);
-plot(deflection, F_x_stab(2, :), LineStyle="--", Color=[1, 0.5, 0], LineWidth=2);
 plot(deflection, M_stab(1, :), 'red', LineStyle="-", LineWidth=2);
 plot(deflection, M_stab(2, :), 'red', LineStyle="--", LineWidth=2);
-ylabel('C_D and C_M');
+ylabel('Nm');
 xlabel('Deflection (degrees)');
 xlim([min(deflection) max(deflection)])
 legend(sprintf('F_y (Re = %.2E)', Re_high), sprintf('F_y (Re = %.2E)', Re_low), ...
