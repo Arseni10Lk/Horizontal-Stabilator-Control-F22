@@ -1,4 +1,4 @@
-function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations(do_plot)
+function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, Lambda_LE, x_LE_MAC, V_stall_Alt, V_max_Alt ] = Re_calculations(do_plot)
     
     % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
     y_stations = [0, 1.25, 2.5];        % [m] Spanwise locations (Root, Kink, Tip)
