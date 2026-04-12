@@ -1,7 +1,7 @@
 %% If you need images change plotting vars to 1
 
 draw_stabilator = 0;
-plot_data_ = 1;
+plot_data_ = 0;
 draw_stabilator = (draw_stabilator == 1) && ~exist("Running_in_Simulink", 'var');
 should_plot_data = (plot_data_ == 1) && ~exist("Running_in_Simulink", 'var');
 
@@ -19,7 +19,7 @@ r = sqrt(a^2 - d^2);
 
 deflection_max = 30; % deg
 deflection_min = -25; % deg
-deflection = deflection_min:0.01:deflection_max;
+deflection = deflection_min:1:deflection_max;
 
 % 4. Finding corresponding actuator extension
 
