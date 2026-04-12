@@ -1,4 +1,4 @@
-function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations(do_plot)
+function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, Lambda_LE, x_LE_MAC, V_stall_Alt, V_max_Alt ] = Re_calculations(do_plot)
     
     % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
     y_stations = [0, 1.25, 2.5];        % [m] Spanwise locations (Root, Kink, Tip)
@@ -39,12 +39,17 @@ function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, L
     a_SL   = 340.3;        % [m/s]
     V_SL   = 1.5 * a_SL;   % [m/s]
     Re_SL  = (rho_SL * V_SL * MAC_total) / mu_SL; 
-    
+    V_stall_SL = 128 * 0.514444444; % [m/s]
+
     rho_alt = 0.116;       % [kg/m^3]
     mu_alt  = 1.422e-5;    % [kg/(m*s)]
     a_alt   = 295.2;       % [m/s]
     V_alt   = 2.25 * a_alt;% [m/s]
     Re_Alt  = (rho_alt * V_alt * MAC_total) / mu_alt; 
+    V_stall_Alt = V_stall_SL*sqrt(rho_SL/rho_alt); % [m/s]
+    V_max_Alt = 2414 * 0.277777778 ; % [m/s]
+    
+   
 
     if(do_plot)
     

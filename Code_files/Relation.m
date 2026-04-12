@@ -31,7 +31,7 @@ extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha-deflection))) - d;
 stab_area = 6.315; % m2 
 pivot_axis_pos = 1.982; % m from root chord LE
 
-[MAC, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, ~, ~, MAC_offset] = Re_calculations(draw_stabilator);
+[MAC, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, ~, ~, MAC_offset, V_stall_Alt, V_max_Alt] = Re_calculations(draw_stabilator);
 arm = MAC_offset-MAC*0.25-pivot_axis_pos; % m 
 density = [rho_SL; rho_alt]; % kg/m3
 velocity = [V_SL; V_alt]; % m/s
