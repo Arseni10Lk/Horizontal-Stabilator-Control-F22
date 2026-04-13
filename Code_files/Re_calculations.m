@@ -1,4 +1,9 @@
-function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations(do_plot)
+function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lambda_LE, x_LE_MAC] = Re_calculations(do_plot)
+    
+    % --- 0. DEFAULT INPUT HANDLING ---
+    if nargin < 1
+        do_plot = true; % Defaults to generating the plot if no input is given
+    end
     
     % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
     y_stations = [0, 1.25, 2.5];        % [m] Spanwise locations (Root, Kink, Tip)
@@ -33,22 +38,31 @@ function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, L
     % Calculate the "D" distance (X-coordinate of LE at the y_MAC station)
     x_LE_MAC    = y_MAC_total * tan(deg2rad(Lambda_LE));
     
-    % --- 3. EXTREME FLIGHT CASES ---
-    rho_SL = 1.225;        % [kg/m^3]
-    mu_SL  = 1.789e-5;     % [kg/(m*s)]
-    a_SL   = 340.3;        % [m/s]
-    V_SL   = 1.5 * a_SL;   % [m/s]
-    Re_SL  = (rho_SL * V_SL * MAC_total) / mu_SL; 
-    
+    % --- 3. FLIGHT CASES AT 60,000 FT ---
     rho_alt = 0.116;       % [kg/m^3]
     mu_alt  = 1.422e-5;    % [kg/(m*s)]
-    a_alt   = 295.2;       % [m/s]
-    V_alt   = 2.25 * a_alt;% [m/s]
-    Re_Alt  = (rho_alt * V_alt * MAC_total) / mu_alt; 
-
-    if(do_plot)
     
-        % --- 5. GENERATE PLANFORM IMAGE WITH MAC ---
+    V_max   = 670.55;      % [m/s]
+    Re_max  = (rho_alt * V_max * MAC_total) / mu_alt; 
+    
+    V_stall = 213.987;     % [m/s]
+    Re_stall = (rho_alt * V_stall * MAC_total) / mu_alt; 
+
+    % --- 4. PRINT FORMATTED TABLE TO COMMAND WINDOW ---
+    fprintf('\n| Variable | Description | Calculated Output | Unit |\n');
+    fprintf('| :--- | :--- | :--- | :--- |\n');
+    fprintf('| MAC_total | Mean Aerodynamic Chord length | %.4f | m |\n', MAC_total);
+    fprintf('| rho_alt | Air density at 60,000 ft | %.3f | kg/m^3 |\n', rho_alt);
+    fprintf('| V_max | Maximum velocity at altitude | %.2f | m/s |\n', V_max);
+    fprintf('| V_stall | Stall velocity at altitude | %.3f | m/s |\n', V_stall);
+    fprintf('| Re_max | Reynolds number at V_max | %.0f | - |\n', Re_max);
+    fprintf('| Re_stall | Reynolds number at V_stall | %.0f | - |\n', Re_stall);
+    fprintf('| y_MAC_total | Spanwise location of the MAC | %.4f | m |\n', y_MAC_total);
+    fprintf('| Lambda_LE | Leading edge sweep angle | %.4f | degrees |\n', Lambda_LE);
+    fprintf('| x_LE_MAC | X-coordinate of LE at the MAC station | %.4f | m |\n\n', x_LE_MAC);
+    
+    % --- 5. GENERATE PLANFORM IMAGE WITH MAC ---
+    if(do_plot)
         
         figure('Name', 'F-22 Stabilator Multi-Panel Model', 'Color', 'w');
         ax = axes('Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
@@ -80,13 +94,13 @@ function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, L
             'Color', [1 0 0], 'FontSize', 12, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     
         % --- Plot Leading Edge Sweep Angle Arc ---
-        arc_radius = 0.4; % Reduced radius to ensure it does not overlap with the D line
+        arc_radius = 0.4; 
         theta = linspace(0, deg2rad(Lambda_LE), 30);
         arc_x = arc_radius * sin(theta);
         arc_y = arc_radius * cos(theta);
         plot(ax, arc_x, arc_y, 'k-', 'LineWidth', 1.5);
         
-        % Add angle text centered outside the arc, with a smaller font size
+        % Add angle text centered outside the arc
         half_angle = deg2rad(Lambda_LE) / 2;
         text_x = (arc_radius + 0.12) * sin(half_angle);
         text_y = (arc_radius + 0.12) * cos(half_angle);
@@ -116,5 +130,4 @@ function [MAC_total, rho_alt, rho_SL, V_alt, V_SL, Re_Alt, Re_SL, y_MAC_total, L
         
         exportgraphics(gcf, save_path);
     end
-
 end
