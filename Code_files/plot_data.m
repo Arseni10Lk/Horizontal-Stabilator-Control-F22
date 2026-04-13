@@ -1,4 +1,4 @@
-function plot_data(deflection, extension, F_act, CL, CD, CM, F_x_stab, F_y_stab, M_stab, Re_high, Re_low)
+function plot_data(deflection, extension, F_act, CL, CD, CM, F_x_stab, F_y_stab, M_stab, Re_high, Re_low, velocity)
 
 % 1.1 Plotting
 figure('Name', 'Actuator vs Deflection Relation')
@@ -90,4 +90,22 @@ grid on;
 
 save_path = fullfile(script_dir, '..', 'Report', 'Media', 'External_Loads.png');
 
+exportgraphics(gcf, save_path);
+
+% 5.1 3D Plotting now
+
+figure('Name', 'Actuator Loads')
+surf(velocity, deflection, F_act')
+set(gca, 'XDir', 'reverse', 'YDir', 'reverse')
+xlabel('Velocity [m/s]');
+ylabel('Deflection [deg]');
+zlabel('Actuator Load [N]');
+title('Actuator Load as a function of velocity and deflection');
+ylim([deflection(1) deflection(end)])
+xlim([velocity(1) velocity(end)])
+colorbar
+grid on;
+
+% 5.2 Save the 3D plot figure
+save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Actuator_Loads_3D.png');
 exportgraphics(gcf, save_path);

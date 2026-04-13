@@ -74,5 +74,5 @@ F_act = M_pivot ./ lever_arm_actuator; % [N]
 %%% F_act is our actuator load (Q from the presentation) %%%
 
 if should_plot_data
-    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max)
+    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max, velocity)
 end
