@@ -2,7 +2,7 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
     
     % --- 0. DEFAULT INPUT HANDLING ---
     if nargin < 1
-        do_plot = true; % Defaults to generating the plot if no input is given
+        do_plot = false; % Defaults to generating the plot if no input is given
     end
     
     % --- 1. GEOMETRY DEFINITION (Multi-Panel) ---
@@ -48,19 +48,6 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
     V_stall = 213.987;     % [m/s]
     Re_stall = (rho_alt * V_stall * MAC_total) / mu_alt; 
 
-    % --- 4. PRINT FORMATTED TABLE TO COMMAND WINDOW ---
-    fprintf('\n| Variable | Description | Calculated Output | Unit |\n');
-    fprintf('| :--- | :--- | :--- | :--- |\n');
-    fprintf('| MAC_total | Mean Aerodynamic Chord length | %.4f | m |\n', MAC_total);
-    fprintf('| rho_alt | Air density at 60,000 ft | %.3f | kg/m^3 |\n', rho_alt);
-    fprintf('| V_max | Maximum velocity at altitude | %.2f | m/s |\n', V_max);
-    fprintf('| V_stall | Stall velocity at altitude | %.3f | m/s |\n', V_stall);
-    fprintf('| Re_max | Reynolds number at V_max | %.0f | - |\n', Re_max);
-    fprintf('| Re_stall | Reynolds number at V_stall | %.0f | - |\n', Re_stall);
-    fprintf('| y_MAC_total | Spanwise location of the MAC | %.4f | m |\n', y_MAC_total);
-    fprintf('| Lambda_LE | Leading edge sweep angle | %.4f | degrees |\n', Lambda_LE);
-    fprintf('| x_LE_MAC | X-coordinate of LE at the MAC station | %.4f | m |\n\n', x_LE_MAC);
-    
     % --- 5. GENERATE PLANFORM IMAGE WITH MAC ---
     if(do_plot)
         
