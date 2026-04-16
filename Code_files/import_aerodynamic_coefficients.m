@@ -16,12 +16,14 @@ opts.ExtraColumnsRule = "ignore";
 opts.EmptyLineRule = "read";
 
 % Import the data
-airfoil_data_lRE = readtable("airfoil_analysis\1.63e+07results.csv", opts);
+airfoil_data_lRE = readtable("airfoil_analysis\REmin_results.csv", opts);
 
 airfoil_data_lRE = rmmissing(airfoil_data_lRE);
+airfoil_data_lRE = unique(airfoil_data_lRE);
 
-airfoil_data_hRE = readtable("airfoil_analysis\1.0516e+08results.csv", opts);
+airfoil_data_hRE = readtable("airfoil_analysis\REmax_results.csv", opts);
 
 airfoil_data_hRE = rmmissing(airfoil_data_hRE);
+airfoil_data_hRE = unique(airfoil_data_hRE);
 %% Clear temporary variables
 clear opts

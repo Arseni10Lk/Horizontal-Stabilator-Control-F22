@@ -1,7 +1,7 @@
 %% If you need images change plotting vars to 1
 
 draw_stabilator = 0;
-plot_data_ = 0;
+plot_data_ = 1;
 draw_stabilator = (draw_stabilator == 1) && ~exist("Running_in_Simulink", 'var');
 should_plot_data = (plot_data_ == 1) && ~exist("Running_in_Simulink", 'var');
 
@@ -19,7 +19,7 @@ r = sqrt(a^2 - d^2);
 
 deflection_max = 30; % deg
 deflection_min = -25; % deg
-deflection = deflection_min:1:deflection_max;
+deflection = deflection_min:0.5:deflection_max;
 
 % 4. Finding corresponding actuator extension
 
@@ -33,17 +33,25 @@ pivot_axis_pos = 1.982; % m from root chord LE
 
 [MAC, density, V_max, V_min, Re_max, Re_min, ~, ~, MAC_offset] = Re_calculations(draw_stabilator);
 arm = MAC_offset-MAC*0.25-pivot_axis_pos; % m
-velocity = [V_min; V_max]; % m/s
+velocity = [V_min:5:V_max V_max]; % m/s
+velocity = velocity';
+
+% Interpolation
+velocity_fraction = (velocity - V_min)/(V_max-V_min);
 
 q = 0.5 .* density .* velocity .^ 2; % kg / m2 / s2   
 
 import_aerodynamic_coefficients
-CL = [interp1(airfoil_data_lRE.alpha, airfoil_data_lRE.CL, deflection); ...
-      interp1(airfoil_data_hRE.alpha, airfoil_data_hRE.CL, deflection)];
-CD = [interp1(airfoil_data_lRE.alpha, airfoil_data_lRE.CD, deflection); ...
-      interp1(airfoil_data_hRE.alpha, airfoil_data_hRE.CD, deflection)];
-Cm = [interp1(airfoil_data_lRE.alpha, airfoil_data_lRE.Cm, deflection); ...
-      interp1(airfoil_data_hRE.alpha, airfoil_data_hRE.Cm, deflection)];
+CL_lRe = interp1(airfoil_data_lRE.alpha, airfoil_data_lRE.CL, deflection, 'linear', 'extrap');
+CL_hRe = interp1(airfoil_data_hRE.alpha, airfoil_data_hRE.CL, deflection, 'linear', 'extrap');
+CL = CL_lRe + velocity_fraction .* (CL_hRe - CL_lRe);
+CD_lRe = interp1(airfoil_data_lRE.alpha, airfoil_data_lRE.CD, deflection, 'linear', 'extrap');
+CD_hRe = interp1(airfoil_data_hRE.alpha, airfoil_data_hRE.CD, deflection, 'linear', 'extrap');
+CD = CD_lRe + velocity_fraction .* (CD_hRe - CD_lRe);
+
+Cm_lRe = interp1(airfoil_data_lRE.alpha, airfoil_data_lRE.Cm, deflection, 'linear', 'extrap');
+Cm_hRe = interp1(airfoil_data_hRE.alpha, airfoil_data_hRE.Cm, deflection, 'linear', 'extrap');
+Cm = Cm_lRe + velocity_fraction .* (Cm_hRe - Cm_lRe);
 
 %% Calculation
 % Forces applied at 25% MAC from the leading edge
@@ -61,8 +69,10 @@ M_pivot = M_stab + ...
 semi_P = (d + extension + a + r)/2;
 triangle_area = sqrt(semi_P.*(semi_P-d-extension).*(semi_P-a).*(semi_P-r));
 lever_arm_actuator = 2 .* triangle_area ./ (d+extension); 
-F_act = M_pivot ./ lever_arm_actuator; % [N]
+F_act = M_pivot ./ lever_arm_actuator; % [N] 
+
+%%% F_act is our actuator load (Q from the presentation) %%%
 
 if should_plot_data
-    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max)
+    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max, velocity)
 end

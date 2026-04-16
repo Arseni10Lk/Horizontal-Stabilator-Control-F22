@@ -78,8 +78,8 @@
 	
 	\subsection{Plane general description and geometrical parameters}
 	
-	The F-22 Raptor is the world's first operational  fifth generation fighter jet built by Lockheed Martin. Since its initial flight in 1997 and entry to service in 2005, it has maintained air superiority by integrating stealth, supercruise, and advanced sensor suites.
-	The aircraft features an open system architecture that allows for continuous digital modernization. Mentioned features combined with high performance engines and integrated flight controls allows the Raptor to dominate contested airspace. 
+	The F-22 Raptor is the world's first operational  fifth generation fighter jet built by Lockheed Martin. Since its initial flight in 1997 and entry to service in 2005, it has maintained air superiority by integrating stealth, supercruise, and advanced sensor suites.\autocite{wiki:f22_raptor}
+	The aircraft features an open system architecture that allows for continuous digital modernization. Mentioned features combined with high performance engines and integrated flight controls allows the Raptor to dominate contested airspace. \autocite{lm:f22_product}
 	
 	\begin{table}[h!]
 		\centering
@@ -92,17 +92,18 @@
 			Wingspan & b & 13.56 & m\\
 			Wing Area & S & 78.04 & $m^{2}$ \\
 			Aspect Ratio & AR & 2.36 & -\\
-			Horizontal Tail Span & $b_{h}$ & 8.84 & m\\ [1ex] 
+			Horizontal Tail Span & $b_{h}$ & 8.84 & m\\ 
+			Horizontal Tail Stabilator Area & $b_{A}$ & 6.315 & $m^{2}$\\ [1ex] 
 			\hline
 		\end{tabular}
 		
-		\caption{The F-22 Geometrical parameters}
+		\caption{The F-22 Geometrical parameters \autocite{wiki:f22_raptor} \autocite{lm:f22_product} }
 		\label{table:data}
 	\end{table}
 	
 	\subsection{Stabilator geometry and description}
 	
-	ADD STABILATOR AREA HERE
+		
 	
 	\begin{figure}[H]
 		\centering
@@ -216,7 +217,9 @@
 	
 	\subsection{Airfoil and aerodynamic coefficients}
 	
-	According to the literature, the F-22 stabilator airfoil is reasonably similar to NACA0010 \autocite{Stabilatorairfoil}
+
+    The first step in load modelling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F 22's stabilator according to literature,\autocite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method-based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
+    For this analysis, the NACA 0010 airfoil was evaluated over a wide range of angles of attack, from $-25^\circ$ to $30^\circ$. Simulations were conducted for Reynolds numbers at maximum and minimum speed at 60k ft. The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modelling. 
 	
 	\begin{figure}[H]
 		\centering
