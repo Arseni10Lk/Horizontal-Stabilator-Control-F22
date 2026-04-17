@@ -337,9 +337,67 @@
 	
 	\subsection{Actuator model}
 	
+	The actuator architecture selected for this system is an Electro-Hydrostatic Actuator (EHA), specifically the Fixed Pump displacement and Variable Motor speed (FPVM) EHA configuration \autocite{ActuatormodelSimulink}. In this setup, a bi-directional hydraulic pump is driven by a Brushless DC Motor (BLDCM), which rotates at variable speeds and directions to control the oil flow and supply pressure to a symmetrical hydraulic actuator. To maintain closed-circuit operation and compensate for fluid leakage, a refeeding circuit consisting of an accumulator and check valves is integrated into the system.
+	
+	The mathematical model of the FPVM-EHA can be decomposed into three primary subsystems: the BLDCM, the hydraulic pump, and the hydraulic jack.
+	
+	\subsubsection{Motor Dynamics}
+	The Brushless DC Motor acts as the primary driver for the pump. The electrical and mechanical governing equations for the motor are expressed as follows:
+	\begin{equation}
+		U_{c} = E + L\frac{di}{dt} + Ri
+	\end{equation}
+	\begin{equation}
+		E = K_{e}\omega
+	\end{equation}
+	\begin{equation}
+		T_{e} = K_{t}i
+	\end{equation}
+	\begin{equation}
+		T_{e} = J\dot{\omega} + T_{f} + T_{l}
+	\end{equation}
+	where $U_c$ is the command voltage, $i$ is the current, $E$ is the back electromotive force, $T_e$ is the electromagnetic torque, $\omega$ is the rotational speed, and $J$ represents the total inertia of the motor and pump.
+	
+	\subsubsection{Pump Flow Equations}
+	The flow equations for the pump outlet ($Q_1$) and entry ($Q_2$) account for the pump displacement ($D$), internal leakage ($K_{ilp}$), and external leakage ($K_{elp}$) relative to the accumulator pressure ($P_{ac}$):
+	\begin{equation}
+		Q_{1} = D\omega - K_{ilp}(P_{1} - P_{2}) - K_{elp}(P_{1} - P_{ac})
+	\end{equation}
+	\begin{equation}
+		Q_{2} = D\omega - K_{ilp}(P_{1} - P_{2}) + K_{elp}(P_{2} - P_{ac})
+	\end{equation}
+	
+	\subsubsection{Refeeding Circuit and Accumulator}
+	To maintain the closed-circuit integrity of the EHA, a refeeding circuit comprising an accumulator and check valves is utilized. The accumulator pressure ($P_{ac}$) is modeled using a polytropic gas equation to account for fluid compression and expansion:
+	\begin{equation}
+		P_{ac} = \frac{P_{aci} V_{gasi}^k}{(V_{gasi} - \int Q_{ac} dt)^k}
+	\end{equation}
+	where $P_{aci}$ is the initial accumulator pressure, $V_{gasi}$ is the initial gas volume, $k$ is the polytropic exponent, and $Q_{ac}$ is the net flow rate into the accumulator. The check valves manage the flow between the accumulator and the main hydraulic lines based on the pressure differentials $(P_1 - P_{ac})$ and $(P_2 - P_{ac})$.
+	
+	\subsubsection{Chamber Flow Equations}
+	To connect the fluid flow from the pump to the pressure acting on the piston, the flow continuity equations for the two working chambers of the hydraulic jack must be established. These equations account for the actuator's linear velocity, fluid compressibility, and internal leakage across the piston:
+	\begin{equation}
+		Q_{1f} = A\dot{x}_{t} + \frac{V_{10} + Ax_{t}}{B}\dot{P}_{1} + K_{ilj}(P_{1} - P_{2})
+	\end{equation}
+	\begin{equation}
+		Q_{2f} = A\dot{x}_{t} - \frac{V_{20} - Ax_{t}}{B}\dot{P}_{2} + K_{ilj}(P_{1} - P_{2})
+	\end{equation}
+	where $Q_{1f}$ and $Q_{2f}$ are the flows into the respective chambers, $A$ is the active piston area, $x_{t}$ and $\dot{x}_{t}$ are the piston displacement and velocity, $V_{10}$ and $V_{20}$ are the initial chamber volumes, $B$ is the fluid bulk modulus, and $K_{ilj}$ is the internal leakage coefficient of the hydraulic jack.
+	
+	\subsubsection{Hydraulic Jack and Load Balance}
+	The EHA utilizes a symmetrical hydraulic jack to ensure proper flow balance between the actuator and the pump. The load force balance equation acting on the piston is defined by the pressure difference across the active area ($A$), the equivalent mass of the piston and load ($M$), the external aerodynamic load force ($F_{ex}$), and the system friction ($F_{fric}$):
+	\begin{equation}
+		A(P_{1} - P_{2}) = M\ddot{x}_{t} + F_{ex} + F_{fric}
+	\end{equation}
+	where $\ddot{x}_{t}$ represents the linear acceleration of the actuator.
+	
+	\subsubsection{Friction Model}
+	An accurate representation of friction is critical for predicting the dynamic performance of the actuator, particularly around zero velocity. A continuous Stribeck friction model is employed to avoid numerical discontinuities during simulation:
+	\begin{equation}
+		F_{fric}(\dot{x}_{t}) = \left[ F_{c} + (F_{s} - F_{c}) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
+	\end{equation}
+	where $F_c$ is the Coulomb friction, $F_s$ is the maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to smooth the transitions near zero velocity.
+	
 	\subsection{Required actuator parameters}
-	
-	
 	
 	To properly size the Electro-Hydrostatic Actuator (EHA), the kinematic and dynamic limits must be extracted from the simulated operational envelope. The fundamental parameters dictating the actuator selection are the total stroke, the maximum structural loads, and the linear slew rate.
 	
@@ -366,6 +424,21 @@
 		v_{act} = \max \left| \frac{d(\Delta x)}{d(\Delta \alpha)} \right| \cdot \dot{\alpha}_{max}
 	\end{equation}
 	
+	\subsubsection{Power Requirements}
+	The peak mechanical power ($P_{mech, max}$) required at the actuator rod is a product of the absolute maximum structural load and the maximum linear slew rate. Using the most extreme compressive load case:
+	\begin{equation}
+		P_{mech, max} = F_{comp, max} \cdot v_{act}
+	\end{equation}
+	\begin{equation}
+		P_{mech, max} = 3,456,978 \text{ N} \cdot 0.18584 \text{ m/s} \approx 642.4 \text{ kW}
+	\end{equation}
+	
+	To size the Brushless DC Motor, the overall efficiency of the Electro-Hydrostatic system must be considered. The required peak electrical power ($P_{elec, max}$) of the motor is given by:
+	\begin{equation}
+		P_{elec, max} = \frac{P_{mech, max}}{\eta_{pump} \cdot \eta_{motor}}
+	\end{equation}
+	where $\eta_{pump}$ is the volumetric and mechanical efficiency of the hydraulic pump, and $\eta_{motor}$ is the electrical efficiency of the BLDCM.
+	
 	\subsubsection{Derived requirements}
 	
 	\begin{table}[H]
@@ -380,8 +453,22 @@
 			Max Slew Rate & 185.84 mm/s \\
 			\bottomrule
 		\end{tabular}
-		\caption{Derived actuator performance and load requirements.}
-		\label{table:actuator_reqs}
+		\caption{Derived hydraulic jack performance and load requirements.}
+		\label{table:hydro_reqs}
+	\end{table}
+	
+		\begin{table}[H]
+		\centering
+		\begin{tabular}{l c}
+			\toprule
+			Parameter & Value \\
+			\midrule
+			Max Mechanical Power & 642.46 kW \\
+			Max Electrical Power & 839.82 kW \\
+			\bottomrule
+		\end{tabular}
+		\caption{Derived brushless electric DC motor performance and load requirements.}
+		\label{table:electric_reqs}
 	\end{table}
 	
 	\subsection{Commercial product selection}

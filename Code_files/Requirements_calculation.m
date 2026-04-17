@@ -23,3 +23,22 @@ d_ext_d_def = diff(extension) ./ diff(deflection); % [m/deg]
 max_linear_rate = max(abs(d_ext_d_def)) * target_angular_rate; % [m/s]
 
 fprintf('Max Slew Rate (assuming %d deg/s): %.4f m/s (%.2f mm/s)\n', target_angular_rate, max_linear_rate, max_linear_rate*1000);
+
+% 4. Power Calculation
+max_load = max(max_tension_load, max_compression_load); % [N]
+
+% Peak mechanical power (Force x Velocity)
+max_mech_power = max_load * max_linear_rate; % [W]
+
+% Assumed efficiencies (UPDATE LATER)
+pump_efficiency = 0.85; % Assumed
+motor_efficiency = 0.90; % Assumed
+
+% Peak electrical power required from the aircraft bus
+max_elec_power = max_mech_power / (pump_efficiency * motor_efficiency); % [W]
+
+fprintf('\n--- Power Requirements ---\n');
+fprintf('Max Mechanical Power: %.2f W (%.2f kW)\n', max_mech_power, max_mech_power/1000);
+fprintf('Max Electrical Power (Assuming %.0f%% pump & %.0f%% motor efficiency): %.2f W (%.2f kW)\n', ...
+    pump_efficiency*100, motor_efficiency*100, max_elec_power, max_elec_power/1000);
+
