@@ -42,5 +42,3 @@ K_vis = 150;        % Piston viscous friction coefficient [N/(m/s)]
 % These are typical values to prevent numerical algebraic loops near zero velocity
 alpha = 0.005;      % Stribeck shape factor [m/s]
 beta = 0.001;       % Tanh smoothing factor [m/s]
-
-disp('EHA Parameters Loaded Successfully.');

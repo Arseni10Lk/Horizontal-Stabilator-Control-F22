@@ -32,7 +32,7 @@ stab_area = 6.315; % m2
 pivot_axis_pos = 1.982; % m from root chord LE
 
 [MAC, density, V_max, V_min, Re_max, Re_min, ~, ~, MAC_offset] = Re_calculations(draw_stabilator);
-arm = MAC_offset-MAC*0.25-pivot_axis_pos; % m
+arm = MAC_offset+MAC*0.25-pivot_axis_pos; % m
 velocity = [V_min:5:V_max V_max]; % m/s
 velocity = velocity';
 
