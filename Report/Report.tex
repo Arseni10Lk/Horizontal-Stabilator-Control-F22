@@ -337,12 +337,20 @@
 	
 	\subsection{Actuator model}
 	
-	The actuator architecture selected for this system is an Electro-Hydrostatic Actuator (EHA), specifically the Fixed Pump displacement and Variable Motor speed (FPVM) EHA configuration \autocite{ActuatormodelSimulink}. In this setup, a bi-directional hydraulic pump is driven by a Brushless DC Motor (BLDCM), which rotates at variable speeds and directions to control the oil flow and supply pressure to a symmetrical hydraulic actuator. To maintain closed-circuit operation and compensate for fluid leakage, a refeeding circuit consisting of an accumulator and check valves is integrated into the system.
+	The actuator architecture selected for this system is an Electro-Hydrostatic Actuator (EHA), specifically the Fixed Pump displacement and Variable Motor speed (FPVM) EHA configuration \autocite{ActuatormodelSimulink}. In this setup, a bi-directional hydraulic pump is driven by a DC Motor, which rotates at variable speeds and directions to control the oil flow and supply pressure to a symmetrical hydraulic actuator. To maintain closed-circuit operation and compensate for fluid leakage, a refeeding circuit consisting of an accumulator and check valves is integrated into the system.
 	
-	The mathematical model of the FPVM-EHA can be decomposed into three primary subsystems: the BLDCM, the hydraulic pump, and the hydraulic jack.
+	The mathematical model of the FPVM-EHA can be decomposed into three primary subsystems: the DC motor, the hydraulic pump, and the hydraulic jack.
+	
+		
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_actuator_model.png}
+		\caption{A complete model of the EHA actuator}
+		\label{fig:simulinkactuatormodel}
+	\end{figure}
 	
 	\subsubsection{Motor Dynamics}
-	The Brushless DC Motor acts as the primary driver for the pump. The electrical and mechanical governing equations for the motor are expressed as follows:
+	The DC Motor acts as the primary driver for the pump. The electrical and mechanical governing equations for the motor are expressed as follows:
 	\begin{equation}
 		U_{c} = E + L\frac{di}{dt} + Ri
 	\end{equation}
