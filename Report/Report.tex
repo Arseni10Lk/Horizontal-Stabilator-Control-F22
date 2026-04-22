@@ -102,7 +102,7 @@
 	\addtocounter{footnote}{-1}
 	\footnotetext{\cite{wiki:f22_raptor}}
 	\stepcounter{footnote}
-	\footnotetext{\cite{lm:f22_product}}
+	\footnotetext{\cite{lm:f22_card}}
 	
 	\subsection{Stabilator geometry and description}
 	
@@ -417,9 +417,11 @@
 	A deflection rate limit has to be assumed to define the dynamic requirement. The value of $\dot{\alpha}_{max} = 60^\circ/\text{s}$ is assumed since it is a standard limit among American fighter jets \autocite{deflectionrate}, although the data for the F-22 specifically is not available.
 	
 	The linear slew rate ($v_{act}$) dictates how fast the actuator must extend or retract to achieve this angular rotation rate. The maximum linear velocity is calculated using the highest rate of change of the extension with respect to the deflection angle:
+	
 	\begin{equation}
 		v_{act} = \max \left| \frac{d(\Delta x)}{d(\Delta \alpha)} \right| \cdot \dot{\alpha}_{max} = 185.84 \text{ mm/s}
 	\end{equation}
+	\vspace{0.5cm}
 	
 	\subsubsection{Load and Envelope Limiting Strategy}
 	The theoretical structural loads ($F_{act}$) and corresponding power requirements ($P_{mech, max}$ and $P_{elec, max}$) are mathematically derived by evaluating the absolute extremes across all simulated velocities and deflection angles. 
@@ -427,6 +429,8 @@
 	These theoretical requirements for the EHA are presented in Table \ref{table:hydro_reqs}. However, calculating hinge moments at maximum velocity (Mach 2.25) and maximum deflection ($30^\circ$) yields theoretical loads exceeding 1.18 MN and electrical power demands approaching 288 kW. In reality, such deflections at maximum dynamic pressure are impractical and would cause catastrophic structural failure. Modern flight control systems employ \enquote{blowdown limits} to actively restrict control surface deflection at high speeds.
 	
 	For that reason, rather than sizing a theoretical actuator to meet impossible worst-case loads, an actuator produced by typical American military suppliers (e.g., Moog or Parker Aerospace) that meets the practical kinematic requirements will be selected. After that, the allowed deflection angles at different speeds will be calculated based on the maximum load capabilities of that specific actuator.
+	
+	\vspace{2cm} 
 	
 	\begin{table}[H]
 		\centering
@@ -445,9 +449,129 @@
 		\caption{Derived EHA actuator performance and load requirements. Theoretical requirements correspond to impossible scenarios. An actuator will be chosen based on the practical parameters alone.}
 		\label{table:hydro_reqs}
 	\end{table}
+	\vspace{5cm}
 	
-	\subsection{Commercial product selection}
-	
+	\subsection{\textbf{Commercial product selection}}
+    	The Parker Series 3HX (G-Group) is a heavy-duty electrohydraulic cylinder designed for high-force applications requiring precision feedback. This configuration—utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff)—has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
+    	
+    	
+    	
+    	
+    	\begin{figure}[H]
+    	\vspace{2cm}
+    	\centering
+    	\includegraphics[width=1\linewidth]{Media/Actuator_drawing}
+    	\caption{Actuator technical drawing}
+    	\label{fig:actuatordrawing}
+        \end{figure}
+    	
+    	\vspace{4cm}
+		\subsubsection{Performance Parameters}
+		
+		The following table summarizes the derived performance based on an 8.00-inch bore diameter.
+		
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{l c }
+				\toprule
+				Parameter & Value \\
+				\midrule
+		    	Bore Diameter & 0.2032 m \\
+		    	Rod Diameter & 0.0889 m \\
+			    Pressure & 20,680 kPa \\
+			    Compressive Force & 670.297 kN \\
+			    Tensile Force & 541.998 kN \\
+			    Total Stroke & 163.61 mm \\
+		    	Fluid Flow & 6.0236 L/s \\
+			    Mechanical Power & 124.568 kW \\
+				\bottomrule
+			\end{tabular}
+			\caption{Actuator Performance Calculations (Modified Stroke length and Slew Rate) }
+		\end{table}
+		
+    	\subsubsection{Calculations}
+		
+		The following calculations assume ideal hydraulic efficiency and constant pressure operation.
+     
+        The actuator force is determined from the piston and annular areas. For a bore diameter of $D = 0.2032\,\text{m}$ and rod diameter $d = 0.0889\,\text{m}$:
+     
+    	\begin{equation}
+		A_{comp} = \frac{\pi \cdot D^2}{4}\approx 0.0324\,\text{m}^2
+    	\end{equation}
+    	
+	    The tensile (annular) area is given by:
+	    \begin{equation}
+		A_{tensile} = A_{comp}- A_{rod} = 0.0324\,\text{m}^2 - 0.0062\,\text{m}^2 \approx 0.0262\,\text{m}^2
+    	\end{equation}
+    	
+    	At an operating pressure of $20,680\,\text{kPa}$, the resulting forces are:
+    	\begin{equation}
+		F_{comp} = P \cdot A_{comp} = 20,680\,\text{kPa} \cdot 0.0324\,\text{m}^2 \approx 670.297\,\text{kN}
+	   \end{equation}
+		\begin{equation}
+		F_{tensile} = P \cdot A_{tensile} = 20,680\,\text{kPa} \cdot 0.0262\,\text{m}^2 \approx 541.998\,\text{kN}
+	    \end{equation}
+	    
+    	\textbf{Kinematics and Power}
+	    The mechanical power ($P_{mech}$) is the product of the force and the velocity (slew rate). 
+	    \begin{equation}
+		P_{mech} = F_{comp} \cdot v = 670.297\,\text{kN} \cdot 0.1858\,\text{m/s} \approx 124.568\,\text{kW}
+    	\end{equation}
+    	The required hydraulic flow ($Q$) in metric units to maintain the slew rate:
+	 \begin{equation}
+		Q = A_{comp} \cdot v = 0.0324\,\text{m}^2 \cdot 0.1858\,\text{m/s} \approx 6.0236\,\text{L/s}
+	 \end{equation}
+	 
+		\subsubsection{Configuration Notes}
+		\begin{itemize}
+			\item \textbf{Sealing:} The \textbf{KP Seal} package isgood to prevent stick-slip during high-frequency simulation cycles and is well-suited for high-temperature operation.
+			\item \textbf{Structure:} Due to the previously calculated worst-case operating pressure of 5,314 psi, the cylinder must be specified with high-tensile steel tie-rods.
+			\item \textbf{Total Stroke and End Cushioning}
+			
+			The actuator has a functional stroke of approximately 160\,mm. In practice, the 
+			total physical stroke is slightly longer, as hydraulic actuators typically 
+			incorporate cushioning zones at both ends of travel to absorb impact in the 
+			event of an overtravel or system fault. The total stroke can be expressed as:
+			
+			\begin{equation}
+				L_{\text{total}} = L_{\text{functional}} + 2 \cdot L_{\text{cushion}}
+			\end{equation}
+			
+		    where $L_{\text{functional}} = 163.61$\,mm is the required working 
+			stroke and $L_{\text{cushion}}$ is the cushion length at each end.
+			
+			However, since the scope of this analysis does not include failure mode 
+			simulation, and the cushioning zones are only engaged under fault conditions, 
+			the cushion length has been excluded from the current calculations. The total 
+			stroke is therefore taken as equal to the functional stroke for the purposes 
+			of this report. This simplification has no effect on the results under normal 
+			operating conditions.
+			
+			\item \textbf{Feedback:} A magnetostrictive linear displacement transducer (LDT) from Balluff is selected to provide absolute position feedback. The sensor operates at a nominal input of 24 VDC and supports both analog and digital output interfaces.
+			An initial design considered analog feedback due to its high update rate (up to 4 kHz). However, the final system configuration utilizes a digital interface to improve noise and signal integrity in the control system. The resulting update rate is limited by the controller to approximately 0.5 ms, which remains sufficient to capture the actuator dynamics at the specified slew rate.
+			The sensor provides high repeatability (2 µm min) and linearity within ±0.01\%, ensuring accurate position tracking over the full stroke. The available measuring range exceeds the required 163.61 mm stroke.
+			
+			\begin{table}[H]
+				\centering
+				\begin{tabular}{l c}
+					\toprule
+					Parameter & Value \\
+					\midrule
+					Input Power      & +24\,VDC nominal (20--28\,VDC) \\
+					Outputs          & Analog: 0--10\,V, 4--20\,mA; Digital: PWM \\
+					Update Rate      & Analog: max 4\,kHz; Digital: 0.5\,ms min \\
+					Repeatability    & 2\,\textmu m minimum \\
+					Shock Rating     & 150\,g/6\,ms  \\
+					Vibration Rating & 20\,g / 10--2000\,Hz  \\
+					\bottomrule
+				\end{tabular}
+				\caption{Balluf Position Feedback System -- Key Specifications }
+			\end{table}
+			
+			
+		\end{itemize}
+		
+		
 	\subsection{Actuator description}
 	
 	\subsection{Blowdown limits}
