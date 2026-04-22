@@ -503,12 +503,51 @@
 		\begin{itemize}
 			\item \textbf{Sealing:} The \textbf{KP Seal} package isgood to prevent stick-slip during high-frequency simulation cycles and is well-suited for high-temperature operation.
 			\item \textbf{Structure:} Due to the previously calculated worst-case operating pressure of 5,314 psi, the cylinder must be specified with high-tensile steel tie-rods.
+			\item \textbf{Total Stroke and End Cushioning}
+			
+			The actuator has a functional stroke of approximately 160\,mm. In practice, the 
+			total physical stroke is slightly longer, as hydraulic actuators typically 
+			incorporate cushioning zones at both ends of travel to absorb impact in the 
+			event of an overtravel or system fault. The total stroke can be expressed as:
+			
+			\begin{equation}
+				L_{\text{total}} = L_{\text{functional}} + 2 \cdot L_{\text{cushion}}
+			\end{equation}
+			
+		    where $L_{\text{functional}} = 163.61$\,mm is the required working 
+			stroke and $L_{\text{cushion}}$ is the cushion length at each end.
+			
+			However, since the scope of this analysis does not include failure mode 
+			simulation, and the cushioning zones are only engaged under fault conditions, 
+			the cushion length has been excluded from the current calculations. The total 
+			stroke is therefore taken as equal to the functional stroke for the purposes 
+			of this report. This simplification has no effect on the results under normal 
+			operating conditions.
+			
 			\item \textbf{Feedback:} A magnetostrictive linear displacement transducer (LDT) from Balluff is selected to provide absolute position feedback. The sensor operates at a nominal input of 24 VDC and supports both analog and digital output interfaces.
 			An initial design considered analog feedback due to its high update rate (up to 4 kHz). However, the final system configuration utilizes a digital interface to improve noise and signal integrity in the control system. The resulting update rate is limited by the controller to approximately 0.5 ms, which remains sufficient to capture the actuator dynamics at the specified slew rate.
 			The sensor provides high repeatability (2 µm min) and linearity within ±0.01\%, ensuring accurate position tracking over the full stroke. The available measuring range exceeds the required 163.61 mm stroke.
 			
+			\begin{table}[H]
+				\centering
+				\begin{tabular}{l c}
+					\toprule
+					Parameter & Value \\
+					\midrule
+					Input Power      & +24\,VDC nominal (20--28\,VDC) \\
+					Outputs          & Analog: 0--10\,V, 4--20\,mA; Digital: PWM \\
+					Update Rate      & Analog: max 4\,kHz; Digital: 0.5\,ms min \\
+					Repeatability    & 2\,\textmu m minimum \\
+					Shock Rating     & 150\,g/6\,ms  \\
+					Vibration Rating & 20\,g / 10--2000\,Hz  \\
+					\bottomrule
+				\end{tabular}
+				\caption{Balluf Position Feedback System -- Key Specifications }
+			\end{table}
+			
 			
 		\end{itemize}
+		
 		
 	\subsection{Actuator description}
 	
