@@ -411,9 +411,11 @@
 	A deflection rate limit has to be assumed to define the dynamic requirement. The value of $\dot{\alpha}_{max} = 60^\circ/\text{s}$ is assumed since it is a standard limit among American fighter jets \autocite{deflectionrate}, although the data for the F-22 specifically is not available.
 	
 	The linear slew rate ($v_{act}$) dictates how fast the actuator must extend or retract to achieve this angular rotation rate. The maximum linear velocity is calculated using the highest rate of change of the extension with respect to the deflection angle:
+	
 	\begin{equation}
 		v_{act} = \max \left| \frac{d(\Delta x)}{d(\Delta \alpha)} \right| \cdot \dot{\alpha}_{max} = 185.84 \text{ mm/s}
 	\end{equation}
+	\vspace{0.5cm}
 	
 	\subsubsection{Load and Envelope Limiting Strategy}
 	The theoretical structural loads ($F_{act}$) and corresponding power requirements ($P_{mech, max}$ and $P_{elec, max}$) are mathematically derived by evaluating the absolute extremes across all simulated velocities and deflection angles. 
@@ -421,6 +423,8 @@
 	These theoretical requirements for the EHA are presented in Table \ref{table:hydro_reqs}. However, calculating hinge moments at maximum velocity (Mach 2.25) and maximum deflection ($30^\circ$) yields theoretical loads exceeding 1.18 MN and electrical power demands approaching 288 kW. In reality, such deflections at maximum dynamic pressure are impractical and would cause catastrophic structural failure. Modern flight control systems employ \enquote{blowdown limits} to actively restrict control surface deflection at high speeds.
 	
 	For that reason, rather than sizing a theoretical actuator to meet impossible worst-case loads, an actuator produced by typical American military suppliers (e.g., Moog or Parker Aerospace) that meets the practical kinematic requirements will be selected. After that, the allowed deflection angles at different speeds will be calculated based on the maximum load capabilities of that specific actuator.
+	
+	\vspace{2cm} 
 	
 	\begin{table}[H]
 		\centering
@@ -439,10 +443,23 @@
 		\caption{Derived EHA actuator performance and load requirements. Theoretical requirements correspond to impossible scenarios. An actuator will be chosen based on the practical parameters alone.}
 		\label{table:hydro_reqs}
 	\end{table}
+	\vspace{5cm}
 	
-	\subsection{Commercial product selection}
+	\subsection{\textbf{Commercial product selection}}
     	The Parker Series 3HX (G-Group) is a heavy-duty electrohydraulic cylinder designed for high-force applications requiring precision feedback. This configuration—utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff)—has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
     	
+    	
+    	
+    	
+    	\begin{figure}[H]
+    	\vspace{2cm}
+    	\centering
+    	\includegraphics[width=1\linewidth]{Media/Actuator_drawing}
+    	\caption{Actuator technical drawing}
+    	\label{fig:actuatordrawing}
+        \end{figure}
+    	
+    	\vspace{4cm}
 		\subsubsection{Performance Parameters}
 		
 		The following table summarizes the derived performance based on an 8.00-inch bore diameter.
