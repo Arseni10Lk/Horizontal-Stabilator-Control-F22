@@ -1,4 +1,4 @@
-function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lambda_LE, x_LE_MAC, M_total, X_cg_true, Y_cg_true] = Re_calculations(do_plot)
+function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lambda_LE, x_LE_MAC, M_total, X_cg_true, Y_cg_true, I_cg_true] = Re_calculations(do_plot)
     
     % 0. DEFAULT INPUT HANDLING
     if nargin < 1
@@ -29,6 +29,9 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
     V_total = 0;
     sum_V_x = 0;
     sum_V_y = 0;
+
+    sum_I_origin = 0;
+
     cross_section_factor = 0.685 * t_ratio; 
     
     for i = 1:num_panels
@@ -54,6 +57,11 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
         X_shell_global = (Y_shell_global * tan_Lambda_LE) + ...
                          (k_shell * c_root_i * (3 * (1 + lambda_i + lambda_i^2 + lambda_i^3)) / (4 * (1 + lambda_i + lambda_i^2)));
                      
+        M_i = V_i * rho_honeycomb;
+        C_avg_i = (c_root_i + c_tip_i) / 2;
+        I_local_i = (1/12) * M_i * C_avg_i^2;
+
+        sum_I_origin = sum_I_origin + I_local_i + M_i * (X_shell_global^2);
         sum_V_y = sum_V_y + (V_i * Y_shell_global);
         sum_V_x = sum_V_x + (V_i * X_shell_global);
     end
@@ -72,6 +80,14 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
     X_cg_true = ((M_shell * X_shell_cg) + (M_shaft * Shaft_x)) / M_total;
     Y_cg_true = ((M_shell * Y_shell_cg) + (M_shaft * Shaft_y)) / M_total;
     
+    I_shell_cg = sum_I_origin - M_shell * (X_shell_cg^2);
+    
+    r_shaft = 0.095;
+    I_shaft_cg = 0.5 * M_shaft * r_shaft^2;
+    
+    I_cg_true = I_shell_cg + M_shell * (X_shell_cg - X_cg_true)^2 + ...
+                I_shaft_cg + M_shaft * (Shaft_x - X_cg_true)^2;
+
     % 3. FLIGHT CASES AT 60,000 FT
     rho_alt = 0.116;       
     mu_alt  = 1.422e-5;    
@@ -81,12 +97,6 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
     
     V_stall = 213.987;     
     Re_stall = (rho_alt * V_stall * MAC_total) / mu_alt; 
-    
-    fprintf('\nStabilator Aero & Mass Summary\n');
-    fprintf('Total Area:      %.3f m^2\n', total_area);
-    fprintf('Total Volume:    %.3f m^3\n', V_total);
-    fprintf('Total Mass:      %.1f kg (Shell: %.1f, Shaft: %.1f)\n', M_total, M_shell, M_shaft);
-    fprintf('CoG Location:    X = %.3f m, Y = %.3f m\n', X_cg_true, Y_cg_true);
     
     % 5. GENERATE PLANFORM IMAGE WITH MAC
     if(do_plot)
@@ -147,8 +157,7 @@ function [MAC_total, rho_alt, V_max, V_stall, Re_max, Re_stall, y_MAC_total, Lam
         end
         
         save_path = fullfile(media_folder, 'Top_View_Stabilator.png');
-        exportgraphics(gcf, save_path, 'Resolution', 300);
-        disp(['Image saved successfully to: ', save_path]);
+        exportgraphics(gcf, save_path, 'Resolution', 300)
         
         winopen(save_path); 
     end

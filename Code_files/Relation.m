@@ -1,7 +1,7 @@
 %% If you need images change plotting vars to 1
 
 draw_stabilator = 0;
-plot_data_ = 0;
+plot_data_ = 1;
 draw_stabilator = (draw_stabilator == 1) && ~exist("Running_in_Simulink", 'var');
 should_plot_data = (plot_data_ == 1) && ~exist("Running_in_Simulink", 'var');
 
@@ -31,8 +31,9 @@ extension = sqrt(a^2 + r^2 - 2.*a.*r.*cos(deg2rad(alpha-deflection))) - d;
 stab_area = 6.315; % m2 
 pivot_axis_pos = 1.982; % m from root chord LE
 
-[MAC, density, V_max, V_min, Re_max, Re_min, ~, ~, MAC_offset] = Re_calculations(draw_stabilator);
-arm = MAC_offset+MAC*0.25-pivot_axis_pos; % m
+[MAC, density, V_max, V_min, Re_max, Re_min, ~, ~, MAC_offset, m_stab, CG_x, CG_y, I_cg] = Re_calculations(draw_stabilator);
+arm_aerodynamic = MAC_offset+MAC*0.25-pivot_axis_pos; % m
+arm_weight = CG_x - pivot_axis_pos; % m
 velocity = [V_min:5:V_max V_max]; % m/s
 velocity = velocity';
 
@@ -61,8 +62,9 @@ M_stab = Cm .* stab_area .* MAC .* q;   % [N m]
 
 % Moment acting on a pivot shaft, forces are equal to F_y_stab and F_x_stab
 M_pivot = M_stab + ...
-    F_y_stab .* arm .* cosd(deflection) + ...
-    F_x_stab .* arm .* sind(deflection); % [N m]
+    F_y_stab .* arm_aerodynamic .* cosd(deflection) + ...
+    F_x_stab .* arm_aerodynamic .* sind(deflection) + ...
+    m_stab * 9.81 * arm_weight .* cosd(deflection); % [N m]
 
 % Force acting on the actuator assuming actuator is weightless
 
@@ -71,7 +73,13 @@ triangle_area = sqrt(semi_P.*(semi_P-d-extension).*(semi_P-a).*(semi_P-r));
 lever_arm_actuator = 2 .* triangle_area ./ (d+extension); 
 F_act = M_pivot ./ lever_arm_actuator; % [N] 
 
-%%% F_act is our actuator load (Q from the presentation) %%%
+%% Simscape equivalent mass 
+
+I_pivot = I_cg + m_stab * (arm_weight^2);
+
+m_rod = 28.1; % [kg]
+M_eq_array = I_pivot ./ (lever_arm_actuator.^2) + m_rod; % [kg]
+M_eq_simscape = max(M_eq_array); % Maximum equivalent mass for tuning
 
 if should_plot_data
     plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max, velocity)
