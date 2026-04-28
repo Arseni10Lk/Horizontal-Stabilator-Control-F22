@@ -1,7 +1,7 @@
 %% If you need images change plotting vars to 1
 
 draw_stabilator = 0;
-plot_data_ = 1;
+plot_data_ = 0;
 draw_stabilator = (draw_stabilator == 1) && ~exist("Running_in_Simulink", 'var');
 should_plot_data = (plot_data_ == 1) && ~exist("Running_in_Simulink", 'var');
 
