@@ -572,7 +572,32 @@
 		\end{itemize}
 		
 		
-	\subsection{Actuator description}
+	\subsection{Stabilator Description}
+	The structural mass of the F-22 horizontal stabilator was estimated by modeling the geometry as a multi-panel tapered wing section. Given the high-speed requirements and thermal environment of the aircraft, a sandwich construction was assumed, consisting of a titanium honeycomb core and carbon fiber bismaleimide (BMI) skins.
+	
+	The internal volume $V$ of the stabilator is calculated by integrating the cross-sectional area of the NACA 0010 airfoil across the span. For a tapered panel, the volume is given by:
+	\begin{equation}
+		V_{panel} = \kappa \cdot t_{ratio} \cdot b \cdot \frac{C_r^2 + C_r C_t + C_t^2}{3}
+	\end{equation}
+	where $\kappa$ is the airfoil cross-sectional factor ($0.685$ for NACA 00XX series), $t_{ratio}$ is the thickness-to-chord ratio ($0.10$), and $b$, $C_r$, and $C_t$ are the span, root chord, and tip chord respectively.
+	
+	To account for the non-uniform density distribution, the total mass $M_{total}$ is divided into the honeycomb shell $M_{shell}$ and the composite pivot shaft $M_{shaft}$:
+	\begin{equation}
+		M_{total} = (V_{total} \cdot \rho_{bulk}) + M_{shaft}
+	\end{equation}
+	An effective bulk density $\rho_{bulk} = 150 \text{ kg/m}^3$ was utilized to represent the combined weight of the hollow titanium honeycomb and composite skins. The pivot shaft mass was estimated at $60 \text{ kg}$ based on reported automated fiber placement (AFP) composite manufacturing data.
+	
+	The global Center of Gravity $(\bar{X}, \bar{Y})$ was determined using a weighted average of the geometric centroids of the individual panels and the localized mass of the pivot shaft:
+	\begin{equation}
+		\bar{X} = \frac{\sum (M_i \cdot x_i) + M_{shaft} \cdot x_{shaft}}{M_{total}}
+	\end{equation}
+	\begin{equation}
+		\bar{Y} = \frac{\sum (M_i \cdot y_i) + M_{shaft} \cdot y_{shaft}}{M_{total}}
+	\end{equation}
+	This approach ensures that the heavy internal structural members near the root are accounted for, shifting the CoG forward and inward relative to a purely aerodynamic centroid.
+	
+	The results were Total Mass:      277.5 kg (Shell: 217.5, Shaft: 60.0)
+	CoG Location:    X = 1.958 m, Y = 0.791 m
 	
 	\subsection{Blowdown limits}
 	
