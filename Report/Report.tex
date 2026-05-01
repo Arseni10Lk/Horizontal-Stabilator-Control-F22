@@ -650,7 +650,7 @@
 		The F12-162 (163.1 cc/rev) is selected because it satisfies the flow requirement at a shaft speed of approximately 2,216 RPM ,well within the pump's continuous operating envelope, while producing a motor torque demand of 535 Nm that is achievable with available aerospace grade DC motors. Operating at a system pressure of 207 bar against a rated pressure of 420 bar provides a large margin between the required and maximum operating pressures.
 		
 	
-		\subsubsection{DC Drive Motor — Parker GVM310-200-BA1-W}
+		\subsubsection{DC Drive Motor — Parker GVM310-250-BA1-W}
 	
 		
 		\textbf{Selection Rationale}
@@ -667,7 +667,7 @@
 				Parameter & Required Value & Basis \\
 				\midrule
 				Rated Torque $M_n$ & $\geq 535$ Nm & From pump pressure and displacement \\
-				Rated Speed $N_n$ & $\approx 2{,}200$ RPM & From pump flow requirement \\
+				Rated Speed $N_n$ & $\approx 2,200$ RPM & From pump flow requirement \\
 				Rated Power $P_n$ & $\geq 130$ kW & $P = T \cdot \omega$ with 5\% margin \\
 				Supply Voltage & 270--350 VDC & MIL-STD-704 aircraft bus \\
 				\bottomrule
@@ -676,17 +676,17 @@
 			\label{table:motor_targets}
 		\end{table}
 		
-		\textbf{Selected Model: GVM310-200-BA1-W}
+		\textbf{Selected Model: GVM310-250-BA1-W}
 		
-		The Parker GVM310 series is a permanen -magnet brushless DC motor family engineered specifically for electro hydraulic pump (EHP) drive applications, making it directly suited to the EHA architecture of this system.
+		The Parker GVM310 series is a permanent magnet brushless DC motor family engineered specifically for electro hydraulic pump (EHP) drive applications, making it directly suited to the EHA architecture of this system.
 		
-		Within the GVM310 range, the GVM310-200-BA1-W at 350 VDC is selected. Its rated specifications are compared against the targets in Table~\ref{table:motor_selection}.
+		Within the GVM310 range, the GVM310-250-BA1-W at 350 VDC is selected. Its rated specifications are compared against the targets in Table \ref{table:motor_selection}.
 		
 		\begin{table}[H]
 			\centering
 			\begin{tabular}{l c c c}
 				\toprule
-				Parameter & Required & GVM310-200-BA1-W & Verdict \\
+				Parameter & Required & GVM310-250-BA1-W & Verdict \\
 				\midrule
 				Rated Torque $M_n$ [Nm] & $\geq 535$ & 542 & \checkmark \\
 				Rated Power $P_n$ [kW] & $\geq 130$ & 138 & \checkmark \\
@@ -696,7 +696,7 @@
 				Peak Power $P_p$ [kW] & --- & 166 & Acceptable margin \\
 				\bottomrule
 			\end{tabular}
-			\caption{GVM310-200-BA1-W specification versus motor selection targets.\autocite{parker_gvm310}}
+			\caption{GVM310-250-BA1-W specification versus motor selection targets.\autocite{parker_gvm310}}
 			\label{table:motor_selection}
 		\end{table}
 		
