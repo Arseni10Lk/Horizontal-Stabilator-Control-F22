@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MF0 version="1.1" packageUris="http://schema.mathworks.com/mf0/faultinfo_datamodel/R2021a">
+  <faultinfo.FailureModeContainer type="faultinfo.FailureModeContainer" uuid="46b8f4f1-d7a9-46a7-96ab-e085d1435387">
+    <failureModes type="faultinfo.FailureMode" uuid="e22c1e83-5c55-4c82-a734-4131291a9e4d">
+      <ID>1</ID>
+      <associatedFaults type="faultinfo.SSFault" uuid="91e3f09b-816b-4107-bf24-965b805ea79f"/>
+      <faultSubsystemName>DCMotor_fault</faultSubsystemName>
+      <resyncUUID>00000000-0000-0000-0000-000000000000</resyncUUID>
+    </failureModes>
+    <faultModelName>f_22_stabilator_control_Simscape_copy_FaultModel</faultModelName>
+    <faultModelUUID>37a6e3c5-fd8e-4aec-8166-2b71793824f2</faultModelUUID>
+  </faultinfo.FailureModeContainer>
+  <faultinfo.FaultContainerSet type="faultinfo.FaultContainerSet" uuid="a6fc5644-a0bb-4a64-b27e-030a29eff63f">
+    <conditionals type="faultinfo.conditional.Conditional" uuid="de0e77a3-7bb5-4fc9-a2b4-af54299170c8">
+      <checksum>00000000-0000-0000-0000-000000000000</checksum>
+      <condition>x == true</condition>
+      <mustBeLogged>false</mustBeLogged>
+      <name>SampleConditional</name>
+      <resyncRefBlkID></resyncRefBlkID>
+      <resyncUUID>00000000-0000-0000-0000-000000000000</resyncUUID>
+      <symbols type="faultinfo.conditional.ExpressionSymbol" uuid="101f60d1-62fe-4425-aef8-5988907a048c">
+        <expression>true</expression>
+        <name>x</name>
+      </symbols>
+    </conditionals>
+    <faultContainers type="faultinfo.FaultContainer" uuid="020770ee-ede8-42ff-9d22-7e996810fc4d">
+      <activeFault type="faultinfo.SSFault" uuid="91e3f09b-816b-4107-bf24-965b805ea79f"/>
+      <faultedEntityID>SSSubelement|f_22_stabilator_control_Simscape_copy:53|Armature winding</faultedEntityID>
+      <faultedEntityName>f_22_stabilator_control_Simscape_copy/Actuator/DC Motor/Armature winding</faultedEntityName>
+      <faults type="faultinfo.SSFault" uuid="91e3f09b-816b-4107-bf24-965b805ea79f">
+        <checksum>00000000-0000-0000-0000-000000000000</checksum>
+        <faultDescription></faultDescription>
+        <faultName>DCMotor_fault</faultName>
+        <resyncUUID>00000000-0000-0000-0000-000000000000</resyncUUID>
+        <triggerOn type="faultinfo.PermanentTrigger" uuid="3d0a0955-524c-46f3-8de0-e3c90cdb185d">
+          <isPersistent>true</isPersistent>
+        </triggerOn>
+      </faults>
+      <isEnabled>true</isEnabled>
+    </faultContainers>
+    <isEnabled>true</isEnabled>
+    <lastUpdatedAt>2026-05-04T17:34:43</lastUpdatedAt>
+    <modelName>f_22_stabilator_control_Simscape_copy</modelName>
+    <modelUUID>3e8e8730-5e5b-4c76-a122-a01f52a746b7</modelUUID>
+  </faultinfo.FaultContainerSet>
+</MF0>
