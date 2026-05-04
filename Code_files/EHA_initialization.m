@@ -35,7 +35,6 @@ eff_M = 0.88;      % Mechanical Efficiency at Nominal Conditions [-]
 T_NL = 0;      % No Load Torque [N*m]
 
 %% 3. Gas Charged Accumulator
-% Volumes converted from ml to m^3, Pressure from MPa to Pa
 V_actot = 3e-3;    % Total Accumulator Volume [m^3]
 V_gasmin = 1.5e-4;   %Minimum Gas Volume [m^3] Can be doubled if needed
 P_pre = 14.25;       %Precharge Pressure [Mpa]
