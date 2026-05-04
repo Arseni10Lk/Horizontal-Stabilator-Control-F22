@@ -41,10 +41,11 @@ P_pre = 14.25;       %Precharge Pressure [Mpa]
 hs = 1.4    ;      % Specific Heat Ratio [-]
 S_hs = 1e4 ;       %Hard Stop Stiffness Coefficient [MPa/m^3]
                   %dynamic compressibility enabled
-P_aci = P_pre;      % Initial accumulator pressure [MPa]
-V_gasi = V_actot;    % Initial volume of gas in accumulator [m^3]
-V_gasnom = 2.06e-3;    %Nominal Volume of Liquid  [m^3]
 P_acnom = 20.7;       %Nominal Pressure of Liquid Volume [MPa]
+P_aci = P_acnom;      % Initial accumulator pressure [MPa]
+V_gasnom = 2.06e-3;    %Nominal Volume of Liquid  [m^3]
+V_gasi = V_gasnom;    % Initial volume of gas in accumulator [m^3]
+
 
 %%  4. Double Acting Actuator 
 A_cA = 0.0324;      % Chamber A Area [m^2] Circle area given 0.2032m bore
