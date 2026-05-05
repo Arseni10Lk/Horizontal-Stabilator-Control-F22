@@ -1,0 +1,26 @@
+component Variable_Mass
+  % Variable Mass
+  % Models a translational mass that can change value during simulation.
+
+  nodes
+    R = foundation.mechanical.translational.translational; % R:top
+  end
+
+  inputs
+    M_eq = { 28.1, 'kg' }; % M:bottom
+  end
+
+  variables
+    v = { 0, 'm/s' };
+    f = { 0, 'N' };
+  end
+
+  branches
+    f : R.f -> *;
+  end
+
+  equations
+    v == R.v;
+    f == M_eq * v.der;
+  end
+end
