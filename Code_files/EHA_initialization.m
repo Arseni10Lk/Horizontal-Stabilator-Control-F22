@@ -43,7 +43,7 @@ S_hs = 1e4 ;            % Hard Stop Stiffness Coefficient [MPa/m^3]
 %dynamic compressibility enabled
 P_acnom = 20.7;         %Nominal Pressure of Liquid Volume [MPa]
 P_aci = P_acnom;        % Initial accumulator pressure [MPa]
-V_gasnom = 2.06e-3;     % Nominal Volume of Liquid  [m^3]
+V_gasnom = 2.06e-3;     % Nominal Volume of gas  [m^3]
 V_gasi = V_gasnom;      % Initial volume of gas in accumulator [m^3]
 
 
@@ -107,7 +107,7 @@ F_psm = 0.05;               % Smoothing Factor [-]
 
 % AGAIN KEEP PRESSURE RECOVERY & OPENNG DYNAMICS OFF
 
-%% ISOTHERMAL Liquid Properties [IL] incase some elvin forgets
+%% ISOTHERMAL Liquid Properties [IL]
 IL_density = 850;           % Density at Atmospheric Pressure [kg/m^3]
 IL_bulk = 1.379e9 ;         % Bulk Modulus at AP [Pa]
 IL_Kvs = 14.0e-6;           % Kinemaitc Viscosity at AP [m^2/s]
