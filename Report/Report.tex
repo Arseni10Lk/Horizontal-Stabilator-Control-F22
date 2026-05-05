@@ -452,7 +452,7 @@
 	\end{table}
 	\vspace{5cm}
 	
-	\section{\textbf{Commercial product selection}}
+	\section{Commercial product selection}
     	The Parker Series 3HX (G-Group) is a heavy-duty electrohydraulic cylinder designed for high-force applications requiring precision feedback. This configuration—utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff)—has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
     	
     	\begin{figure}[H]
@@ -861,20 +861,125 @@
 	The results were Total Mass:      277.5 kg (Shell: 217.5, Shaft: 60.0)
 	CoG Location:    X = 1.958 m, Y = 0.791 m
 	
-	\subsection{Blowdown limits}
-	
 	\subsection{EHA Simscape definition}
 	
-	\subsubsection{Electric Motor}
+	\subsubsection{DC Motor}
+	
+	The electrical and mechanical parameters for the Parker GVM310-250-BA1-W motor were derived from the manufacturer's technical catalogs and fundamental physical relationships to establish an equivalent DC model for the simulation. The DC model is a simplification of reality in this case since the GVM310-250-BA1-W is a Permanent Magnet AC Motor.
+	
+	\begin{itemize}
+		\item \textbf{Armature Resistance ($R$):} The internal resistance was calculated using the rated mechanical power ($P_{rated} = 138 \text{ kW}$) and rated current ($I_{rated} = 370 \text{ A}_{rms}$) provided in the catalog. Using the standard power dissipation formula:
+		$$R = \frac{P_{rated}}{I_{rated}^2} = \frac{138000}{370^2} \approx 0.001 \ \Omega$$
+		
+		\item \textbf{Armature Inductance ($L$):} Inductance was derived using the electrical time constant ($\tau_e = \frac{L}{R}$). Based on the manufacturer's engineering manual, the time constant for similar motors in this series scales slightly with stack length. Interpolating for a 250 mm stack length yields an estimated time constant of $\tau_e \approx 19.5 \text{ ms}$.
+		$$L = \tau_e \cdot R = 0.0195 \cdot 0.001 = 1.95 \times 10^{-5} \text{ H}$$
+		
+		\item \textbf{Back EMF Constant ($K_e$):} The catalog specifies the Back EMF constant as $132 \text{ V}_{rms}/\text{krpm}$. To convert this to the required base unit of $\text{V/rpm}$ for the simulation block:
+		$$K_e = \frac{132}{1000} = 0.132 \text{ V/rpm}$$
+		
+		\item \textbf{Rotor Inertia ($J$):} Since the exact inertia for the 310 mm frame was omitted from the summarized catalog, it was estimated by scaling the known inertia of the GVM210 series. Treating the rotor as a solid cylinder ($J \propto r^4 \cdot h$), the inertia scales linearly with stack length ($h$) and to the fourth power of the frame radius ($r$). Scaling from the GVM210-100 baseline ($J_{210\_100} = 0.0173 \text{ kg}\cdot\text{m}^2$):
+		$$J_{310\_250} = J_{210\_100} \cdot \left(\frac{250}{100}\right) \cdot \left(\frac{310}{210}\right)^4$$
+		$$J_{310\_250} = 0.0173 \cdot 2.5 \cdot 4.747 \approx 0.205 \text{ kg}\cdot\text{m}^2$$
+		
+		\item \textbf{Initialization Constants:} The rotor dampening ($Damp\_mtr$) and initial speed ($W\_init$) were set to 0 to represent ideal, stationary starting conditions. The viscous friction coefficient ($K\_vism$) was set to a nominal value of $1 \text{ N}\cdot\text{m}/(\text{rad/s})$ to provide baseline numerical stability for the solver in the absence of empirical mechanical friction data. All three values are default values for the "DC Motor" Simscape block
+	\end{itemize}
 	
 	\subsubsection{Pump}
 	
+	The fixed displacement pump parameters were derived from the performance requirements of the Electro-Hydrostatic Actuator (EHA) and the technical specifications of the selected Parker F12-162 bent-axis piston pump.
+	
+	\begin{itemize}
+		\item \textbf{Displacement ($D$):} The geometric displacement was selected directly from the manufacturer's datasheet to satisfy the high flow requirements of the system. For the F12-162 model, the displacement is fixed at:
+		$$D = 163.1 \text{ cm}^3/\text{rev}$$
+		
+		\item \textbf{Nominal Pressure ($P_{nom}$):} The Parker F12 large-frame series is rated for a continuous maximum operating pressure of 420 bar (with intermittent peak limits up to 480 bar). This continuous rating is converted to Megapascals for the simulation block:
+		$$P_{nom} = 42 \text{ MPa}$$
+		
+		\item \textbf{Nominal Shaft Angular Velocity ($W_{nom}$):} The required shaft speed is a function of the system's maximum flow rate requirement ($Q = 361.4 \text{ L/min}$) and the pump's displacement ($D$). Using the flow equation, the speed is determined as:
+		$$W_{nom} = \frac{Q}{D} = \frac{361.4 \text{ L/min}}{163.1 \text{ cm}^3/\text{rev}} \cdot 1000 \approx 2216 \text{ RPM}$$
+		This value falls safely within the pump's continuous operating envelope.
+		
+		\item \textbf{Efficiencies ($\eta_v$, $\eta_{hm}$):} To accurately model real-world flow and torque, the mathematical model incorporates volumetric ($\eta_v$) and mechanical ($\eta_{hm}$) efficiencies. Standard high-end baseline assumptions for bent-axis piston pumps at nominal conditions were applied:
+		$$\eta_v = 0.92 \quad \text{and} \quad \eta_{hm} = 0.88$$
+		
+		\item \textbf{No-Load Torque ($T_{NL}$):} The no-load torque was initialized to $0 \text{ N}\cdot\text{m}$. This is a standard default value that allows the numerical solver to compute torque losses dynamically based entirely on the provided mechanical efficiency ($\eta_{hm}$) and the instantaneous fluid pressure, thereby avoiding conflicting constraints during simulation startup.
+	\end{itemize}
+	
 	\subsubsection{Accumulator}
+	
+	The parameters for the gas-charged accumulator were derived from the geometric specifications of the selected Parker EHP 3-Liter piston accumulator and standard hydro-pneumatic sizing principles. To ensure numerical stability, the simulation was initialized at steady-state operating conditions to bypass initial compression transients.
+	
+	\begin{itemize}
+		\item \textbf{Total Volume ($V_{actot}$) \& Minimum Gas Volume ($V_{gasmin}$):} The total physical volume of the selected accumulator is 3 Liters ($3 \times 10^{-3} \text{ m}^3$). To prevent the piston from bottoming out against the fluid end cap during severe pressure spikes, a 5\% safety buffer was established for the minimum gas volume:
+		$$V_{gasmin} = 0.05 \cdot 3 \times 10^{-3} = 1.5 \times 10^{-4} \text{ m}^3$$
+		
+		\item \textbf{Nominal Pressure ($P_{acnom}$):} The nominal operating pressure of the accumulator is equal to the baseline operating pressure of the EHA system.
+		$$P_{acnom} = 20.7 \text{ MPa}$$
+		
+		\item \textbf{Precharge Pressure ($P_{pre}$):} According to standard accumulator sizing guidelines for energy storage applications, a piston accumulator should be precharged to 95\% of the system's minimum expected operating pressure \autocite{parker_accumulator_choice}. Assuming high-flow transient maneuvers cause the system pressure to drop momentarily to 150 bar (15 MPa), the precharge was calculated as:
+		$$P_{pre} = 0.95 \cdot 15 \text{ MPa} = 14.25 \text{ MPa}$$
+		
+		\item \textbf{Nominal Gas Volume ($V_{gasnom}$):} The volume of the nitrogen gas when compressed to the nominal system pressure was calculated using Boyle's Law ($P_1V_1 = P_2V_2$), assuming isothermal compression from the unpressurized precharge state (where the gas occupies the total accumulator volume):
+		$$P_{pre} \cdot V_{actot} = P_{acnom} \cdot V_{gasnom}$$
+		$$V_{gasnom} = \frac{14.25 \cdot 3 \times 10^{-3}}{20.7} \approx 2.06 \times 10^{-3} \text{ m}^3$$
+		
+		\item \textbf{Initialization ($P_{aci}$, $V_{gasi}$):} To initialize the simulation at a pre-pressurized, steady-state equilibrium, the initial accumulator pressure and initial gas volume were set to equal their respective nominal conditions ($P_{aci} = 20.7 \text{ MPa}$ and $V_{gasi} = 2.06 \times 10^{-3} \text{ m}^3$).
+	\end{itemize}
 	
 	\subsubsection{Valves}
 	
-	\subsubsection{Actuator}
+	The EHA model utilizes check valves for anti-cavitation fluid replenishment and a pressure relief valve (PRV) for structural protection. The valve parameters were defined to accommodate the high flow rates of the system while prioritizing numerical stability in the simulation solver.
 	
+	\begin{itemize}
+		\item \textbf{Pressure Relief Valve Settings ($P_{set}$, $P_{reg}$):} The PRV prevents catastrophic over-pressurization during severe aerodynamic loading or piston hard-stop impacts. To ensure it does not prematurely bleed flow during standard operation, the cracking pressure ($P_{set}$) was established with a standard 15\% safety margin above the 20.7 MPa nominal system pressure:
+		$$P_{set} = 20.7 \cdot 1.15 \approx 23.8 \text{ MPa}$$
+		The pressure regulation range ($P_{reg}$), representing the differential required to transition the valve from just cracked to fully open, was assigned a standard hydraulic spring rate of approximately 10\% of the set pressure ($2.4 \text{ MPa}$).
+		
+		\item \textbf{Check Valve Pressures ($P_{crack}$, $P_{omax}$):} The check valves must immediately route fluid from the accumulator to the suction side of the pump to prevent cavitation. Consequently, the cracking pressure was set to a near-zero nominal value ($0.01 \text{ MPa}$) with a rapid full-opening threshold ($0.1 \text{ MPa}$) to ensure uninhibited flow recovery.
+		
+		\item \textbf{Maximum Opening Areas ($A_{max}$, $A_{omax}$):} Given the high maximum volumetric flow rate of the pump ($\approx 361 \text{ L/min}$), both the PRV and the check valves were assigned large maximum opening areas ($1 \times 10^{-3} \text{ m}^2$). This ensures the valves can dump or replenish fluid at maximum flow without choking the system as restrictive orifices.
+		
+		\item \textbf{Numerical Stability Parameters ($F_{sm}$, $F_{psm}$):} Standard hydraulic orifice equations can introduce severe algebraic loops and zero-crossing errors in numerical solvers when valves rapidly switch states. To assist the simulation solver, the pressure-flow smoothing factors ($F_{sm}$, $F_{psm}$) were increased from their default to 0.05. Furthermore, higher-order dynamic phenomena, such as pressure recovery and opening dynamics, were disabled to isolate the macro-level kinematic response of the actuator.
+	\end{itemize}
+	
+	\subsubsection{Actuator}
+
+	The parameters for the asymmetrical double-acting hydraulic actuator were determined based on the physical geometry required to actuate the F-22 stabilator, combined with empirical friction data from the selected seal manufacturer.
+	
+	\begin{itemize}
+		\item \textbf{Chamber Areas ($A_A$, $A_B$):} The actuator requires a $0.2032 \text{ m}$ (8-inch) bore and a $0.0889 \text{ m}$ (3.5-inch) rod. The cross-sectional areas for the blank end (Chamber A) and rod end (Chamber B) are:
+		$$A_A = \pi \left(\frac{0.2032}{2}\right)^2 = 0.0324 \text{ m}^2$$
+		$$A_B = A_A - \pi \left(\frac{0.0889}{2}\right)^2 = 0.0262 \text{ m}^2$$
+		
+		\item \textbf{Friction Parameters ($F_{pre}$, $C_{fc}$):} Frictional forces were derived from the manufacturer's performance graphs for a KF-type seal with low gland friction. The empirical data, provided in imperial units (lbf and psi), was converted to SI units to calculate the Coulomb friction coefficient ($C_{fc}$) and the zero-pressure preload force ($F_{pre}$). 
+		
+		The total preload force is the sum of the seal and gland friction at 0 psi (see fig. \ref{fig:sealfrictiongraph} and \ref{fig:glandfrictiongraph}):
+		$$F_{pre} = (30 \text{ lbf} + 35 \text{ lbf}) \cdot 4.448 \text{ N/lbf} = 289.1 \text{ N}$$
+		
+		The Coulomb friction force coefficient represents the linear slope of the friction-to-pressure relationship ($\frac{\Delta F}{\Delta P}$). Taking the average slope from 0 to 3000 psi (see fig. \ref{fig:sealfrictiongraph}):
+		$$C_{fc} = \frac{(480 - 30) \text{ lbf} \cdot 4.448 \text{ N/lbf}}{3000 \text{ psi} \cdot 6894.76 \text{ Pa/psi}} \approx 9.68 \times 10^{-5} \text{ N/Pa}$$
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[width=0.8\linewidth]{Media/Seal_friction_graph}
+			\caption{Seal friction versus system pressure.}
+			\label{fig:sealfrictiongraph}
+		\end{figure}
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[width=0.8\linewidth]{Media/Gland_Friction_graph}
+			\caption{Gland friction versus system pressure.}
+			\label{fig:glandfrictiongraph}
+		\end{figure}
+		
+		\item \textbf{Leakage and Hard Stops:} To capture volumetric losses across the piston head, the piston-cylinder clearance was set to a nominal $0.1 \text{ mm}$ ($1 \times 10^{-4} \text{ m}$) with a piston head length of $10 \text{ mm}$ ($0.01 \text{ m}$). The mechanical hard stops were initialized with a default high stiffness coefficient ($1 \times 10^{10} \text{ N/m}$) to represent rigid structural boundaries at the limits of the $0.1636 \text{ m}$ stroke.
+		
+		\item \textbf{Initial Conditions ($P_A$, $P_B$, $d_{ini}$):} To ensure the simulation initializes at a stable, steady-state equilibrium without transient startup shock, the pressures in Chambers A and B were balanced against the nominal system pressure ($P_{acnom} = 20.7 \text{ MPa}$). By setting $P_B = P_{acnom}$, the opposing pressure in Chamber A required to achieve a net-zero force ($F_{net} = P_A A_A - P_B A_B = 0$) is calculated as:
+		$$P_A = P_{acnom} \cdot \frac{A_B}{A_A}$$
+		The initial piston displacement ($d_{ini}$) was set to $0.0885 \text{ m}$, placing the actuator near its mid-stroke neutral position at $t=0$.
+	\end{itemize}
+
 	\subsubsection{Dynamic Mass}
 	
 	While static aerodynamic loads ($F_{ex}$) dictate the steady-state holding force required by the actuator, the dynamic control simulation must account for the inertial resistance of the stabilator during high-speed maneuvering. The force balance equation for the hydraulic jack (Equation \ref{eq:jack_eq}) includes the inertial term $M\ddot{x}_t$. To evaluate this properly, the rotational inertia of the stabilator must be reflected onto the linear axis of the actuator to define the equivalent linear mass ($M_{eq}$).
@@ -895,6 +1000,33 @@
 	\end{itemize}
 	
 	This yields a total estimated moving mass ($m_{rod}$) of approximately 28.1 kg. Because the lever arm $h_{act}$ is squared in the denominator of the reflection equation, dividing the stabilator's inertia by this small fraction massively amplifies the perceived mass at the actuator rod. When combined, this $M_{eq}$ parameter allows the simulation to accurately model the transient electrical currents and pressure spikes required to accelerate the system from rest.
+	
+	\subsubsection{Isothermal Liquid Properties}
+	
+	To accurately simulate the hydraulic fluid dynamics, the simulation's isothermal liquid properties were explicitly defined to match MIL-PRF-83282D \autocite{mil_prf_83282d}, the standard fire-resistant synthetic hydrocarbon hydraulic fluid used in modern US military aviation.
+	
+	\begin{itemize}
+		\item \textbf{Kinematic Viscosity ($IL_{Kvs}$):} The military specification mandates a minimum kinematic viscosity of 14.0 centistokes (cSt) at the nominal 40$^\circ$C operating temperature. Converting to standard SI units for the solver yields:
+		$$IL_{Kvs} = 14.0 \times 10^{-6} \text{ m}^2/\text{s}$$
+		
+		\item \textbf{Bulk Modulus ($IL_{bulk}$):} The isothermal secant bulk modulus dictates the fluid's compressibility, which directly impacts the actuator's dynamic stiffness. The specification requires a minimum bulk modulus of $1.379 \times 10^6 \text{ kPa}$ at 40$^\circ$C. Converting to Pascals:
+		$$IL_{bulk} = 1.379 \times 10^9 \text{ Pa}$$
+		
+		\item \textbf{Density ($IL_{density}$):} The MIL-PRF-83282D standard dictates that the specific gravity of conformance batches must remain within $\pm 0.008$ of the manufacturer's originally qualified baseline. Therefore, a standard commercial baseline density for qualified fluids (such as AeroShell Fluid 31) was utilized:
+		$$IL_{density} = 850 \text{ kg/m}^3$$
+		
+		\item \textbf{Solver Constants ($AP$, $P_{minv}$):} Atmospheric pressure ($AP$) was set to the standard $0.101325 \text{ MPa}$ to establish the baseline for gauge pressure calculations. To ensure the mathematical stability of the Simscape solver during extreme transient events (such as load-induced cavitation), the minimum valid absolute pressure ($P_{minv}$) was restricted to $1 \text{ Pa}$, preventing zero-crossing and infinite-state numerical divergence.
+	\end{itemize}
+	
+	\section{Control System Design}
+	
+	\subsection{Sensor setup description}
+	
+	Do not forget to mention Balluf digital sensors we are using
+	
+	\subsection{Noise injection}
+	
+	\subsection{PID tuning}
 	
 	\section{Conclusion}
 	
