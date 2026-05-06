@@ -4,7 +4,7 @@
 
 % Pulled from the catalog
 J = 0.205;          % Rotor Inertia [kg*m^2]
-R = 0.001;          % Armature Resistance [Ohm]
+R = 0.017;          % Armature Resistance [Ohm]
 
 % Interpolated based on smaller motors
 L = 1.95e-5;        % Armature Inductance [H]
@@ -38,8 +38,8 @@ T_NL = 0;       % No Load Torque [N*m]
 V_actot = 3e-3;         % Total Accumulator Volume [m^3]
 V_gasmin = 1.5e-4;      % Minimum Gas Volume [m^3] Can be doubled if needed
 P_pre = 14.25;          % Precharge Pressure [Mpa]
-hs = 1.4    ;           % Specific Heat Ratio [-]
-S_hs = 1e4 ;            % Hard Stop Stiffness Coefficient [MPa/m^3]
+hs = 1.4;               % Specific Heat Ratio [-]
+S_hs = 1e4;             % Hard Stop Stiffness Coefficient [MPa/m^3]
 %dynamic compressibility enabled
 P_acnom = 20.7;         %Nominal Pressure of Liquid Volume [MPa]
 P_aci = P_acnom;        % Initial accumulator pressure [MPa]
@@ -91,19 +91,19 @@ A_cleak = 1e-10;            % Leakage Area [m^2]
 A_cAB = inf;                % Cross Sectional Area at A&B [m^2]
 C_cdis = 0.64;              % Discharge Coefficient [-]
 Re_crit = 150;              % Critical Reynolds Number [-]
-F_sm = 0.05;                % Smoothing Factor [-]
+F_sm = 0.01;                % Smoothing Factor [-]
 
 % KEEP PRESSURE RECOVERY & OPENING DYNAMICS OFF.
 
-%% 6. Pressure Relief Valve
-P_set = 23.8;               % Set Pressure Differential [MPa]
-P_reg = 2.4;                % Pressure Regulation Range [Mpa]
+%% 6. Pilot Check Valves
+P_diff_max = 0.1;           % Max opening pressure Differential [MPa]
+Pilot_ratio = 1;            % Pilot ratio [1]
 A_max = 1e-3;               % Maximum Opening Area [m^2]
 A_pleak = 1e-10;            % Leakage Area [m^2]
 A_pAB = inf;                % Cross Sectional Area at A&B [m^2]
 C_pdis = 0.64;              % Discharge Coefficient [-]
 Re_pcrit = 150;             % Critical Reynolds Number [-]
-F_psm = 0.05;               % Smoothing Factor [-]
+F_psm = 0.01;               % Smoothing Factor [-]
 
 % AGAIN KEEP PRESSURE RECOVERY & OPENNG DYNAMICS OFF
 
