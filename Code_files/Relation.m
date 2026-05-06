@@ -79,7 +79,6 @@ I_pivot = I_cg + m_stab * (arm_weight^2);
 
 m_rod = 28.1; % [kg]
 M_eq_array = I_pivot ./ (lever_arm_actuator.^2) + m_rod; % [kg]
-M_eq_simscape = max(M_eq_array); % Maximum equivalent mass for tuning
 
 if should_plot_data
     plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max, velocity)

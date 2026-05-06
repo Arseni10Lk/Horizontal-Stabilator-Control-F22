@@ -984,22 +984,20 @@
 	
 	While static aerodynamic loads ($F_{ex}$) dictate the steady-state holding force required by the actuator, the dynamic control simulation must account for the inertial resistance of the stabilator during high-speed maneuvering. The force balance equation for the hydraulic jack (Equation \ref{eq:jack_eq}) includes the inertial term $M\ddot{x}_t$. To evaluate this properly, the rotational inertia of the stabilator must be reflected onto the linear axis of the actuator to define the equivalent linear mass ($M_{eq}$).
 	
-	The equivalent dynamic mass is calculated using the mechanical advantage of the lever arm ($h_{act}$) and the total physical moving mass of the hydraulic cylinder rod ($m_{rod}$):
+	Crucially, because the mechanical advantage or lever arm ($h_{act}$) changes as a function of the stabilator's deflection angle, the equivalent dynamic mass is not a static value. It is calculated dynamically across the deflection range using the varying lever arm and the total physical moving mass of the hydraulic cylinder rod ($m_{rod}$):
 	
 	\begin{equation}
-		M_{eq} = \frac{I_{pivot}}{h_{act}^2} + m_{rod}
+		M_{eq}(\Delta \alpha) = \frac{I_{pivot}}{h_{act}(\Delta \alpha)^2} + m_{rod}
 	\end{equation}
 	
-	Where $I_{pivot}$ is the mass moment of inertia of the stabilator around its pivot shaft, which can be approximated using a strip-theory integration of the stabilator's planform volume and bulk density.
-	
-	Industrial actuator catalogs typically specify total shipping weight rather than the dynamic moving mass. Thus, $m_{rod}$ is estimated volumetrically for a typical 8.00-inch bore and 3.50-inch rod cylinder machined from high-tensile steel ($\rho \approx 7850 \text{ kg/m}^3$). Assuming a standard piston thickness of 2.0 inches (0.0508 m) and a total physical rod length of 0.313 m (to accommodate the 163.61 mm stroke plus internal housing clearances and end joints), the moving masses are approximated as:
+	Where $I_{pivot}$ is the mass moment of inertia of the stabilator around its pivot shaft, which can be approximated using a strip-theory integration of the stabilator's planform volume and bulk density. Industrial actuator catalogs typically specify total shipping weight rather than the dynamic moving mass. Thus, $m_{rod}$ is estimated volumetrically for a typical 8.00-inch bore and 3.50-inch rod cylinder machined from high-tensile steel ($\rho \approx 7850 \text{ kg/m}^3$). Assuming a standard piston thickness of 2.0 inches (0.0508 m) and a total physical rod length of 0.313 m (to accommodate the 163.61 mm stroke plus internal housing clearances and end joints), the moving masses are approximated as:
 	
 	\begin{itemize}
 		\item \textbf{Piston Mass:} $V_{piston} = \pi (0.1016 \text{ m})^2 (0.0508 \text{ m}) \approx 0.00165 \text{ m}^3 \rightarrow 12.9 \text{ kg}$
 		\item \textbf{Rod Shaft Mass:} $V_{rod} = \pi (0.04445 \text{ m})^2 (0.313 \text{ m}) \approx 0.00194 \text{ m}^3 \rightarrow 15.2 \text{ kg}$
 	\end{itemize}
 	
-	This yields a total estimated moving mass ($m_{rod}$) of approximately 28.1 kg. Because the lever arm $h_{act}$ is squared in the denominator of the reflection equation, dividing the stabilator's inertia by this small fraction massively amplifies the perceived mass at the actuator rod. When combined, this $M_{eq}$ parameter allows the simulation to accurately model the transient electrical currents and pressure spikes required to accelerate the system from rest.
+	This yields a total estimated moving mass ($m_{rod}$) of approximately 28.1 kg. Because the lever arm $h_{act}$ is squared in the denominator of the reflection equation, dividing the stabilator's inertia by this small fraction massively amplifies the perceived mass at the actuator rod. To implement this non-linear inertial resistance in Simscape, $M_{eq}$ is represented dynamically as an array mapped to the actuator's displacement using a 1-D lookup table and a variable mass subsystem. This allows the simulation to accurately model the transient electrical currents and pressure spikes required to accelerate the system dynamically from any position.
 	
 	\subsubsection{Isothermal Liquid Properties}
 	
