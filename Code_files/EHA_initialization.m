@@ -66,7 +66,7 @@ Trans = 0.1;        % Transition Region [mm]
 
 % Friction
 R_bc = 1.2;         % Breakaway to Coulomb Friction Force Ratio [-]
-V_brk = 0.1;        % Breakaway friction velocity [m/s]
+V_brk = 1e-4;        % Breakaway friction velocity [m/s]
 
 % Based on the graphs from the catalog (KF seal, Low gland friction)
 
