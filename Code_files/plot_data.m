@@ -1,4 +1,6 @@
-function plot_data(deflection, extension, F_act, CL, CD, CM, F_x_stab, F_y_stab, M_stab, Re_high, Re_low, velocity)
+function plot_data(deflection, extension, F_act, CL, CD, CM, F_x_stab, ...
+    F_y_stab, M_stab, Re_high, Re_low, velocity, max_controlled_deflection, min_controlled_deflection, ...
+    max_allowed_deflection, min_allowed_deflection)
 
 % 1.1 Plotting
 figure('Name', 'Actuator vs Deflection Relation')
@@ -95,7 +97,7 @@ exportgraphics(gcf, save_path);
 % 5.1 3D Plotting now
 
 figure('Name', 'Actuator Loads')
-surf(velocity, deflection, F_act')
+surf(velocity, deflection, F_act', EdgeAlpha=0.01)
 set(gca, 'XDir', 'reverse', 'YDir', 'reverse')
 xlabel('Velocity [m/s]');
 ylabel('Deflection [deg]');
@@ -108,4 +110,35 @@ grid on;
 
 % 5.2 Save the 3D plot figure
 save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Actuator_Loads_3D.png');
+exportgraphics(gcf, save_path);
+
+% 6.1 Blowdown limits
+
+figure('Name', 'Blowdown Limits');
+
+X_fill = [velocity; flipud(velocity)];
+Y_allowed = [max_allowed_deflection; flipud(min_allowed_deflection)];
+Y_possible = [max_controlled_deflection; flipud(min_controlled_deflection)];
+
+hp = fill(X_fill, Y_possible, [0.941, 0.922, 0.506], 'EdgeColor', 'none');
+hold on;
+ha = fill(X_fill, Y_allowed, [0.6, 1, 0.522], 'EdgeColor', 'none');
+plot(velocity, max_allowed_deflection, 'k', 'LineWidth', 2);
+plot(velocity, min_allowed_deflection, 'k', 'LineWidth', 2);
+plot(velocity, max_controlled_deflection, 'k', LineWidth=2);
+plot(velocity, min_controlled_deflection, 'k', LineWidth=2);
+yline(30, '--k', 'Upper Structural Limit (30^\circ)', ...
+    LabelHorizontalAlignment='center', LabelVerticalAlignment='top');
+yline(-25, '--k', 'Lower Structural Limit (-25^\circ)', ...
+    LabelHorizontalAlignment='center', LabelVerticalAlignment='bottom');
+grid on;
+xlabel('Velocity [m/s]');
+ylabel('Allowed Deflection [\circ]');
+title('F-22 Stabilator Blowdown Limits Envelope');
+legend([ha hp], 'Allowed deflection', 'Controlled deflection', 'Location', 'west');
+ylim([-30 35]);
+xlim([min(velocity) max(velocity)])
+
+% 6.2 Save blowdown limits
+save_path = fullfile(script_dir, '..', 'Report', 'Media', 'Blowdown_limits.png');
 exportgraphics(gcf, save_path);

@@ -1,9 +1,23 @@
 %% If you need images change plotting vars to 1
 
 draw_stabilator = 0;
-plot_data_ = 0;
-draw_stabilator = (draw_stabilator == 1) && ~exist("Running_in_Simulink", 'var');
-should_plot_data = (plot_data_ == 1) && ~exist("Running_in_Simulink", 'var');
+plot_data_ = 1;
+draw_stabilator = draw_stabilator == 1;
+should_plot_data = plot_data_ == 1;
+
+if exist("Running_in_Simulink", 'var') && Running_in_Simulink
+    draw_stabilator = 0;
+    should_plot_data = 0;
+    Running_in_Simulink = 0;
+end
+
+if should_plot_data
+    step_d = 0.1;
+    step_v = 1;
+else
+    step_d = 1;
+    step_v = 5;
+end
 
 %% 1. Providing the required data
 
@@ -19,7 +33,7 @@ r = sqrt(a^2 - d^2);
 
 deflection_max = 30; % deg
 deflection_min = -25; % deg
-deflection = deflection_min:0.5:deflection_max;
+deflection = deflection_min:step_d:deflection_max;
 
 % 4. Finding corresponding actuator extension
 
@@ -34,7 +48,7 @@ pivot_axis_pos = 1.982; % m from root chord LE
 [MAC, density, V_max, V_min, Re_max, Re_min, ~, ~, MAC_offset, m_stab, CG_x, CG_y, I_cg] = Re_calculations(draw_stabilator);
 arm_aerodynamic = MAC_offset+MAC*0.25-pivot_axis_pos; % m
 arm_weight = CG_x - pivot_axis_pos; % m
-velocity = [V_min:5:V_max V_max]; % m/s
+velocity = [V_min:step_v:V_max V_max]; % m/s
 velocity = velocity';
 
 % Interpolation
@@ -80,6 +94,46 @@ I_pivot = I_cg + m_stab * (arm_weight^2);
 m_rod = 28.1; % [kg]
 M_eq_array = I_pivot ./ (lever_arm_actuator.^2) + m_rod; % [kg]
 
+%% Blowdown limits 
+
+F_max_comp = 670297; % [N]
+F_max_tensile = -541998; % [N]
+
+max_controlled_deflection = zeros(length(velocity), 1);
+min_controlled_deflection = zeros(length(velocity), 1);
+
+max_allowed_deflection = zeros(length(velocity), 1);
+min_allowed_deflection = zeros(length(velocity), 1);
+
+SF = 1.2; % safety factor
+% if the blowdown limit is reached the system becomes unstable
+for i = 1:length(velocity)
+    possible_idx = find(F_max_tensile <= F_act(i, :) & F_act(i, :) <= F_max_comp);
+    allowed_idx = find(F_max_tensile/SF <= F_act(i, :) & F_act(i, :) <= F_max_comp/SF);
+
+    if ~isempty(allowed_idx)
+        max_controlled_deflection(i) = max(deflection(possible_idx));
+        min_controlled_deflection(i) = min(deflection(possible_idx));
+
+        max_allowed_deflection(i) = max(deflection(allowed_idx));
+        min_allowed_deflection(i) = min(deflection(allowed_idx));
+    elseif ~isempty(possible_idx)
+        max_controlled_deflection(i) = max(deflection(possible_idx));
+        min_controlled_deflection(i) = min(deflection(possible_idx));
+
+        max_allowed_deflection(i) = 0;
+        min_allowed_deflection(i) = 0;
+    else
+        max_controlled_deflection(i) = 0;
+        min_controlled_deflection(i) = 0;
+
+        max_allowed_deflection(i) = 0;
+        min_allowed_deflection(i) = 0;
+    end
+end
+
 if should_plot_data
-    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, M_stab, Re_min, Re_max, velocity)
+    plot_data(deflection, extension, F_act, CL, CD, Cm, F_x_stab, F_y_stab, ...
+        M_stab, Re_min, Re_max, velocity, max_controlled_deflection, min_controlled_deflection, ...
+        max_allowed_deflection, min_allowed_deflection)
 end
