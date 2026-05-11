@@ -22,6 +22,7 @@
 \usepackage{multirow}
 
 \usepackage{pdflscape}
+\usepackage{hyperref}
 
 \usepackage[notes, backend=biber]{biblatex-chicago}
 \addbibresource{works-cited.bib}
@@ -465,6 +466,7 @@
     	
     	\vspace{4cm}
 		\subsection{Performance Parameters}
+		\label{sec:actuator-limits}
 		
 		The following table summarizes the derived performance based on an 8.00-inch bore diameter.
 		
@@ -1021,6 +1023,39 @@
 	
 	\section{Control System Design}
 	
+	\subsection{Blowdown limits}
+	
+	At certain velocities large deflections would result in a loss of control over the stabilator since it would be pinned at the maximum or minimum deflection and the actuator would not be able to generate sufficient force to change the angle and for this reason it is necessary to introduce blowdown limits. The allowed deflection angles are calculated dynamically based on the maximum load capabilities of the selected Parker Series 3HX actuator (see the \nameref{sec:actuator-limits} section).
+	
+	Based on the actuator's performance parameters, the physical force limits are defined as \autocite{parker2hx3hx}:
+	\begin{itemize}
+		\item Maximum Compressive Force ($F_{max\_comp}$) = $670,297 \text{ N}$
+		\item Maximum Tensile Force ($F_{max\_tens}$) = $-541,998 \text{ N}$
+	\end{itemize}
+	
+	A safety factor ($SF = 1.2$) is introduced to establish a safe operational margin. Across the velocity envelope, the required actuator force ($F_{act}$) is evaluated at each deflection angle ($\Delta \alpha$) to generate two distinct operating boundaries.
+	
+	\textbf{1. Controlled Deflection Envelope} \\
+	This envelope defines the absolute maximum and minimum deflections achievable before the actuator stalls or yields. The angles must satisfy the absolute physical constraints:
+	\begin{equation}
+		F_{max\_tens} \le F_{act}(V, \Delta \alpha) \le F_{max\_comp}
+	\end{equation}
+	
+	\textbf{2. Allowed Deflection Envelope} \\
+	This envelope defines the restricted operational boundary used by the flight control system, calculated by applying the safety factor to the structural limits:
+	\begin{equation}
+		\frac{F_{max\_tens}}{SF} \le F_{act}(V, \Delta \alpha) \le \frac{F_{max\_comp}}{SF}
+	\end{equation}
+	
+	For any given velocity $V$, the flight control system restricts the stabilator to the maximum and minimum deflection angles that satisfy the allowed deflection inequality. If the required actuator force exceeds these bounded thresholds, the deflection is electronically limited to prevent structural overload.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Blowdown_limits}
+		\caption{Blowdown limits. The green area corresponds to the safe operating range, while the yellow area corresponds to theoretically controllable deflection, which is not allowed to be used due to a safety factor.}
+		\label{fig:blowdownlimits}
+	\end{figure}
+		
 	\subsection{Sensor setup description}
 	
 	Do not forget to mention Balluf digital sensors we are using
