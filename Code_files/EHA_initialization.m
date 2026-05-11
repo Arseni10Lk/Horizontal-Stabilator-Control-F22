@@ -72,10 +72,10 @@ V_brk = 1e-4;        % Breakaway friction velocity [m/s]
 
 F_pre = (30 + 35) * 4.448;                          % Preload Force [N]
 C_fc =  (480 - 30) * 4.448 / 3000 / 6894.76 ;       % Coulomb Friction Force Coefficient [N/Pa] Average slope
-C_fv =  100;                                        % Viscous Friction Coefficient [N*s/m] 
+C_fv =  1e6;                                        % Viscous Friction Coefficient [N*s/m] 
 
 % Leakage
-Clearance = 1e-6;           % Piston Cylinder Clearance  [m]
+Clearance = 2e-5;           % Piston Cylinder Clearance  [m]
 L_head   = 0.01;            % Piston Head Length  [m]
 
 %Initial Conditions
