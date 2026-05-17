@@ -217,7 +217,7 @@
 	\subsection{Airfoil and aerodynamic coefficients}
 	
 
-    The first step in load modelling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F 22's stabilator according to literature,\autocite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method-based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
+    The first step in load modelling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F 22's stabilator according to literature,\autocite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
     For this analysis, the NACA 0010 airfoil was evaluated over a wide range of angles of attack, from $-25^\circ$ to $30^\circ$. Simulations were conducted for Reynolds numbers at maximum and minimum speed at 60k ft. The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modelling. 
 	
 	\begin{figure}[H]
@@ -454,7 +454,7 @@
 	\vspace{5cm}
 	
 	\section{Commercial product selection}
-    	The Parker Series 3HX (G-Group) is a heavy-duty electrohydraulic cylinder designed for high-force applications requiring precision feedback. This configuration—utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff)—has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
+    	The Parker Series 3HX (G-Group) is a heavy duty electrohydraulic cylinder designed for high force applications requiring precision feedback. This configuration, utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff), has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
     	
     	\begin{figure}[H]
     	\vspace{2cm}
@@ -468,7 +468,7 @@
 		\subsection{Performance Parameters}
 		\label{sec:actuator-limits}
 		
-		The following table summarizes the derived performance based on an 8.00-inch bore diameter.
+		The following table summarizes the derived performance based on an 8.00 inch bore diameter.
 		
 		\begin{table}[H]
 			\centering
@@ -524,11 +524,9 @@
 	 
 		\subsubsection{Configuration Notes}
 		\begin{itemize}
-			\item \textbf{Sealing:} The \textbf{KP Seal} package isgood to prevent stick-slip during high-frequency simulation cycles and is well-suited for high-temperature operation.
-			\item \textbf{Structure:} Due to the previously calculated worst-case operating pressure of 5,314 psi, the cylinder must be specified with high-tensile steel tie-rods.
-			\item \textbf{Total Stroke and End Cushioning}
-			
-			The actuator has a functional stroke of approximately 160\,mm. In practice, the 
+			\item \textbf{Sealing:} The \textbf{KP Seal} package is good to prevent stick-slip during high frequency simulation cycles and is well suited for high temperature operation.
+			\item \textbf{Structure:} Due to the previously calculated worst case operating pressure of 5,314 psi, the cylinder must be specified with high tensile steel tie rods.
+			\item \textbf{Total Stroke and End Cushioning:}The actuator has a functional stroke of approximately 160\,mm. In practice, the 
 			total physical stroke is slightly longer, as hydraulic actuators typically 
 			incorporate cushioning zones at both ends of travel to absorb impact in the 
 			event of an overtravel or system fault. The total stroke can be expressed as:
@@ -574,7 +572,7 @@
 		
 		\subsection{EHA Component Selection}
 		
-		The Fixed-Pressure Variable-Motor Electro-Hydrostatic Actuator (FPVM-EHA) driving the Parker Series 3HX hydraulic cylinder requires five principal hydraulic and electromechanical components: a hydraulic pump, a DC drive motor, a servo valve, a hydraulic accumulator and an isothermal fluid. Each component is selected in the order dictated by the system's signal flow. Pump first, then motor, then valve accumulator and finally the fluid so that every downstream selection is fully constrained by the one preceding it.
+		The Fixed Pressure Variable Motor Electro Hydrostatic Actuator (FPVM-EHA) driving the Parker Series 3HX hydraulic cylinder requires four principal hydraulic and electromechanical components: a hydraulic pump, a DC drive motor, a hydraulic accumulator and an isothermal fluid. Each component is selected in the order dictated by the system's signal flow. Pump first, then motor, then valve accumulator and finally the fluid so that every downstream selection is fully constrained by the one preceding it.
 		
 		The primary performance targets derived from the actuator analysis are summarised in Table \ref{table:eha_targets}.
 		
@@ -602,7 +600,7 @@
 		
 		The pump is selected first because its displacement directly determines the required motor speed and torque. Selecting a motor before the pump would leave the shaft interface undefined and risk a mismatched system.
 		
-		The Parker F12 large-frame bent-axis piston pump series was identified as a suitable candidate. The series is rated to a continuous maximum pressure of 420 bar and peak pressure of 480 bar, providing a comfortable margin above the system requirement of 207 bar.\autocite{parker_f11_f12} Flow capacity is governed by the shaft displacement and rotational speed according to:
+		The Parker F12 large frame bent axis piston pump series was identified as a suitable candidate. The series is rated to a continuous maximum pressure of 420 bar and peak pressure of 480 bar, providing a comfortable margin above the system requirement of 207 bar.\autocite{parker_f11_f12} Flow capacity is governed by the shaft displacement and rotational speed according to:
 		
 		\begin{equation}
 			Q = D \cdot n
@@ -658,6 +656,8 @@
 		With the pump displacement fixed at 163.1 cc/rev and the required shaft speed at 2,216 RPM, the motor specification is fully defined. The key requirement is that the motor must deliver rated continuous torque and power at the operating point, since the pump runs continuously during actuator operation rather than in a cyclic duty profile.
 		Peak torque and peak power figures are therefore of secondary importance; the motor must sustain the operating point without thermal derating.
 		
+		\vspace{9 cm}
+		
 		\textbf{Motor Specification Targets}
 		
 		\begin{table}[H]
@@ -710,7 +710,7 @@
 		
 		\begin{enumerate}
 			\item \textbf{Peak flow assist:} During rapid maneuver commands, instantaneous flow demand may transiently exceed pump delivery. The accumulator releases stored energy to bridge this gap without requiring the motor to overspeed.
-			\item \textbf{Pressure ripple damping:} The accumulator absorbs pulses and presents a stable pressure to the Model 450 servo valve, preventing dynamic excitation of the valve spool.
+			\item \textbf{Pressure ripple damping:} The accumulator absorbs pulses and presents a stable pressure.
 			\item \textbf{Failsafe pressure maintenance:} In the event of a momentary motor power interruption, the accumulator sustains system pressure for a short duration, allowing the flight control system to execute a safe handover or hold command.
 		\end{enumerate}
 		
@@ -727,17 +727,9 @@
 		
 		\textbf{Selection Rationale}
 		
-		The hydraulic fluid is selected last, after all hardware components are fixed, because the fluid must be chemically compatible with the seals, hose materials, and internal surfaces of every component in the circuit. The primary constraint is the Model 450 servovalve datasheet, which explicitly lists the following compatible fluids:
+		The hydraulic fluid is selected last, after all hardware components are fixed, because the fluid must be chemically compatible with the seals, hose materials, and internal surfaces of every component in the circuit. The MIL-PRF-83282D is selected. It is the standard hydraulic fluid in modern United States military fixed wing aircraft and represents the current revision of the specification. The fluid is identified by NATO Code Number H-537, ensuring interoperability with allied aircraft maintenance infrastructure.
 		
-		\begin{itemize}
-			\item MIL-PRF-5605
-			\item MIL-PRF-83282
-			\item Phosphate Ester
-			\item JP4, JP5
-			\item MIL-L-7808
-		\end{itemize}
-		
-		From these options, MIL-PRF-83282D is selected. It is the standard hydraulic fluid in modern United States military fixed-wing aircraft and represents the current revision of the specification. The fluid is identified by NATO Code Number H-537, ensuring interoperability with allied aircraft maintenance infrastructure.
+		\vspace{3 cm}
 		
 		\textbf{Key Physical Properties}
 		\begin{table}[H]
@@ -747,7 +739,7 @@
 				\textbf{Property} & \textbf{Requirement (Finished Fluid)} \\
 				Kinematic Viscosity at 100°C & 3.45 cSt (min) \\
 				Kinematic Viscosity at -40°C & 2,600 cSt (max) \\
-				Flash Point (Cleveland Open Cup) & 205°C (min)  \\
+				Flash Point  & 205°C (min)  \\
 				Fire Point & 245°C (min)  \\
 				Auto-ignition Temperature & 345°C (min) \\
 				Evaporation Loss (22 hrs @ 205°C) & 20.0\% by weight (max)  \\
@@ -772,9 +764,6 @@
 				\addlinespace
 				DC Drive Motor & Parker GVM310-200-BA1-W & 542 Nm / 138 kW rated continuous; \\
 				&                         & designed for EHP pump drives \\
-				\addlinespace
-				Servo Valve    & Model 450 EHSV & 459 L/min at 207 bar (calculated); \\
-				&                & $<3\%$ hysteresis; $-53$ to $135^\circ$C \\
 				\addlinespace
 				Accumulator    & Parker EHP Piston (3 L) & 350 bar maximum rated; piston type for \\
 				&                          & high flow and aerospace duty cycle \\
