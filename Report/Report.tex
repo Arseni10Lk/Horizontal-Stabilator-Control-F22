@@ -14,8 +14,10 @@
 	extendedchars=true,
 	literate={θ}{{$\theta$}}1
 }
+\usepackage{dirtree}
 \usepackage{graphicx}   % For images
 \usepackage{float}      % For figure placement
+\usepackage{url}
 
 \usepackage{booktabs} % Required for TABLE
 \usepackage{siunitx}  % Required for TABLE
@@ -217,7 +219,7 @@
 	\subsection{Airfoil and aerodynamic coefficients}
 	
 
-    The first step in load modelling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F 22's stabilator according to literature,\autocite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method-based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
+    The first step in load modelling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F 22's stabilator according to literature,\autocite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
     For this analysis, the NACA 0010 airfoil was evaluated over a wide range of angles of attack, from $-25^\circ$ to $30^\circ$. Simulations were conducted for Reynolds numbers at maximum and minimum speed at 60k ft. The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modelling. 
 	
 	\begin{figure}[H]
@@ -349,6 +351,8 @@
 		\label{fig:simulinkactuatormodel}
 	\end{figure}
 	
+	Considering the multitude of effects taken into account, the equations are expected to be stiff and \textit{ode15s} solver is used for that reason.
+	
 	\subsubsection{Motor Dynamics}
 	The DC Motor acts as the primary driver for the pump. The electrical and mechanical governing equations for the motor are expressed as follows:
 	\begin{equation}
@@ -361,50 +365,132 @@
 		T_{e} = K_{t}i
 	\end{equation}
 	\begin{equation}
-		T_{e} = J\dot{\omega} + T_{f} + T_{l}
+		T_{e} = J\dot{\omega} + \lambda\omega + T_{l}
 	\end{equation}
-	where $U_c$ is the command voltage, $i$ is the current, $E$ is the back electromotive force, $T_e$ is the electromagnetic torque, $\omega$ is the rotational speed, and $J$ represents the total inertia of the motor and pump.
+	where $U_c$ is the command voltage, $i$ is the current, $E$ is the back electromotive force, $T_e$ is the electromagnetic torque, $\omega$ is the rotational speed, $J$ represents the total inertia of the motor and pump, $\lambda$ is the viscous rotor damping coefficient, and $T_l$ is the load torque.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\linewidth]{Media/Simulink_DCmotor_model}
+		\caption{DC Motor model in Simulink. The voltage is taken from the controller and fed into the motor. The voltage sensor is connected in parallel to the voltage source.}
+		\label{fig:simulinkdcmotormodel}
+	\end{figure}
 	
 	\subsubsection{Pump Flow Equations}
-	The flow equations for the pump outlet ($Q_1$) and entry ($Q_2$) account for the pump displacement ($D$), internal leakage ($K_{ilp}$), and external leakage ($K_{elp}$) relative to the accumulator pressure ($P_{ac}$):
+	Unlike theoretical models that separate internal and external leakage to a case drain, the Simscape Isothermal Liquid pump block models a lumped analytical leakage flow based on the prescribed nominal operating parameters. The theoretical ideal volumetric flow ($Q_{ideal}$) is defined by the geometric displacement ($D$) and the rotational speed ($\omega$):
 	\begin{equation}
-		Q_{1} = D\omega - K_{ilp}(P_{1} - P_{2}) - K_{elp}(P_{1} - P_{ac})
-	\end{equation}
-	\begin{equation}
-		Q_{2} = D\omega - K_{ilp}(P_{1} - P_{2}) + K_{elp}(P_{2} - P_{ac})
+		Q_{ideal} = D\omega
 	\end{equation}
 	
-	\subsubsection{Refeeding Circuit and Accumulator}
-	To maintain the closed-circuit integrity of the EHA, a refeeding circuit comprising an accumulator and check valves is utilized. The accumulator pressure ($P_{ac}$) is modeled using a polytropic gas equation to account for fluid compression and expansion:
+	The volumetric leakage flow ($Q_{leak}$) is correlated with the pressure differential across the pump ($\Delta P = P_1 - P_2$) using an analytical Hagen-Poiseuille coefficient ($K$):
 	\begin{equation}
-		P_{ac} = \frac{P_{aci} V_{gasi}^k}{(V_{gasi} - \int Q_{ac} dt)^k}
+		Q_{leak} = K \Delta P
 	\end{equation}
-	where $P_{aci}$ is the initial accumulator pressure, $V_{gasi}$ is the initial gas volume, $k$ is the polytropic exponent, and $Q_{ac}$ is the net flow rate into the accumulator. The check valves manage the flow between the accumulator and the main hydraulic lines based on the pressure differentials $(P_1 - P_{ac})$ and $(P_2 - P_{ac})$.
+	
+	This coefficient is determined internally by the solver using the baseline volumetric efficiency ($\eta_v$) evaluated at the nominal pressure gain ($\Delta P_{nom}$) and nominal shaft speed ($\omega_{nom}$):
+	\begin{equation}
+		K = \frac{D \omega_{nom} (1 - \eta_v)}{\Delta P_{nom}}
+	\end{equation}
+	
+	Consequently, the actual flow equations for the pump outlet ($Q_1$) and entry ($Q_2$) in a standard forward-pumping mode are defined by subtracting the analytically derived leakage from the ideal flow:
+	\begin{equation}
+		Q_{1} = Q_{ideal} - Q_{leak}
+	\end{equation}
+	\begin{equation}
+		Q_{2} = Q_{ideal} - Q_{leak}
+	\end{equation}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\linewidth]{Media/Simulink_Pump_model}
+		\caption{Pump model in Simulink. The RPMs fed into the pump originate from the DC motor and are measured by a sensor.}
+		\label{fig:simulinkpumpmodel}
+	\end{figure}
+	
+	\subsubsection{Refeeding Circuit and Asymmetrical Flow Compensation}
+	Unlike a symmetrical actuator, the F-22's asymmetrical hydraulic jack requires a specialized refeeding circuit to handle unequal flow rates between the bore and annular chambers. When the actuator retracts, the return flow from the larger bore chamber exceeds the intake flow of the rod chamber, requiring a path to vent the excess fluid to prevent hydraulic lock. Conversely, extension requires make-up fluid from the reservoir to prevent cavitation.
+	
+	To manage this, the circuit integrates two distinct valve assemblies connected to the central accumulator line:
+	
+	\begin{enumerate}
+		\item \textbf{Anti-Cavitation Check Valves:} Two standard check valves connect the accumulator to the main hydraulic lines. They open automatically to supply make-up fluid if the pressure in either main line ($P_1$ or $P_2$) drops below the accumulator pressure ($P_{ac}$):
+		\begin{equation}
+			Q_{ac \to 1} = f(P_{ac} - P_1) \quad \text{for} \quad P_1 < P_{ac}
+		\end{equation}
+		\begin{equation}
+			Q_{ac \to 2} = f(P_{ac} - P_2) \quad \text{for} \quad P_2 < P_{ac}
+		\end{equation}
+		
+		\item \textbf{Pilot-Operated Venting Valves:} To dump excess fluid during unbalanced operations, two pilot-operated check valves are cross-connected to the main lines. The high-pressure supply line acts as the pilot signal to open the check valve on the low-pressure return line.
+		\begin{itemize}
+			\item When $P_2$ is pressurized (retraction), it pilots the top valve open, allowing excess return fluid from Chamber A to flow through the valve into the accumulator ($Q_{1 \to ac}$).
+			\item When $P_1$ is pressurized (extension), it pilots the bottom valve open, allowing fluid from Chamber B to flow into the accumulator ($Q_{2 \to ac}$).
+		\end{itemize}
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\linewidth]{Media/Simulink_Refeeding_accumulator_model}
+		\caption{Both pipes filled with the fluid coming from the pump are connected to the refeeding circuit and the accumulator. At first, both lines are connected to check vales which later connect to the accumulator whose pressure is monitored by a sensor. Later both lines are connected to pilot-operated check valves which dump the excess fluid into the accumulator. This flow rate is monitored by a sensor.}
+		\label{fig:simulinkrefeedingaccumulatormodel}
+	\end{figure}
+	
+	\subsubsection{Accumulator Dynamics}
+	The net flow into the accumulator ($Q_{ac\_net}$) is determined by the sum of the vented fluid from the pilot-operated valves minus the make-up fluid supplied through the standard check valves:
+	\begin{equation}
+		Q_{ac\_net} = Q_{1 \to ac} + Q_{2 \to ac} - Q_{ac \to 1} - Q_{ac \to 2}
+	\end{equation}
+	
+	The accumulator pressure ($P_{ac}$) dynamically responds to this net flow. It is modeled using a polytropic gas equation to account for fluid compression and expansion:
+	\begin{equation}
+		P_{ac} = \frac{P_{aci} V_{gasi}^k}{(V_{gasi} - \int Q_{ac\_net} dt)^k}
+	\end{equation}
+	where $P_{aci}$ is the initial accumulator pressure, $V_{gasi}$ is the initial gas volume, and $k$ is the polytropic exponent.
 	
 	\subsubsection{Chamber Flow Equations}
-	To connect the fluid flow from the pump to the pressure acting on the piston, the flow continuity equations for the two working chambers of the hydraulic jack must be established. These equations account for the actuator's linear velocity, fluid compressibility, and internal leakage across the piston:
+	To connect the fluid flow from the pump to the pressure acting on the piston, the flow continuity equations for the two working chambers of the hydraulic jack must be established. Because the selected actuator is asymmetrical, these equations account for the distinct bore area ($A_A$) and annular area ($A_B$), as well as fluid compressibility:
 	\begin{equation}
-		Q_{1f} = A\dot{x}_{t} + \frac{V_{10} + Ax_{t}}{B}\dot{P}_{1} + K_{ilj}(P_{1} - P_{2})
+		Q_{1f} = A_{A}\dot{x}_{t} + \frac{V_{10} + A_{A}x_{t}}{B}\dot{P}_{1} + Q_{leak}
 	\end{equation}
 	\begin{equation}
-		Q_{2f} = A\dot{x}_{t} - \frac{V_{20} - Ax_{t}}{B}\dot{P}_{2} + K_{ilj}(P_{1} - P_{2})
+		Q_{2f} = -A_{B}\dot{x}_{t} + \frac{V_{20} - A_{B}x_{t}}{B}\dot{P}_{2} - Q_{leak}
 	\end{equation}
-	where $Q_{1f}$ and $Q_{2f}$ are the flows into the respective chambers, $A$ is the active piston area, $x_{t}$ and $\dot{x}_{t}$ are the piston displacement and velocity, $V_{10}$ and $V_{20}$ are the initial chamber volumes, $B$ is the fluid bulk modulus, and $K_{ilj}$ is the internal leakage coefficient of the hydraulic jack.
+	where $Q_{1f}$ and $Q_{2f}$ are the flows into the respective chambers, $x_{t}$ and $\dot{x}_{t}$ are the piston displacement and velocity, $V_{10}$ and $V_{20}$ are the initial chamber volumes, and $B$ is the fluid bulk modulus (calculated dynamically based on the isothermal fluid properties). 
+	
+	Unlike simplified linear models, the internal leakage ($Q_{leak}$) across the piston is modeled dynamically by the solver using Laminar (Poiseuille) flow equations for concentric cylinders. This calculation is driven by the instantaneous pressure differential ($P_1 - P_2$), the fluid's kinematic viscosity, and the physical geometry of the piston-cylinder clearance ($c$) and piston head length ($L$).
 	
 	\subsubsection{Hydraulic Jack and Load Balance}
-	The EHA utilizes a symmetrical hydraulic jack to ensure proper flow balance between the actuator and the pump. The load force balance equation acting on the piston is defined by the pressure difference across the active area ($A$), the equivalent mass of the piston and load ($M$), the external aerodynamic load force ($F_{ex}$), and the system friction ($F_{fric}$):
+	
+	The load force balance equation acting on the piston must account for the asymmetrical design of the hydraulic cylinder and the structural boundaries of the stroke length. The net mechanical force is defined by the pressures acting on the bore area ($A_A$) and annular area ($A_B$). This net fluid force balances against the equivalent dynamic mass of the piston and load ($M_{eq}$), the external aerodynamic load force ($F_{ex}$), the system friction ($F_{fric}$), and the mechanical hard stop boundaries ($F_{HS}$):
 	\begin{equation}
-		A(P_{1} - P_{2}) = M\ddot{x}_{t} + F_{ex} + F_{fric}
+		P_{1}A_{A} - P_{2}A_{B} = M_{eq}\ddot{x}_{t} + F_{ex} + F_{fric} + F_{HS}
 		\label{eq:jack_eq}
 	\end{equation}
-	where $\ddot{x}_{t}$ represents the linear acceleration of the actuator.
+	where $\ddot{x}_{t}$ represents the linear acceleration of the actuator. 
+	
+	The hard stop force ($F_{HS}$) represents the nonlinear structural compliance at the extremes of the piston stroke (full extension or retraction). Modeled as a high-stiffness spring-damper system, $F_{HS} = 0$ during normal stroke operation but applies severe opposing force when the piston encroaches upon the predefined boundaries of the 163.61 mm stroke limit.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_jack_model}
+		\caption{Hydraulic jack model in Simulink. The set of blocks in the right part of the image represents the system accounting for the varying equivalent mass (see \nameref{sec:dynamicmass} section).}
+		\label{fig:simulinkjackmodel}
+	\end{figure}
 	
 	\subsubsection{Friction Model}
-	An accurate representation of friction is critical for predicting the dynamic performance of the actuator, particularly around zero velocity. A continuous Stribeck friction model is employed to avoid numerical discontinuities during simulation:
+	An accurate representation of friction is critical for predicting the dynamic performance of the actuator, particularly around zero velocity. The Simscape Double-Acting Actuator block models cylinder friction as a combination of Stribeck, Coulomb, and viscous effects. Crucially, the magnitude of the friction is not constant; it is calculated dynamically based on the instantaneous pressure difference between the cylinder chambers.
+	
+	To align with the empirical data derived from the KF-type seal performance graphs, the base Coulomb friction term is modeled as a function of the effective internal system pressure ($P_{sys}$):
 	\begin{equation}
-		F_{fric}(\dot{x}_{t}) = \left[ F_{c} + (F_{s} - F_{c}) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
+		F_c(P_{sys}) = F_{pre} + C_{fc} \cdot P_{sys}
 	\end{equation}
-	where $F_c$ is the Coulomb friction, $F_s$ is the maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to smooth the transitions near zero velocity.
+	where $F_{pre}$ is the zero-pressure preload force (the combined mechanical resistance of the seal and gland), and $C_{fc}$ is the Coulomb friction force coefficient representing the linear slope of the friction-to-pressure relationship.
+	
+	The total continuous friction force opposing the piston motion ($F_{fric}$) incorporates this pressure-dependent boundary into a smoothed Stribeck velocity transition model to avoid numerical discontinuities during simulation:
+	\begin{equation}
+		F_{fric}(\dot{x}_{t}, P_{sys}) = \left[ F_c(P_{sys}) + (F_s(P_{sys}) - F_c(P_{sys})) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
+	\end{equation}
+	where $F_s(P_{sys})$ is the pressure-dependent maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
 	
 	\subsection{Required actuator parameters}
 	
@@ -454,7 +540,7 @@
 	\vspace{5cm}
 	
 	\section{Commercial product selection}
-    	The Parker Series 3HX (G-Group) is a heavy-duty electrohydraulic cylinder designed for high-force applications requiring precision feedback. This configuration—utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff)—has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
+    	The Parker Series 3HX (G-Group) is a heavy duty electrohydraulic cylinder designed for high force applications requiring precision feedback. This configuration, utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff), has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
     	
     	\begin{figure}[H]
     	\vspace{2cm}
@@ -468,7 +554,7 @@
 		\subsection{Performance Parameters}
 		\label{sec:actuator-limits}
 		
-		The following table summarizes the derived performance based on an 8.00-inch bore diameter.
+		The following table summarizes the derived performance based on an 8.00 inch bore diameter.
 		
 		\begin{table}[H]
 			\centering
@@ -524,11 +610,9 @@
 	 
 		\subsubsection{Configuration Notes}
 		\begin{itemize}
-			\item \textbf{Sealing:} The \textbf{KP Seal} package isgood to prevent stick-slip during high-frequency simulation cycles and is well-suited for high-temperature operation.
-			\item \textbf{Structure:} Due to the previously calculated worst-case operating pressure of 5,314 psi, the cylinder must be specified with high-tensile steel tie-rods.
-			\item \textbf{Total Stroke and End Cushioning}
-			
-			The actuator has a functional stroke of approximately 160\,mm. In practice, the 
+			\item \textbf{Sealing:} The \textbf{KP Seal} package is good to prevent stick-slip during high frequency simulation cycles and is well suited for high temperature operation.
+			\item \textbf{Structure:} Due to the previously calculated worst case operating pressure of 5,314 psi, the cylinder must be specified with high tensile steel tie rods.
+			\item \textbf{Total Stroke and End Cushioning:}The actuator has a functional stroke of approximately 160\,mm. In practice, the 
 			total physical stroke is slightly longer, as hydraulic actuators typically 
 			incorporate cushioning zones at both ends of travel to absorb impact in the 
 			event of an overtravel or system fault. The total stroke can be expressed as:
@@ -570,11 +654,10 @@
 			
 			
 		\end{itemize}
-
 		
 		\subsection{EHA Component Selection}
 		
-		The Fixed-Pressure Variable-Motor Electro-Hydrostatic Actuator (FPVM-EHA) driving the Parker Series 3HX hydraulic cylinder requires five principal hydraulic and electromechanical components: a hydraulic pump, a DC drive motor, a servo valve, a hydraulic accumulator and an isothermal fluid. Each component is selected in the order dictated by the system's signal flow. Pump first, then motor, then valve accumulator and finally the fluid so that every downstream selection is fully constrained by the one preceding it.
+		The Fixed Pressure Variable Motor Electro Hydrostatic Actuator (FPVM-EHA) driving the Parker Series 3HX hydraulic cylinder requires four principal hydraulic and electromechanical components: a hydraulic pump, a DC drive motor, a hydraulic accumulator and an isothermal fluid. Each component is selected in the order dictated by the system's signal flow. Pump first, then motor, then valve accumulator and finally the fluid so that every downstream selection is fully constrained by the one preceding it.
 		
 		The primary performance targets derived from the actuator analysis are summarised in Table \ref{table:eha_targets}.
 		
@@ -602,7 +685,7 @@
 		
 		The pump is selected first because its displacement directly determines the required motor speed and torque. Selecting a motor before the pump would leave the shaft interface undefined and risk a mismatched system.
 		
-		The Parker F12 large-frame bent-axis piston pump series was identified as a suitable candidate. The series is rated to a continuous maximum pressure of 420 bar and peak pressure of 480 bar, providing a comfortable margin above the system requirement of 207 bar.\autocite{parker_f11_f12} Flow capacity is governed by the shaft displacement and rotational speed according to:
+		The Parker F12 large frame bent axis piston pump series was identified as a suitable candidate. The series is rated to a continuous maximum pressure of 420 bar and peak pressure of 480 bar, providing a comfortable margin above the system requirement of 207 bar.\autocite{parker_f11_f12} Flow capacity is governed by the shaft displacement and rotational speed according to:
 		
 		\begin{equation}
 			Q = D \cdot n
@@ -658,6 +741,8 @@
 		With the pump displacement fixed at 163.1 cc/rev and the required shaft speed at 2,216 RPM, the motor specification is fully defined. The key requirement is that the motor must deliver rated continuous torque and power at the operating point, since the pump runs continuously during actuator operation rather than in a cyclic duty profile.
 		Peak torque and peak power figures are therefore of secondary importance; the motor must sustain the operating point without thermal derating.
 		
+		\vspace{9 cm}
+		
 		\textbf{Motor Specification Targets}
 		
 		\begin{table}[H]
@@ -702,56 +787,7 @@
 		
 		The rated torque of 542 Nm exceeds the pump torque demand of 535 Nm by approximately 1.3\%, providing a small but adequate continuous margin. The rated power of 138 kW against the mechanical requirement of 124.568 kW represents a 10.8\% overhead, consistent with standard engineering practice for continuous duty drive systems. The rated speed of 2,420 RPM is slightly above the pump's required 2,216 RPM; the operating point therefore falls within the motor's continuous rated envelope without reaching its maximum mechanical speed of 8,000 RPM.
 		
-	
-		\subsubsection{Servo Valve — Model 450 Electrohydraulic Servovalve}
-	
-		
-		\textbf{Selection Rationale}
-		
-		In an EHA, the valve must be capable of passing the full system flow under maximum demand conditions and must exhibit sufficient frequency bandwidth to support the flight control servo loop.
-		
-		A proportional valve was considered and rejected due to not enough flow rate.An electrohydraulic servo valve (EHSV) is required.
-		
-		\textbf{Flow Capacity at Operating Pressure}
-		
-		The Model 450 servovalve is rated up to 265 L/min at a pressure drop of 69 bar across the valve ($\Delta P_{rated}$). At the system supply pressure of 207 bar the effective pressure drop across the valve is higher, and the delivered flow scales as:
-		
-		\begin{equation}
-			Q_{actual} = Q_{rated} \cdot \sqrt{\frac{\Delta P_{actual}}{\Delta P_{rated}}}
-		\end{equation}
-		
-		Evaluating at the system supply pressure:
-		
-		\begin{equation}
-			Q_{actual} = 265 \cdot \sqrt{\frac{207}{69}} = 265 \cdot \sqrt{3} \approx 459 \text{ L/min}
-		\end{equation}
-		
-		This exceeds the required 361 L/min by approximately 27\%, confirming adequate flow capacity without requiring parallel valve configurations.
-		
-		\textbf{Specification Summary}
-		
-		\begin{table}[H]
-			\centering
-			\begin{tabular}{l c c c}
-				\toprule
-				Parameter & Required & Model 450 & Verdict \\
-				\midrule
-				Flow at operating pressure [L/min] & 361 & 459 (calculated) & \checkmark \\
-				Max operating pressure [bar] & 207 & 207 & \checkmark \\
-				Proof pressure [bar] & --- & 310 & \checkmark \\
-				Hysteresis & $<5\%$ & $<3\%$ & \checkmark \\
-				Threshold [\% rated current] & Low & 0.25 & \checkmark \\
-				Temperature range [$^\circ$C] & Mil-spec & $-53$ to $135$ & \checkmark \\
-				Fluid compatibility & MIL-spec & MIL-PRF-5605, 83282, JP4, JP5 & \checkmark \\
-				\bottomrule
-			\end{tabular}
-			\caption{Model 450 servovalve specification versus system requirements.\autocite{parker_model450}}
-			\label{table:valve_selection}
-		\end{table}
-		
-		
 		\subsubsection{Hydraulic Accumulator — Parker EHP Piston Series}
-	
 		
 		\textbf{Function in the EHA Circuit}
 		
@@ -759,7 +795,7 @@
 		
 		\begin{enumerate}
 			\item \textbf{Peak flow assist:} During rapid maneuver commands, instantaneous flow demand may transiently exceed pump delivery. The accumulator releases stored energy to bridge this gap without requiring the motor to overspeed.
-			\item \textbf{Pressure ripple damping:} The accumulator absorbs pulses and presents a stable pressure to the Model 450 servo valve, preventing dynamic excitation of the valve spool.
+			\item \textbf{Pressure ripple damping:} The accumulator absorbs pulses and presents a stable pressure.
 			\item \textbf{Failsafe pressure maintenance:} In the event of a momentary motor power interruption, the accumulator sustains system pressure for a short duration, allowing the flight control system to execute a safe handover or hold command.
 		\end{enumerate}
 		
@@ -776,17 +812,9 @@
 		
 		\textbf{Selection Rationale}
 		
-		The hydraulic fluid is selected last, after all hardware components are fixed, because the fluid must be chemically compatible with the seals, hose materials, and internal surfaces of every component in the circuit. The primary constraint is the Model 450 servovalve datasheet, which explicitly lists the following compatible fluids:
+		The hydraulic fluid is selected last, after all hardware components are fixed, because the fluid must be chemically compatible with the seals, hose materials, and internal surfaces of every component in the circuit. The MIL-PRF-83282D is selected. It is the standard hydraulic fluid in modern United States military fixed wing aircraft and represents the current revision of the specification. The fluid is identified by NATO Code Number H-537, ensuring interoperability with allied aircraft maintenance infrastructure.
 		
-		\begin{itemize}
-			\item MIL-PRF-5605
-			\item MIL-PRF-83282
-			\item Phosphate Ester
-			\item JP4, JP5
-			\item MIL-L-7808
-		\end{itemize}
-		
-		From these options, MIL-PRF-83282D is selected. It is the standard hydraulic fluid in modern United States military fixed-wing aircraft and represents the current revision of the specification. The fluid is identified by NATO Code Number H-537, ensuring interoperability with allied aircraft maintenance infrastructure.
+		\vspace{3 cm}
 		
 		\textbf{Key Physical Properties}
 		\begin{table}[H]
@@ -796,7 +824,7 @@
 				\textbf{Property} & \textbf{Requirement (Finished Fluid)} \\
 				Kinematic Viscosity at 100°C & 3.45 cSt (min) \\
 				Kinematic Viscosity at -40°C & 2,600 cSt (max) \\
-				Flash Point (Cleveland Open Cup) & 205°C (min)  \\
+				Flash Point  & 205°C (min)  \\
 				Fire Point & 245°C (min)  \\
 				Auto-ignition Temperature & 345°C (min) \\
 				Evaporation Loss (22 hrs @ 205°C) & 20.0\% by weight (max)  \\
@@ -821,9 +849,6 @@
 				\addlinespace
 				DC Drive Motor & Parker GVM310-200-BA1-W & 542 Nm / 138 kW rated continuous; \\
 				&                         & designed for EHP pump drives \\
-				\addlinespace
-				Servo Valve    & Model 450 EHSV & 459 L/min at 207 bar (calculated); \\
-				&                & $<3\%$ hysteresis; $-53$ to $135^\circ$C \\
 				\addlinespace
 				Accumulator    & Parker EHP Piston (3 L) & 350 bar maximum rated; piston type for \\
 				&                          & high flow and aerospace duty cycle \\
@@ -931,20 +956,16 @@
 		\item \textbf{Initialization ($P_{aci}$, $V_{gasi}$):} To initialize the simulation at a pre-pressurized, steady-state equilibrium, the initial accumulator pressure and initial gas volume were set to equal their respective nominal conditions ($P_{aci} = 20.7 \text{ MPa}$ and $V_{gasi} = 2.06 \times 10^{-3} \text{ m}^3$).
 	\end{itemize}
 	
-	\subsubsection{Valves}
+	\subsubsection{Valve Parameterization}
 	
-	The EHA model utilizes check valves for anti-cavitation fluid replenishment and a pressure relief valve (PRV) for structural protection. The valve parameters were defined to accommodate the high flow rates of the system while prioritizing numerical stability in the simulation solver.
+	The EHA model utilizes two types of valves within the refeeding circuit: standard check valves for anti-cavitation fluid replenishment, and pilot-operated check valves for asymmetrical flow venting. The parameters for both valve types were defined to accommodate the high flow rates of the system while prioritizing numerical stability in the Simscape solver.
 	
 	\begin{itemize}
-		\item \textbf{Pressure Relief Valve Settings ($P_{set}$, $P_{reg}$):} The PRV prevents catastrophic over-pressurization during severe aerodynamic loading or piston hard-stop impacts. To ensure it does not prematurely bleed flow during standard operation, the cracking pressure ($P_{set}$) was established with a standard 15\% safety margin above the 20.7 MPa nominal system pressure:
-		$$P_{set} = 20.7 \cdot 1.15 \approx 23.8 \text{ MPa}$$
-		The pressure regulation range ($P_{reg}$), representing the differential required to transition the valve from just cracked to fully open, was assigned a standard hydraulic spring rate of approximately 10\% of the set pressure ($2.4 \text{ MPa}$).
+		\item \textbf{Cracking and Opening Pressures:} The standard check valves must immediately route fluid from the accumulator to the suction side of the pump to prevent cavitation. Consequently, the cracking pressure was set to a near-zero nominal value ($0.01 \text{ MPa}$) with a rapid full-opening threshold ($0.1 \text{ MPa}$). Similarly, the pilot-operated check valves were configured with a maximum opening pressure differential of $0.1 \text{ MPa}$ and a nominal pilot ratio of $1$, ensuring highly responsive flow venting when triggered by the opposing main line pressure.
 		
-		\item \textbf{Check Valve Pressures ($P_{crack}$, $P_{omax}$):} The check valves must immediately route fluid from the accumulator to the suction side of the pump to prevent cavitation. Consequently, the cracking pressure was set to a near-zero nominal value ($0.01 \text{ MPa}$) with a rapid full-opening threshold ($0.1 \text{ MPa}$) to ensure uninhibited flow recovery.
+		\item \textbf{Maximum Opening Areas ($A_{max}$, $A_{omax}$):} Given the high maximum volumetric flow rate of the pump ($\approx 361 \text{ L/min}$), both valve types were assigned large maximum opening areas ($1 \times 10^{-3} \text{ m}^2$). This ensures the valves can dump or replenish fluid at maximum flow without choking the system as restrictive orifices. The closed-state leakage area was minimized to $1 \times 10^{-10} \text{ m}^2$.
 		
-		\item \textbf{Maximum Opening Areas ($A_{max}$, $A_{omax}$):} Given the high maximum volumetric flow rate of the pump ($\approx 361 \text{ L/min}$), both the PRV and the check valves were assigned large maximum opening areas ($1 \times 10^{-3} \text{ m}^2$). This ensures the valves can dump or replenish fluid at maximum flow without choking the system as restrictive orifices.
-		
-		\item \textbf{Numerical Stability Parameters ($F_{sm}$, $F_{psm}$):} Standard hydraulic orifice equations can introduce severe algebraic loops and zero-crossing errors in numerical solvers when valves rapidly switch states. To assist the simulation solver, the pressure-flow smoothing factors ($F_{sm}$, $F_{psm}$) were increased from their default to 0.05. Furthermore, higher-order dynamic phenomena, such as pressure recovery and opening dynamics, were disabled to isolate the macro-level kinematic response of the actuator.
+		\item \textbf{Flow and Numerical Stability Parameters:} Standard hydraulic orifice equations can introduce severe algebraic loops and zero-crossing errors in numerical solvers when valves rapidly switch states. To assist the simulation solver, the pressure-flow smoothing factors ($F_{sm}$, $F_{psm}$) were explicitly set to $0.01$. The flow was parameterized using a standard orifice discharge coefficient ($C_{d} = 0.64$) and a critical Reynolds number ($Re_{crit} = 150$) for the laminar-to-turbulent transition. Furthermore, higher-order phenomena, such as pressure recovery and valve opening dynamics, were disabled to isolate the macro-level kinematic response of the actuator and prevent high-frequency solver chatter.
 	\end{itemize}
 	
 	\subsubsection{Actuator}
@@ -978,7 +999,7 @@
 			\label{fig:glandfrictiongraph}
 		\end{figure}
 		
-		\item \textbf{Leakage and Hard Stops:} To capture volumetric losses across the piston head, the piston-cylinder clearance was set to a nominal $0.1 \text{ mm}$ ($1 \times 10^{-4} \text{ m}$) with a piston head length of $10 \text{ mm}$ ($0.01 \text{ m}$). The mechanical hard stops were initialized with a default high stiffness coefficient ($1 \times 10^{10} \text{ N/m}$) to represent rigid structural boundaries at the limits of the $0.1636 \text{ m}$ stroke.
+		\item \textbf{Leakage and Hard Stops:} To capture volumetric losses across the piston head, the piston-cylinder clearance was set to $0.02 \text{ mm}$ ($2 \times 10^{-5} \text{ m}$) with a piston head length of $10 \text{ mm}$ ($0.01 \text{ m}$). The mechanical hard stops were initialized with a default high stiffness coefficient ($1 \times 10^{10} \text{ N/m}$) to represent rigid structural boundaries at the limits of the $0.1636 \text{ m}$ stroke.
 		
 		\item \textbf{Initial Conditions ($P_A$, $P_B$, $d_{ini}$):} To ensure the simulation initializes at a stable, steady-state equilibrium without transient startup shock, the pressures in Chambers A and B were balanced against the nominal system pressure ($P_{acnom} = 20.7 \text{ MPa}$). By setting $P_B = P_{acnom}$, the opposing pressure in Chamber A required to achieve a net-zero force ($F_{net} = P_A A_A - P_B A_B = 0$) is calculated as:
 		$$P_A = P_{acnom} \cdot \frac{A_B}{A_A}$$
@@ -986,6 +1007,7 @@
 	\end{itemize}
 
 	\subsubsection{Dynamic Mass}
+	\label{sec:dynamicmass}
 	
 	While static aerodynamic loads ($F_{ex}$) dictate the steady-state holding force required by the actuator, the dynamic control simulation must account for the inertial resistance of the stabilator during high-speed maneuvering. The force balance equation for the hydraulic jack (Equation \ref{eq:jack_eq}) includes the inertial term $M\ddot{x}_t$. To evaluate this properly, the rotational inertia of the stabilator must be reflected onto the linear axis of the actuator to define the equivalent linear mass ($M_{eq}$).
 	
@@ -1056,23 +1078,94 @@
 		\label{fig:blowdownlimits}
 	\end{figure}
 		
-	\subsection{Sensor setup description}
+	\subsection{Noise Setup According to Sensor}
 	
-	Do not forget to mention Balluf digital sensors we are using
-	
-	\subsection{Noise injection}
+	To accurately simulate the physical characteristics of the feedback loop, the measurement noise was modeled directly from the hardware specifications of the Balluff position sensor. According to the manufacturer data sheet \autocite{parker2hx3hx}, the digital PWM output features a minimum update rate of 0.5\,ms and a position repeatability of 2\,$\mu$m. To replicate this behavior within the Simulink environment, a Band-Limited White Noise block was implemented. The sample time ($T_s$) was strictly set to 0.0005\,s to match the hardware's digital update frequency. To achieve the corresponding physical noise amplitude (a standard deviation of $\sigma = 2 \times 10^{-6}$\,m), the required noise power was calculated using the relation $\text{Noise Power} = \sigma^2 \cdot T_s$. Consequently, the noise power parameter was configured to $2 \times 10^{-15}$. This exact parametrization ensures that the controller's derivative and filter terms are evaluated against realistic hardware signal jitter rather than arbitrary simulation noise.
 	
 	\subsection{PID tuning}
+	
+	\begin{table}[H]
+	\centering
+		\begin{tabular}{lcp{7cm}}
+	    	\hline
+	    	\textbf{Parameter} & \textbf{Requirement} & \textbf{Justification} \\
+	    		\hline
+	    		Overshoot & $\leq 5\%$ & At high velocities, excessive deflection beyond the commanded angle generates large aerodynamic loads, risking structural overload and loss of control. \\
+	    		\addlinespace
+	    		Settling Time & $\leq 1$ s & The flight control system must respond quickly to pilot inputs to maintain 
+	    		stability, particularly at 450 m/s where the aircraft dynamics are fast.The 1 s settling time ensures the pilot retains meaningful control before the aircraft has travelled too far. \\
+	    		\addlinespace
+	    		Steady-State Error & $\leq 0.2^\circ$ & An absolute angle is required because percentage based limits allow larger, unacceptable errors during wide maneuvers. Keeping the error around $0.2^\circ$ stops the tail from catching excess air at 450 m/s, preventing fuel wasting drag and autopilot drift. \\
+	    		\hline
+	    \end{tabular}
+	    \caption{PID control performance requirements}
+	    \label{tab:pid_requirements}
+	\end{table}
+	
+	Initial attempts to utilize the automated Simulink PID Tuner app resulted in failed linearizations, with the software proposing absurdly high, unstable controller gains in the millions. These automated values were discarded, as they failed to account for the physical saturation limits and non-linear dynamics of the actuator model. Following the implementation of the accurate Balluff sensor noise profile, a rigorous manual tuning methodology was employed to bring the system under control. The final, successful operational gains were manually tuned and locked in at $P = 100{,}000$, $I = 50{,}000$, and $D = 20{,}000$, utilizing an active filtered derivative with a coefficient of $N = 1$. Integrator saturation was set to $\pm30$ to prevent the I term from creating excessive overshoot while still allowing it to drive the actual signal toward the commanded one in steady state. Overall output saturation was set to $\pm350$ since it corresponds to the standard $\pm350 \text{V}$ operating range of a DC bus.
+	
+	To verify the performance of the manually tuned PID controller ($P = 100{,}000$, $I = 50{,}000$, $D = 20{,}000$, $N = 1$), the system was evaluated against a $-20^\circ$ target deflection. The simulated response demonstrated exceptional tracking capabilities, achieving a settling time of exactly $0.34$\,s for the deflection of $-20^\circ$, which falls well within the strict $1.0$\,s maximum requirement. Furthermore, the transient response exhibited a near-zero overshoot of only $0.1^\circ$, easily satisfying the sub-$5\%$ constraint, while the final steady-state error stabilized at a minimal $0.2^\circ$. These final metrics confirm that the control architecture successfully manages the simulated hardware constraints and aerodynamic loads, strictly satisfying all defined design requirements for the stabilator system.
+	
+	\section{System Overview}
+	
+	\subsection{System Architecture and Dependencies}
+	
+	MATLAB (R2025b version was used for development) and Simulink are required to run the system. Within Simulink the following Add-Ons have to be installed: Simscape, Simscape Electrical, Simscape Fluids.
+	
+	The repository is organized in the following way:
+	
+	\dirtree{%
+		.1 Root.
+		.2 \dots Git and GitHub files.
+		.2 Horizontal-Stabilator-Control-F22.prj.
+		.2 Code\_files.
+		.3 EHA\_initialization.m.
+		.3 f\_22\_stabilator\_control.slx.
+		.3 import\_aerodynamic\_coefficients.m.
+		.3 plot\_data.m.
+		.3 Relation.m.
+		.3 Requirements\_calculation.m.
+		.3 Re\_calculations.m.
+		.3 Variable\_mass.ssc.
+		.3 airfoil\_analysis.
+		.4 airfoil.xfl.
+		.4 REmax\_results.csv.
+		.4 REmin\_results.csv.
+		.2 Report.
+		.3 \dots \LaTeX\ build files and media.
+		.2 resources.
+		.3 \dots Project metadata (XML).
+		.2 slprj.
+		.3 \dots Simulink build cache.
+	}
+	
+	To run the simulation, the user has to open the file named \path{f_22_stabilator_control.slx}. The callback is set up so that before the simulation starts the files \path{Relation.m} and \path{EHA_initialization.m} will be executed providing the necessary input data for the simulation. The \path{Relation.m} script calls the \path{Re_calculations.m} function where all the stabilator and aircraft performance parameters are calculated. The aerodynamic coefficients are imported from the \path{airfoil_analysis} folder using the \path{import_aerodynamic_coefficients.m} script. 
+	
+	\path{plot_data.m} is called by \path{Relation.m} only when \path{Relation.m} is executed manually and not as a callback function. This script automatically generates all the plots found in the report and places them in the appropriate folder.
+	
+	\path{Requirements_calculation.m} is a separate function used solely to derive the theoretical actuator requirements and and neither it nor \path{plot_data.m} is executed within the callback.
+	
+	\path{Variable_mass.ssc} defines a custom Variable Mass block which was not provided by Simulink/Simscape.
+
+	\subsection{Key operation principle}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_complete_model}
+		\caption{}
+		\label{fig:simulinkcompletemodel}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_deflection_scope}
+		\caption{}
+		\label{fig:simulinkdeflectionscope}
+	\end{figure}
 	
 	\section{Conclusion}
 	
 	\newpage
 	\printbibliography
-	\newpage
-	\appendix
-	\section{Any MATLAB file}
 	
-	\begin{lstlisting}[style=myMatlabStyle]
-	MATLAB code goes here
-	\end{lstlisting}
 \end{document}
