@@ -1013,14 +1013,15 @@ To accurately simulate the physical characteristics of the feedback loop, the me
 	     		Overshoot & $\leq 5\%$ & At high velocities, excessive deflection beyond the commanded angle generates large aerodynamic loads, risking structural overload and loss of control. \\
 	     		\addlinespace
 	     		Settling Time & $\leq 1$ s & The flight control system must respond quickly to pilot inputs to maintain 
-	     		stability, particularly at 450 m/s where the aircraft dynamics are fast.\\
+	     		stability, particularly at 450 m/s where the aircraft dynamics are fast.The 1 s settling time ensures the pilot retains meaningful control before the aircraft has travelled too far. \\
 	     		\addlinespace
-	     		Steady-State Error & $\leq 2\%$ & Persistent offset between the commanded and actual deflection angle directly affects aircraft trim and trajectory accuracy. \\
+	     	    Steady-State Error & $\leq 0.2^\circ$ & An absolute angle is required because percentage based limits allow larger, unacceptable errors during wide maneuvers. Keeping the error around $0.2^\circ$ stops the tail from catching excess air at 450 m/s, preventing fuel wasting drag and autopilot drift. \\
 	     		\hline
 	     	\end{tabular}
 	     	\caption{PID control performance requirements}
 	     	\label{tab:pid_requirements}
 	     \end{table}
+	     
 	     To verify the performance of the manually tuned PID controller ($P = 100{,}000$, $I = 50{,}000$, $D = 20{,}000$, $N = 1$), the system was evaluated against a $-20^\circ$ target deflection. The simulated response demonstrated exceptional tracking capabilities, achieving a settling time of exactly $0.34$\,s, which falls well within the strict $1.0$\,s maximum requirement. Furthermore, the transient response exhibited a near-zero overshoot of only $0.1^\circ$, easily satisfying the sub-$5\%$ constraint, while the final steady-state error stabilized at a minimal $0.2^\circ$. These final metrics confirm that the control architecture successfully manages the simulated hardware constraints and aerodynamic loads, strictly satisfying all defined design requirements for the stabilator system.
 	
 	\section{Conclusion}
