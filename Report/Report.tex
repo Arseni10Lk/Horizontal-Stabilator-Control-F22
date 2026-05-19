@@ -82,14 +82,14 @@
 	\subsection{Plane general description and geometrical parameters}
 	
 	The F-22 Raptor is the world's first operational  fifth generation fighter jet built by Lockheed Martin. Since its initial flight in 1997 and entry to service in 2005, it has maintained air superiority by integrating stealth, supercruise, and advanced sensor suites.\autocite{wiki:f22_raptor}
-	The aircraft features an open system architecture that allows for continuous digital modernization. Mentioned features combined with high performance engines and integrated flight controls allows the Raptor to dominate contested airspace. \autocite{lm:f22_product}
+	The aircraft features an open system architecture that allows for continuous digital modernization. Mentioned features combined with high performance engines and integrated flight controls allows the Raptor to dominate contested airspace \autocite{lm:f22_product} (see Table \ref{table:data}). 
 	
 	\begin{table}[h!]
 		\centering
-		\begin{tabular}{||c c c c||} 
-			\hline
+		\begin{tabular}{l c c c} 
+			\toprule
 			Parameter & Symbol & Value & Unit \\ [0.5ex] 
-			\hline\hline
+			\midrule
 			Length & L & 18.90 & m \\
 			Height & h & 5.08 & m \\
 			Wingspan & b & 13.56 & m\\
@@ -97,7 +97,7 @@
 			Aspect Ratio & AR & 2.36 & -\\
 			Horizontal Tail Span & $b_{h}$ & 8.84 & m\\ 
 			Horizontal Tail Stabilator Area & $b_{A}$ & 6.315 & $m^{2}$\\ [1ex] 
-			\hline
+			\bottomrule
 		\end{tabular}
 		\caption[The F-22 Geometrical parameters]{The F-22 Geometrical parameters\footnotemark\textsuperscript{,}\footnotemark}
 		\label{table:data}
@@ -109,7 +109,9 @@
 	
 	\subsection{Stabilator geometry and description}
 	
-	\begin{figure}[H]
+	The overall dimensions and planform of the horizontal stabilator are established based on available geometric data to serve as the baseline for subsequent aerodynamic and inertial calculations (see fig. \ref{fig:stabilator_geom}).
+	
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.8\textwidth]{Media/Stabilator_Dimensioned}
 		\caption{Geometrical dimensions of the F-22 horizontal stabilator in neutral position (values are all in mm).}
@@ -138,7 +140,9 @@
 	
 	\subsection{Actuator geometry}
 	
-	\begin{figure}[H]
+	The kinematic layout and dimensional parameters of the actuator assembly within the aft fuselage, critical for determining the mechanical advantage, are depicted in figure \ref{fig:actuator_geometry}.
+	
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.8\textwidth]{Media/Actuator_Dimensioned}
 		\caption{Geometric layout and dimensional parameters of the F-22 horizontal stabilator actuator assembly in neutral position (values are all in mm).}
@@ -146,7 +150,8 @@
 	\end{figure}
 	
 	\section{Extension vs deflection function}
-		Based on the geometric layout of the actuator mechanism, a mathematical relationship between the linear extension of the actuator ($\Delta x$) and the resulting angular deflection of the stabilator ($\Delta \alpha$) can be established.
+		
+	Based on the geometric layout of the actuator mechanism, a mathematical relationship between the linear extension of the actuator ($\Delta x$) and the resulting angular deflection of the stabilator ($\Delta \alpha$) can be established.
 	
 	Let us define the geometric parameters (fig. \ref {fig:relationanalytical-solution}):
 	\begin{itemize}
@@ -193,20 +198,29 @@
 		\label{eq:analyt-relation}
 	\end{equation}
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[angle=90,trim=14cm 0 0 0, clip, width=1\linewidth]{"Media/Relation_analytical solution"}
 		\caption{Simplified geometry of the system. Positive $\Delta \alpha$ corresponds to higher Angle of Attack, meaning that the angle in the image is negative.}
 		\label{fig:relationanalytical-solution}
 	\end{figure}
 	
+	This analytical relationship is plotted across the full stroke range to visualize the nonlinear mechanical advantage of the system (see fig. \ref{fig:actuatordeflection}). The corresponding block implementation is shown in fig. \ref{fig:simulinkgeometrysubsystem}
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[trim=0 0 0 0.33cm, clip, width=1\linewidth]{Media/Actuator_Deflection}
 		\caption{Stabilator deflection as a function of the actuator extension. The graph is based on the equation \ref{eq:analyt-relation}.}
 		\label{fig:actuatordeflection}
 	\end{figure}	
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_geometry_subsystem}
+		\caption{The \texttt{Geometry} subsystem in Simulink. After the allowed deflection is capped (see \nameref{sec:blowdownlimits} section) the total extension is found based on the established relation (see fig. \ref{fig:actuatordeflection})}
+		\label{fig:simulinkgeometrysubsystem}
+	\end{figure}
+	
 	
 	\section{Load modeling}
 	
@@ -222,26 +236,30 @@
     The first step in load modelling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F 22's stabilator according to literature,\autocite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
     For this analysis, the NACA 0010 airfoil was evaluated over a wide range of angles of attack, from $-25^\circ$ to $30^\circ$. Simulations were conducted for Reynolds numbers at maximum and minimum speed at 60k ft. The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modelling. 
 	
-	\begin{figure}[H]
+	The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modelling (see fig. \ref{fig:aerodynamiccoefficients}).
+	
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Aerodynamic_coefficients}
-		\caption{}
+		\caption{Lift, drag, and moment coefficients for the NACA 0010 airfoil evaluated across a range of angles of attack for maximum and minimum operational velocities.}
 		\label{fig:aerodynamiccoefficients}
 	\end{figure}
 	
 	\subsection{Loads in the system}
 	
+	To properly formulate the equilibrium equations, free body diagrams were constructed for the pivot shaft (fig. \ref{fig:pivotshaft}), the complete actuator assembly (fig. \ref{fig:actuatorfbd}), and the airfoil section (fig. \ref{fig:airfoilfbd}).
+	
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Media/Pivot_Shaft}
-		\caption{}
+		\caption{Free body diagram of the pivot shaft.}
 		\label{fig:pivotshaft}
 	\end{figure}
 	
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Media/Actuator_FBD}
-		\caption{}
+		\caption{Free body diagram of the actuator.}
 		\label{fig:actuatorfbd}
 	\end{figure}
 	
@@ -249,7 +267,7 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Media/Airfoil_FBD}
-		\caption{}
+		\caption{Free body diagram of the horizontal stabilator.}
 		\label{fig:airfoilfbd}
 	\end{figure}
 	
@@ -320,14 +338,16 @@
 		F_{act} = \frac{M_{stab} + F_y \cdot L_{arm} \cos(\Delta \alpha) + F_x \cdot L_{arm} \sin(\Delta \alpha)}{\frac{2 \cdot \sqrt{\frac{L_{act} + a + r}{2}(\frac{L_{act} + a + r}{2} - L_{act})(\frac{L_{act} + a + r}{2} - a)(\frac{L_{act} + a + r}{2} - r)}}{L_{act}}}
 	\end{equation}
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Force_on_Actuator}
 		\caption{Force on the actuator for two extreme cases - minimum and maximum velocities}
 		\label{fig:forceonactuator}
 	\end{figure}
 
-	\begin{figure}[H]
+	The complete theoretical force profile required from the actuator, evaluated across the entire flight envelope and deflection range, is visualized as a 3D surface in figure \ref{fig:actuatorloads3d}.
+
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Actuator_Loads_3D}
 		\caption{Force on the actuator for all the analyzed cases.}
@@ -344,7 +364,7 @@
 	
 	The mathematical model of the FPVM-EHA can be decomposed into three primary subsystems: the DC motor, the hydraulic pump, and the hydraulic jack.
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Simulink_actuator_model.png}
 		\caption{A complete model of the EHA actuator. It was implemented using Simscape add-on in Simulink.}
@@ -369,7 +389,9 @@
 	\end{equation}
 	where $U_c$ is the command voltage, $i$ is the current, $E$ is the back electromotive force, $T_e$ is the electromagnetic torque, $\omega$ is the rotational speed, $J$ represents the total inertia of the motor and pump, $\lambda$ is the viscous rotor damping coefficient, and $T_l$ is the load torque.
 	
-	\begin{figure}[H]
+	The corresponding block diagram implementation of these electrical dynamics is shown in figure \ref{fig:simulinkdcmotormodel}.
+	
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.6\linewidth]{Media/Simulink_DCmotor_model}
 		\caption{DC Motor model in Simulink. The voltage is taken from the controller and fed into the motor. The voltage sensor is connected in parallel to the voltage source.}
@@ -382,25 +404,9 @@
 		Q_{ideal} = D\omega
 	\end{equation}
 	
-	The volumetric leakage flow ($Q_{leak}$) is correlated with the pressure differential across the pump ($\Delta P = P_1 - P_2$) using an analytical Hagen-Poiseuille coefficient ($K$):
-	\begin{equation}
-		Q_{leak} = K \Delta P
-	\end{equation}
+	The physical block network capturing these flow and leakage dynamics is illustrated in figure \ref{fig:simulinkpumpmodel}.
 	
-	This coefficient is determined internally by the solver using the baseline volumetric efficiency ($\eta_v$) evaluated at the nominal pressure gain ($\Delta P_{nom}$) and nominal shaft speed ($\omega_{nom}$):
-	\begin{equation}
-		K = \frac{D \omega_{nom} (1 - \eta_v)}{\Delta P_{nom}}
-	\end{equation}
-	
-	Consequently, the actual flow equations for the pump outlet ($Q_1$) and entry ($Q_2$) in a standard forward-pumping mode are defined by subtracting the analytically derived leakage from the ideal flow:
-	\begin{equation}
-		Q_{1} = Q_{ideal} - Q_{leak}
-	\end{equation}
-	\begin{equation}
-		Q_{2} = Q_{ideal} - Q_{leak}
-	\end{equation}
-	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.4\linewidth]{Media/Simulink_Pump_model}
 		\caption{Pump model in Simulink. The RPMs fed into the pump originate from the DC motor and are measured by a sensor.}
@@ -424,11 +430,11 @@
 		\item \textbf{Pilot-Operated Venting Valves:} To dump excess fluid during unbalanced operations, two pilot-operated check valves are cross-connected to the main lines. The high-pressure supply line acts as the pilot signal to open the check valve on the low-pressure return line.
 		\begin{itemize}
 			\item When $P_2$ is pressurized (retraction), it pilots the top valve open, allowing excess return fluid from Chamber A to flow through the valve into the accumulator ($Q_{1 \to ac}$).
-			\item When $P_1$ is pressurized (extension), it pilots the bottom valve open, allowing fluid from Chamber B to flow into the accumulator ($Q_{2 \to ac}$).
+			\item When $P_1$ is pressurized (extension), it pilots the bottom valve open, allowing fluid from Chamber B to flow into the accumulator ($Q_{2 \to ac}$). The physical block network capturing these refeeding dynamics is illustrated in fig.~\ref{fig:simulinkrefeedingaccumulatormodel}.
 		\end{itemize}
 	\end{enumerate}
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.6\linewidth]{Media/Simulink_Refeeding_accumulator_model}
 		\caption{Both pipes filled with the fluid coming from the pump are connected to the refeeding circuit and the accumulator. At first, both lines are connected to check vales which later connect to the accumulator whose pressure is monitored by a sensor. Later both lines are connected to pilot-operated check valves which dump the excess fluid into the accumulator. This flow rate is monitored by a sensor.}
@@ -466,11 +472,14 @@
 		P_{1}A_{A} - P_{2}A_{B} = M_{eq}\ddot{x}_{t} + F_{ex} + F_{fric} + F_{HS}
 		\label{eq:jack_eq}
 	\end{equation}
-	where $\ddot{x}_{t}$ represents the linear acceleration of the actuator. 
+
+	where $\ddot{x}_{t}$ represents the linear acceleration of the actuator.
 	
 	The hard stop force ($F_{HS}$) represents the nonlinear structural compliance at the extremes of the piston stroke (full extension or retraction). Modeled as a high-stiffness spring-damper system, $F_{HS} = 0$ during normal stroke operation but applies severe opposing force when the piston encroaches upon the predefined boundaries of the 163.61 mm stroke limit.
+
+	This complex mechanical interaction, including the hard stops, is captured within the hydraulic jack subsystem (see fig. \ref{fig:simulinkjackmodel}).
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Simulink_jack_model}
 		\caption{Hydraulic jack model in Simulink. The set of blocks in the right part of the image represents the system accounting for the varying equivalent mass (see \nameref{sec:dynamicmass} section).}
@@ -509,7 +518,6 @@
 	\begin{equation}
 		v_{act} = \max \left| \frac{d(\Delta x)}{d(\Delta \alpha)} \right| \cdot \dot{\alpha}_{max} = 185.84 \text{ mm/s}
 	\end{equation}
-	\vspace{0.5cm}
 	
 	\subsubsection{Load and Envelope Limiting Strategy}
 	The theoretical structural loads ($F_{act}$) and corresponding power requirements ($P_{mech, max}$ and $P_{elec, max}$) are mathematically derived by evaluating the absolute extremes across all simulated velocities and deflection angles. 
@@ -517,10 +525,8 @@
 	These theoretical requirements for the EHA are presented in Table \ref{table:hydro_reqs}. However, calculating hinge moments at maximum velocity (Mach 2.25) and maximum deflection ($30^\circ$) yields theoretical loads exceeding 1.18 MN and electrical power demands approaching 288 kW. In reality, such deflections at maximum dynamic pressure are impractical and would cause catastrophic structural failure. Modern flight control systems employ \enquote{blowdown limits} to actively restrict control surface deflection at high speeds.
 	
 	For that reason, rather than sizing a theoretical actuator to meet impossible worst-case loads, an actuator produced by typical American military suppliers (e.g., Moog or Parker Aerospace) that meets the practical kinematic requirements will be selected. After that, the allowed deflection angles at different speeds will be calculated based on the maximum load capabilities of that specific actuator.
-	
-	\vspace{2cm} 
-	
-	\begin{table}[H]
+
+	\begin{table}[htbp]
 		\centering
 		\begin{tabular}{l c c}
 			\toprule
@@ -537,42 +543,40 @@
 		\caption{Derived EHA actuator performance and load requirements. Theoretical requirements correspond to impossible scenarios. An actuator will be chosen based on the practical parameters alone.}
 		\label{table:hydro_reqs}
 	\end{table}
-	\vspace{5cm}
 	
 	\section{Commercial product selection}
-    	The Parker Series 3HX (G-Group) is a heavy duty electrohydraulic cylinder designed for high force applications requiring precision feedback. This configuration, utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff), has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}
+    	The Parker Series 3HX (G-Group) is a heavy duty electrohydraulic cylinder designed for high force applications requiring precision feedback. This configuration, utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff), has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}. The general technical drawing and physical envelope for this cylinder series are provided in figure \ref{fig:actuatordrawing}.
     	
-    	\begin{figure}[H]
-    	\vspace{2cm}
+    	\begin{figure}[htbp]
     	\centering
     	\includegraphics[width=1\linewidth]{Media/Actuator_drawing}
     	\caption{Actuator technical drawing}
     	\label{fig:actuatordrawing}
         \end{figure}
-    	
-    	\vspace{4cm}
+ 
 		\subsection{Performance Parameters}
 		\label{sec:actuator-limits}
-		
-		The following table summarizes the derived performance based on an 8.00 inch bore diameter.
-		
-		\begin{table}[H]
+	
+		The derived performance based on an 8.00 inch bore diameter is summarized in Table \ref{tab:actuator_performance}.
+
+		\begin{table}[htbp]
 			\centering
-			\begin{tabular}{l c }
+			\begin{tabular}{l c}
 				\toprule
 				Parameter & Value \\
 				\midrule
-		    	Bore Diameter & 0.2032 m \\
-		    	Rod Diameter & 0.0889 m \\
-			    Pressure & 20,680 kPa \\
-			    Compressive Force & 670.297 kN \\
-			    Tensile Force & 541.998 kN \\
-			    Total Stroke & 163.61 mm \\
-		    	Fluid Flow & 6.0236 L/s \\
-			    Mechanical Power & 124.568 kW \\
+				Bore Diameter & 0.2032 m \\
+				Rod Diameter & 0.0889 m \\
+				Pressure & 20,680 kPa \\
+				Compressive Force & 670.297 kN \\
+				Tensile Force & 541.998 kN \\
+				Total Stroke & 163.61 mm \\
+				Fluid Flow & 6.0236 L/s \\
+				Mechanical Power & 124.568 kW \\
 				\bottomrule
 			\end{tabular}
-			\caption{Actuator Performance Calculations (Modified Stroke length and Slew Rate) }
+			\caption{Actuator Performance Calculations (Modified Stroke length and Slew Rate)}
+			\label{tab:actuator_performance}
 		\end{table}
 		
     	\subsubsection{Calculations}
@@ -633,9 +637,8 @@
 			
 			\item \textbf{Feedback:} A magnetostrictive linear displacement transducer (LDT) from Balluff is selected to provide absolute position feedback. The sensor operates at a nominal input of 24 VDC and supports both analog and digital output interfaces.
 			An initial design considered analog feedback due to its high update rate (up to 4 kHz). However, the final system configuration utilizes a digital interface to improve noise and signal integrity in the control system. The resulting update rate is limited by the controller to approximately 0.5 ms, which remains sufficient to capture the actuator dynamics at the specified slew rate.
-			The sensor provides high repeatability (2 µm min) and linearity within ±0.01\%, ensuring accurate position tracking over the full stroke. The available measuring range exceeds the required 163.61 mm stroke.
-			
-			\begin{table}[H]
+			The sensor provides high repeatability (2 µm min) and linearity within ±0.01\%, ensuring accurate position tracking over the full stroke. The key specifications of the selected sensor are outlined in Table \ref{tab:balluff_specs}.
+			\begin{table}[htbp]
 				\centering
 				\begin{tabular}{l c}
 					\toprule
@@ -649,9 +652,9 @@
 					Vibration Rating & 20\,g / 10--2000\,Hz  \\
 					\bottomrule
 				\end{tabular}
-				\caption{Balluf Position Feedback System -- Key Specifications }
+				\caption{Balluf Position Feedback System -- Key Specifications}
+				\label{tab:balluff_specs}
 			\end{table}
-			
 			
 		\end{itemize}
 		
@@ -661,7 +664,7 @@
 		
 		The primary performance targets derived from the actuator analysis are summarised in Table \ref{table:eha_targets}.
 		
-		\begin{table}[H]
+		\begin{table}[htbp]
 			\centering
 			\begin{tabular}{l c c}
 				\toprule
@@ -677,9 +680,7 @@
 			\label{table:eha_targets}
 		\end{table}
 		
-		
 		\subsubsection{Hydraulic Pump — Parker F12-162}
-
 		
 		\textbf{Selection Rationale}
 		
@@ -703,7 +704,7 @@
 		
 		Table \ref{table:pump_sizing} evaluates the candidate F12 displacements against this criterion.
 		
-		\begin{table}[H]
+		\begin{table}[htbp]
 			\centering
 			\begin{tabular}{l c c c c}
 				\toprule
@@ -732,9 +733,7 @@
 		
 		The F12-162 (163.1 cc/rev) is selected because it satisfies the flow requirement at a shaft speed of approximately 2,216 RPM ,well within the pump's continuous operating envelope, while producing a motor torque demand of 535 Nm that is achievable with available aerospace grade DC motors. Operating at a system pressure of 207 bar against a rated pressure of 420 bar provides a large margin between the required and maximum operating pressures.
 		
-	
 		\subsubsection{DC Drive Motor — Parker GVM310-250-BA1-W}
-	
 		
 		\textbf{Selection Rationale}
 		
@@ -745,7 +744,9 @@
 		
 		\textbf{Motor Specification Targets}
 		
-		\begin{table}[H]
+		The primary targets are summarized in Table \ref{table:motor_targets}
+		
+		\begin{table}[htbp]
 			\centering
 			\begin{tabular}{l c c}
 				\toprule
@@ -767,7 +768,7 @@
 		
 		Within the GVM310 range, the GVM310-250-BA1-W at 350 VDC is selected. Its rated specifications are compared against the targets in Table \ref{table:motor_selection}.
 		
-		\begin{table}[H]
+		\begin{table}[htbp]
 			\centering
 			\begin{tabular}{l c c c}
 				\toprule
@@ -811,13 +812,11 @@
 		\subsubsection{Hydraulic Fluid --- MIL-PRF-83282D}
 		
 		\textbf{Selection Rationale}
-		
-		The hydraulic fluid is selected last, after all hardware components are fixed, because the fluid must be chemically compatible with the seals, hose materials, and internal surfaces of every component in the circuit. The MIL-PRF-83282D is selected. It is the standard hydraulic fluid in modern United States military fixed wing aircraft and represents the current revision of the specification. The fluid is identified by NATO Code Number H-537, ensuring interoperability with allied aircraft maintenance infrastructure.
-		
-		\vspace{3 cm}
+
+		The hydraulic fluid is selected last, after all hardware components are fixed, because the fluid must be chemically compatible with the seals, hose materials, and internal surfaces of every component in the circuit. The MIL-PRF-83282D is selected. It is the standard hydraulic fluid in modern United States military fixed wing aircraft and represents the current revision of the specification. The fluid is identified by NATO Code Number H-537, ensuring interoperability with allied aircraft maintenance infrastructure (see Table \ref{tab:mil_prf_83282d}).
 		
 		\textbf{Key Physical Properties}
-		\begin{table}[H]
+		\begin{table}[htbp]
 			\centering
 			\begin{tabular}{l l}
 				\toprule
@@ -838,7 +837,7 @@
 		
 		Table~\ref{table:component_summary} consolidates the four selected EHA components and their primary justification.
 		
-		\begin{table}[H]
+		\begin{table}[htbp]
 			\centering
 			\begin{tabular}{l l l}
 				\toprule
@@ -858,8 +857,6 @@
 			\caption{Summary of selected EHA components.}
 			\label{table:component_summary}
 		\end{table}
-	
-	
 		
 	\subsection{Stabilator Description}
 	The structural mass of the F-22 horizontal stabilator was estimated by modeling the geometry as a multi-panel tapered wing section. Given the high-speed requirements and thermal environment of the aircraft, a sandwich construction was assumed, consisting of a titanium honeycomb core and carbon fiber bismaleimide (BMI) skins.
@@ -985,14 +982,14 @@
 		The Coulomb friction force coefficient represents the linear slope of the friction-to-pressure relationship ($\frac{\Delta F}{\Delta P}$). Taking the average slope from 0 to 3000 psi (see fig. \ref{fig:sealfrictiongraph}):
 		$$C_{fc} = \frac{(480 - 30) \text{ lbf} \cdot 4.448 \text{ N/lbf}}{3000 \text{ psi} \cdot 6894.76 \text{ Pa/psi}} \approx 9.68 \times 10^{-5} \text{ N/Pa}$$
 		
-		\begin{figure}[H]
+		\begin{figure}[htbp]
 			\centering
 			\includegraphics[width=0.8\linewidth]{Media/Seal_friction_graph}
 			\caption{Seal friction versus system pressure.}
 			\label{fig:sealfrictiongraph}
 		\end{figure}
 		
-		\begin{figure}[H]
+		\begin{figure}[htbp]
 			\centering
 			\includegraphics[width=0.8\linewidth]{Media/Gland_Friction_graph}
 			\caption{Gland friction versus system pressure.}
@@ -1046,6 +1043,7 @@
 	\section{Control System Design}
 	
 	\subsection{Blowdown limits}
+	\label{sec:blowdownlimits}
 	
 	At certain velocities large deflections would result in a loss of control over the stabilator since it would be pinned at the maximum or minimum deflection and the actuator would not be able to generate sufficient force to change the angle and for this reason it is necessary to introduce blowdown limits. The allowed deflection angles are calculated dynamically based on the maximum load capabilities of the selected Parker Series 3HX actuator (see the \nameref{sec:actuator-limits} section).
 	
@@ -1069,9 +1067,9 @@
 		\frac{F_{max\_tens}}{SF} \le F_{act}(V, \Delta \alpha) \le \frac{F_{max\_comp}}{SF}
 	\end{equation}
 	
-	For any given velocity $V$, the flight control system restricts the stabilator to the maximum and minimum deflection angles that satisfy the allowed deflection inequality. If the required actuator force exceeds these bounded thresholds, the deflection is electronically limited to prevent structural overload.
+	For any given velocity $V$, the flight control system restricts the stabilator to the maximum and minimum deflection angles that satisfy the allowed deflection inequality. If the required actuator force exceeds these bounded thresholds, the deflection is electronically limited to prevent structural overload. The resulting safe operating envelope across the velocity spectrum is plotted in figure \ref{fig:blowdownlimits}.
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Blowdown_limits}
 		\caption{Blowdown limits. The green area corresponds to the safe operating range, while the yellow area corresponds to theoretically controllable deflection, which is not allowed to be used due to a safety factor.}
@@ -1080,11 +1078,18 @@
 		
 	\subsection{Noise Setup According to Sensor}
 	
-	To accurately simulate the physical characteristics of the feedback loop, the measurement noise was modeled directly from the hardware specifications of the Balluff position sensor. According to the manufacturer data sheet \autocite{parker2hx3hx}, the digital PWM output features a minimum update rate of 0.5\,ms and a position repeatability of 2\,$\mu$m. To replicate this behavior within the Simulink environment, a Band-Limited White Noise block was implemented. The sample time ($T_s$) was strictly set to 0.0005\,s to match the hardware's digital update frequency. To achieve the corresponding physical noise amplitude (a standard deviation of $\sigma = 2 \times 10^{-6}$\,m), the required noise power was calculated using the relation $\text{Noise Power} = \sigma^2 \cdot T_s$. Consequently, the noise power parameter was configured to $2 \times 10^{-15}$. This exact parametrization ensures that the controller's derivative and filter terms are evaluated against realistic hardware signal jitter rather than arbitrary simulation noise.
+	To accurately simulate the physical characteristics of the feedback loop, the measurement noise was modeled directly from the hardware specifications of the Balluff position sensor. According to the manufacturer data sheet \autocite{parker2hx3hx}, the digital PWM output features a minimum update rate of 0.5\,ms and a position repeatability of 2\,$\mu$m. To replicate this behavior within the Simulink environment, a Band-Limited White Noise block was implemented. The sample time ($T_s$) was strictly set to 0.0005\,s to match the hardware's digital update frequency. To achieve the corresponding physical noise amplitude (a standard deviation of $\sigma = 2 \times 10^{-6}$\,m), the required noise power was calculated using the relation $\text{Noise Power} = \sigma^2 \cdot T_s$. Consequently, the noise power parameter was configured to $2 \times 10^{-15}$. This exact parametrization ensures that the controller's derivative and filter terms are evaluated against realistic hardware signal jitter rather than arbitrary simulation noise (see fig. \ref{fig:simulinksensorsubsystem}).
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_sensor_subsystem}
+		\caption{The Simulink sensor subsystem incorporating Band-Limited White Noise to replicate the Balluff position sensor's parameters.}
+		\label{fig:simulinksensorsubsystem}
+	\end{figure}
 	
 	\subsection{PID tuning}
 	
-	\begin{table}[H]
+	\begin{table}[htbp]
 	\centering
 		\begin{tabular}{lcp{7cm}}
 	    	\hline
@@ -1102,9 +1107,18 @@
 	    \label{tab:pid_requirements}
 	\end{table}
 	
-	Initial attempts to utilize the automated Simulink PID Tuner app resulted in failed linearizations, with the software proposing absurdly high, unstable controller gains in the millions. These automated values were discarded, as they failed to account for the physical saturation limits and non-linear dynamics of the actuator model. Following the implementation of the accurate Balluff sensor noise profile, a rigorous manual tuning methodology was employed to bring the system under control. The final, successful operational gains were manually tuned and locked in at $P = 100{,}000$, $I = 50{,}000$, and $D = 20{,}000$, utilizing an active filtered derivative with a coefficient of $N = 1$. Integrator saturation was set to $\pm30$ to prevent the I term from creating excessive overshoot while still allowing it to drive the actual signal toward the commanded one in steady state. Overall output saturation was set to $\pm350$ since it corresponds to the standard $\pm350 \text{V}$ operating range of a DC bus.
+	Initial attempts to utilize the automated Simulink PID Tuner app resulted in failed linearizations, with the software proposing absurdly high, unstable controller gains in the millions. These automated values were discarded, as they failed to account for the physical saturation limits and non-linear dynamics of the actuator model. Following the implementation of the accurate Balluff sensor noise profile, a rigorous manual tuning methodology was employed to bring the system under control. The final, successful operational gains were manually tuned and locked in at $P = 100{,}000$, $I = 50{,}000$, and $D = 20{,}000$, utilizing an active filtered derivative with a coefficient of $N = 1$. Integrator saturation was set to $\pm30$ to prevent the I term from creating excessive overshoot while still allowing it to drive the actual signal toward the commanded one in steady state. Overall output saturation was set to $\pm350$ since it corresponds to the standard $\pm350 \text{V}$ operating range of a DC bus
+	(see fig. \ref{fig:simulinkcontrollersubsystem}).
 	
-	To verify the performance of the manually tuned PID controller ($P = 100{,}000$, $I = 50{,}000$, $D = 20{,}000$, $N = 1$), the system was evaluated against a $-20^\circ$ target deflection. The simulated response demonstrated exceptional tracking capabilities, achieving a settling time of exactly $0.34$\,s for the deflection of $-20^\circ$, which falls well within the strict $1.0$\,s maximum requirement. Furthermore, the transient response exhibited a near-zero overshoot of only $0.1^\circ$, easily satisfying the sub-$5\%$ constraint, while the final steady-state error stabilized at a minimal $0.2^\circ$. These final metrics confirm that the control architecture successfully manages the simulated hardware constraints and aerodynamic loads, strictly satisfying all defined design requirements for the stabilator system.
+	To verify the performance of the manually tuned PID controller ($P = 100{,}000$, $I = 50{,}000$, $D = 20{,}000$, $N = 1$), the system was evaluated against a $-20^\circ$ target deflection. The simulated response demonstrated exceptional tracking capabilities, achieving a settling time of exactly $0.34$\,s for the deflection of $-20^\circ$, which falls well within the strict $1.0$\,s maximum requirement. Furthermore, the transient response exhibited a near-zero overshoot of only $0.1^\circ$, easily satisfying the sub-$5\%$ constraint, while the final steady-state error stabilized at a minimal $0.2^\circ$. These final metrics confirm that the control architecture successfully manages the simulated hardware constraints and aerodynamic loads, strictly satisfying all defined design requirements for the stabilator system (see Table \ref{tab:pid_requirements}).
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_controller_subsystem}
+		\caption{The Simulink controller subsystem featuring the inverted manually tuned PID.}
+		\label{fig:simulinkcontrollersubsystem}
+	\end{figure}
+
 	
 	\section{System Overview}
 	
@@ -1143,27 +1157,31 @@
 	
 	\path{plot_data.m} is called by \path{Relation.m} only when \path{Relation.m} is executed manually and not as a callback function. This script automatically generates all the plots found in the report and places them in the appropriate folder.
 	
-	\path{Requirements_calculation.m} is a separate function used solely to derive the theoretical actuator requirements and and neither it nor \path{plot_data.m} is executed within the callback.
+	\path{Requirements_calculation.m} is a separate function used solely to derive the theoretical actuator requirements and neither it nor \path{plot_data.m} is executed within the callback.
 	
 	\path{Variable_mass.ssc} defines a custom Variable Mass block which was not provided by Simulink/Simscape.
 
 	\subsection{Key operation principle}
 	
+	The complete closed-loop architecture of the control system is illustrated in fig. \ref{fig:simulink_complete_model}. The system's dynamic response to a command is demonstrated by the scope outputs (see fig. \ref{fig:simulinkdeflectionscope}).
+	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Simulink_complete_model}
-		\caption{}
-		\label{fig:simulinkcompletemodel}
+		\caption{Complete closed-loop Simulink model of the F-22 horizontal stabilator control system. The command signal originates from the step block. It passes through the rate limiting block set to $60^\circ \frac{1}{\text{s}}$. Later, the \texttt{Geometry} subsystem converts angular deflection into actuator extension. The error between the commanded and actual extension is calculated and fed into a controller block. The controller outputs the voltage which is sent to the EHA subsystem. The actuator is also affected by the load which depends on aircraft velocity and actual stabilator deflection. The output stroke is then sent to the \texttt{Inverse Geometry} subsystem to obtain the actual deflection.}
+		\label{fig:simulink_complete_model}
 	\end{figure}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Simulink_deflection_scope}
-		\caption{}
+		\caption{Simulink scope outputs demonstrating the system's dynamic response to a $-20^\circ$ target deflection command at $t = 3$ s. The scopes display the commanded voltage, actual versus desired deflection tracking, actuator slew rate, and the resulting aerodynamic load.}
 		\label{fig:simulinkdeflectionscope}
 	\end{figure}
 	
 	\section{Conclusion}
+	
+	The F-22 stabilator actuator control system was successfully designed as a result of the project. Manufacturer's data sheets were used to ensure realistic behavior of the system. The real system likely includes the EKF to filter out process noise. Neither of the two fall within the scope of the project and both were consequently omitted.
 	
 	\newpage
 	\printbibliography
