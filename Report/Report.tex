@@ -1,4 +1,10 @@
-\documentclass{turabian-researchpaper}
+\documentclass[
+bindingoffset=5mm,  % Binding offset
+footnoteindent=3mm, % Footnote indent
+hyphenation=true    % Hyphenation turn on/off
+]{src/wut-thesis}
+
+\graphicspath{{tex/img/}}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -25,12 +31,11 @@
 
 \usepackage{pdflscape}
 \usepackage{hyperref}
+\usepackage[section]{placeins}
 
-\usepackage[notes, backend=biber]{biblatex-chicago}
 \addbibresource{works-cited.bib}
 
 % Specify paper size
-\usepackage[pass, letterpaper]{geometry}
 \setcounter{tocdepth}{2}
 % Code Listing Style Definition
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -56,14 +61,24 @@
 	language=Matlab                       % Enforce Matlab syntax highlighting
 }
 
-% --- Title Page Setup ---
-\title{Lockheed Martin–Boeing F-22 Raptor}
-\subtitle{Horizontal Stabilator Control Simulation}
-\author{Arseni Lysak 336013, İlkay Özanli 336225, Rozh Hamad Ameen 336099 }
+\facultymeil
+\EngineerThesis
+\langeng 
 
-\course{Simulation of Aeronautical Systems}
+\instytut{Aeronautics and Applied Mechanics}
+\kierunek{Simulation of Aeronautical Systems}
+\specjalnosc{Simulation of Aeronautical Systems}
+\title{
+	Lockheed Martin–Boeing F-22 Raptor: \\
+	Horizontal Stabilator Control Simulation
+	}
 
-\date{\today}
+
+\promotor{Łukasz Kiciński}
+
+\author{Arseni Lysak 336013
+	\\ İlkay Özanli 336225 \\ Rozh Hamad Ameen 336099}
+\date{\the\year}
 
 \begin{document}
 	\maketitle
@@ -99,13 +114,9 @@
 			Horizontal Tail Stabilator Area & $S_{stab}$ & 6.315 & $m^{2}$\\ [1ex] 
 			\bottomrule
 		\end{tabular}
-		\caption[The F-22 Geometrical parameters]{The F-22 Geometrical parameters\footnotemark\textsuperscript{,}\footnotemark}
+		\caption[The F-22 Geometrical parameters]{The F-22 Geometrical parameters \cite{wiki:f22_raptor, lm:f22_card}}
 		\label{table:data}
 	\end{table}
-	\addtocounter{footnote}{-1}
-	\footnotetext{\cite{wiki:f22_raptor}}
-	\stepcounter{footnote}
-	\footnotetext{\cite{lm:f22_card}}
 	
 	\subsection{Stabilator geometry and description}
 	
@@ -543,7 +554,7 @@
 	\end{table}
 	
 	\section{Commercial product selection}
-    	The Parker Series 3HX (G-Group) is a heavy duty electrohydraulic cylinder designed for high force applications requiring precision feedback. This configuration, utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff), has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation.\autocite{parker2hx3hx}. The general technical drawing and physical envelope for this cylinder series are provided in figure \ref{fig:actuatordrawing}.
+    	The Parker Series 3HX (G-Group) is a heavy duty electrohydraulic cylinder designed for high force applications requiring precision feedback. This configuration, utilized with the KP Seal package (Low Friction PTFE) and integrated Magnetostrictive LDT feedback (Balluff), has been modified to meet the two primary requirements defined in this report (slew rate and stroke length), ensuring it fulfills the dynamic demands of the F-22 airframe simulation \autocite{parker2hx3hx}. The general technical drawing and physical envelope for this cylinder series are provided in figure \ref{fig:actuatordrawing}.
     	
     	\begin{figure}[htbp]
     	\centering
