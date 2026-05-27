@@ -185,7 +185,7 @@ hyphenation=true    % Hyphenation turn on/off
 	To establish the F-22 stabilator's flight envelope for XFOIL simulations, operational Reynolds numbers at 60,000 ft were calculated using $Re = \frac{\rho V \bar{c}}{\mu}$. The Mean Aerodynamic Chord ($\bar{c}$) was first determined via MATLAB multi-panel geometric analysis. Using standard 60,000 ft atmospheric density ($\rho$) = 0.116 $\mathrm{kg/m^3}$ and dynamic viscosity ($\mu$) $1.422 \times 10^{-5} \ \mathrm{kg/(m \cdot s)}$, the Reynolds number was evaluated at two velocity extremes: a maximum speed ($V_{max}$) = 670.55 m/s derived from the aircraft's Mach 2.25 limit, and a stall speed ($V_{stall}$) = 213.987 m/s calculated by converting an estimated sea-level Equivalent Airspeed to True Airspeed via the density ratio method. The values obtained were ($Re_{max}$) = 1.6457 e+07 and ($Re_{min}$) = 5.2517 e+06.
 	
 	The first step in load modeling is to determine the aerodynamic coefficients of the airfoil, as these directly influence the forces acting on the structure. In this study, the aerodynamic coefficients were obtained by analyzing the NACA 0010 airfoil, which is the airfoil that is reasonably similar to F-22's stabilator according to literature,\cite{Stabilatorairfoil} using XFOIL. XFOIL is a panel method based software that combines inviscid flow calculations with boundary layer analysis to predict lift, drag, and moment coefficients with good accuracy.
-	For this analysis, the NACA 0010 airfoil was evaluated over a wide range of angles of attack, from $-25^\circ$ to $30^\circ$. Simulations were conducted for Reynolds numbers at maximum and minimum speed at 60k ft. The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modeling (see fig. \ref{fig:aerodynamiccoefficients}).
+	For this analysis, the NACA 0010 airfoil was evaluated over a wide range of angles of attack, from $-25^\circ$ to $30^\circ$ with a step of $0.5^\circ$. Simulations were conducted for Reynolds numbers at maximum and minimum speed at 60k ft. The resulting data provides a set of lift, drag, and moment coefficients, which serve as essential inputs for subsequent load modeling (see fig. \ref{fig:aerodynamiccoefficients}).
 	
 	\begin{figure}[htbp]
 		\centering
@@ -615,18 +615,18 @@ hyphenation=true    % Hyphenation turn on/off
 	To manage this, the circuit integrates two distinct valve assemblies connected to the central accumulator line:
 	
 	\begin{enumerate}
-		\item \textbf{Anti-Cavitation Check Valves:} Two standard check valves connect the accumulator to the main hydraulic lines. They open automatically to supply make-up fluid if the pressure in either main line ($P_1$ or $P_2$) drops below the accumulator pressure ($P_{ac}$):
+		\item \textbf{Anti-Cavitation Check Valves:} Two standard check valves connect the accumulator to the main hydraulic lines. They open automatically to supply make-up fluid if the pressure in either main line ($p_1$ or $p_2$) drops below the accumulator pressure ($p_{ac}$):
 		\begin{equation}
-			Q_{ac \to 1} = f(P_{ac} - P_1) \quad \text{for} \quad P_1 < P_{ac}
+			Q_{ac \to 1} = f(p_{ac} - p_1) \quad \text{for} \quad p_1 < p_{ac}
 		\end{equation}
 		\begin{equation}
-			Q_{ac \to 2} = f(P_{ac} - P_2) \quad \text{for} \quad P_2 < P_{ac}
+			Q_{ac \to 2} = f(p_{ac} - p_2) \quad \text{for} \quad p_2 < p_{ac}
 		\end{equation}
 		
 		\item \textbf{Pilot-Operated Venting Valves:} To dump excess fluid during unbalanced operations, two pilot-operated check valves are cross-connected to the main lines. The high-pressure supply line acts as the pilot signal to open the check valve on the low-pressure return line.
 		\begin{itemize}
-			\item When $P_2$ is pressurized (retraction), it pilots the top valve open, allowing excess return fluid from Chamber A to flow through the valve into the accumulator ($Q_{1 \to ac}$).
-			\item When $P_1$ is pressurized (extension), it pilots the bottom valve open, allowing fluid from Chamber B to flow into the accumulator ($Q_{2 \to ac}$). The physical block network capturing these refeeding dynamics is illustrated in fig.~\ref{fig:simulinkrefeedingaccumulatormodel}.
+			\item When $p_2$ is pressurized (retraction), it pilots the top valve open, allowing excess return fluid from Chamber A to flow through the valve into the accumulator ($Q_{1 \to ac}$).
+			\item When $p_1$ is pressurized (extension), it pilots the bottom valve open, allowing fluid from Chamber B to flow into the accumulator ($Q_{2 \to ac}$). The physical block network capturing these refeeding dynamics is illustrated in fig.~\ref{fig:simulinkrefeedingaccumulatormodel}.
 		\end{itemize}
 	\end{enumerate}
 	
@@ -643,29 +643,29 @@ hyphenation=true    % Hyphenation turn on/off
 		Q_{ac\_net} = Q_{1 \to ac} + Q_{2 \to ac} - Q_{ac \to 1} - Q_{ac \to 2}
 	\end{equation}
 	
-	The accumulator pressure ($P_{ac}$) dynamically responds to this net flow. It is modeled using a polytropic gas equation to account for fluid compression and expansion:
+	The accumulator pressure ($p_{ac}$) dynamically responds to this net flow. It is modeled using a polytropic gas equation to account for fluid compression and expansion:
 	\begin{equation}
-		P_{ac} = \frac{P_{aci} V_{gasi}^k}{(V_{gasi} - \int Q_{ac\_net} dt)^k}
+		p_{ac} = \frac{p_{aci} V_{gasi}^k}{(V_{gasi} - \int Q_{ac\_net} dt)^k}
 	\end{equation}
-	where $P_{aci}$ is the initial accumulator pressure, $V_{gasi}$ is the initial gas volume, and $k$ is the polytropic exponent.
+	where $p_{aci}$ is the initial accumulator pressure, $V_{gasi}$ is the initial gas volume, and $k$ is the polytropic exponent.
 	
 	\subsubsection{Chamber Flow Equations}
 	To connect the fluid flow from the pump to the pressure acting on the piston, the flow continuity equations for the two working chambers of the hydraulic jack must be established. Because the selected actuator is asymmetrical, these equations account for the distinct bore area ($A_A$) and annular area ($A_B$), as well as fluid compressibility:
 	\begin{equation}
-		Q_{1f} = A_{A}\dot{x}_{t} + \frac{V_{10} + A_{A}x_{t}}{B}\dot{P}_{1} + Q_{leak}
+		Q_{1f} = A_{A}\dot{x}_{t} + \frac{V_{10} + A_{A}x_{t}}{B}\dot{p}_{1} + Q_{leak}
 	\end{equation}
 	\begin{equation}
-		Q_{2f} = -A_{B}\dot{x}_{t} + \frac{V_{20} - A_{B}x_{t}}{B}\dot{P}_{2} - Q_{leak}
+		Q_{2f} = -A_{B}\dot{x}_{t} + \frac{V_{20} - A_{B}x_{t}}{B}\dot{p}_{2} - Q_{leak}
 	\end{equation}
 	where $Q_{1f}$ and $Q_{2f}$ are the flows into the respective chambers, $x_{t}$ and $\dot{x}_{t}$ are the piston displacement and velocity, $V_{10}$ and $V_{20}$ are the initial chamber volumes, and $B$ is the fluid bulk modulus (calculated dynamically based on the isothermal fluid properties). 
 	
-	Unlike simplified linear models, the internal leakage ($Q_{leak}$) across the piston is modeled dynamically by the solver using Laminar (Poiseuille) flow equations for concentric cylinders. This calculation is driven by the instantaneous pressure differential ($P_1 - P_2$), the fluid's kinematic viscosity, and the physical geometry of the piston-cylinder clearance ($c$) and piston head length ($L$).
+	Unlike simplified linear models, the internal leakage ($Q_{leak}$) across the piston is modeled dynamically by the solver using Laminar (Poiseuille) flow equations for concentric cylinders. This calculation is driven by the instantaneous pressure differential ($p_1 - p_2$), the fluid's kinematic viscosity, and the physical geometry of the piston-cylinder clearance ($c$) and piston head length ($L$).
 	
 	\subsubsection{Hydraulic Jack and Load Balance}
 	
 	The load force balance equation acting on the piston must account for the asymmetrical design of the hydraulic cylinder and the structural boundaries of the stroke length. The net mechanical force is defined by the pressures acting on the bore area ($A_A$) and annular area ($A_B$). This net fluid force balances against the equivalent dynamic mass of the piston and load ($M_{eq}$), the external aerodynamic load force ($F_{ex}$), the system friction ($F_{fric}$), and the mechanical hard stop boundaries ($F_{HS}$):
 	\begin{equation}
-		P_{1}A_{A} - P_{2}A_{B} = M_{eq}\ddot{x}_{t} + F_{ex} + F_{fric} + F_{HS}
+		p_{1}A_{A} - p_{2}A_{B} = M_{eq}\ddot{x}_{t} + F_{ex} + F_{fric} + F_{HS}
 		\label{eq:jack_eq}
 	\end{equation}
 	
@@ -685,17 +685,17 @@ hyphenation=true    % Hyphenation turn on/off
 	\subsubsection{Friction Model}
 	An accurate representation of friction is critical for predicting the dynamic performance of the actuator, particularly around zero velocity. The Simscape Double-Acting Actuator block models cylinder friction as a combination of Stribeck, Coulomb, and viscous effects. Crucially, the magnitude of the friction is not constant; it is calculated dynamically based on the instantaneous pressure difference between the cylinder chambers.
 	
-	To align with the empirical data derived from the KF-type seal performance graphs, the base Coulomb friction term is modeled as a function of the effective internal system pressure ($P_{sys}$):
+	To align with the empirical data derived from the KF-type seal performance graphs, the base Coulomb friction term is modeled as a function of the effective internal system pressure ($p_{sys}$):
 	\begin{equation}
-		F_c(P_{sys}) = F_{pre} + C_{fc} \cdot P_{sys}
+		F_c(p_{sys}) = F_{pre} + C_{fc} \cdot p_{sys}
 	\end{equation}
 	where $F_{pre}$ is the zero-pressure preload force (the combined mechanical resistance of the seal and gland), and $C_{fc}$ is the Coulomb friction force coefficient representing the linear slope of the friction-to-pressure relationship.
 	
 	The total continuous friction force opposing the piston motion ($F_{fric}$) incorporates this pressure-dependent boundary into a smoothed Stribeck velocity transition model to avoid numerical discontinuities during simulation:
 	\begin{equation}
-		F_{fric}(\dot{x}_{t}, P_{sys}) = \left[ F_c(P_{sys}) + (F_s(P_{sys}) - F_c(P_{sys})) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
+		F_{fric}(\dot{x}_{t}, p_{sys}) = \left[ F_c(p_{sys}) + (F_s(p_{sys}) - F_c(p_{sys})) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
 	\end{equation}
-	where $F_s(P_{sys})$ is the pressure-dependent maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
+	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
 	
 	\subsection{Required actuator parameters}
 	
@@ -817,10 +817,10 @@ hyphenation=true    % Hyphenation turn on/off
 	The required motor torque at each displacement is calculated from:
 	
 	\begin{equation}
-		T_{motor} = \frac{\Delta P \cdot D}{2\pi}
+		T_{motor} = \frac{\Delta p \cdot D}{2\pi}
 	\end{equation}
 	
-	where $\Delta P$ is the system pressure differential [Pa] and $D$ is the displacement [m$^3$/rev].
+	where $\Delta p$ is the system pressure differential [Pa] and $D$ is the displacement [m$^3$/rev].
 	
 	\textbf{Selected Model: F12-162}
 	
@@ -992,10 +992,10 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	At an operating pressure of $20,680\,\text{kPa}$, the resulting forces are:
 	\begin{equation}
-		F_{comp} = P \cdot A_{comp} = 20,680\,\text{kPa} \cdot 0.0324\,\text{m}^2 \approx 670.297\,\text{kN}
+		F_{comp} = p \cdot A_{comp} = 20,680\,\text{kPa} \cdot 0.0324\,\text{m}^2 \approx 670.297\,\text{kN}
 	\end{equation}
 	\begin{equation}
-		F_{tensile} = P \cdot A_{tensile} = 20,680\,\text{kPa} \cdot 0.0262\,\text{m}^2 \approx 541.998\,\text{kN}
+		F_{tensile} = p \cdot A_{tensile} = 20,680\,\text{kPa} \cdot 0.0262\,\text{m}^2 \approx 541.998\,\text{kN}
 	\end{equation}
 	
 	\textbf{Kinematics and Power}
@@ -1042,8 +1042,8 @@ hyphenation=true    % Hyphenation turn on/off
 		\item \textbf{Displacement ($D$):} The geometric displacement was selected directly from the manufacturer's datasheet to satisfy the high flow requirements of the system. For the F12-162 model, the displacement is fixed at:
 		$$D = 163.1 \text{ cm}^3/\text{rev}$$
 		
-		\item \textbf{Nominal Pressure ($P_{nom}$):} The Parker F12 large-frame series is rated for a continuous maximum operating pressure of 420 bar (with intermittent peak limits up to 480 bar). This continuous rating is converted to Megapascals for the simulation block:
-		$$P_{nom} = 42 \text{ MPa}$$
+		\item \textbf{Nominal Pressure ($p_{nom}$):} The Parker F12 large-frame series is rated for a continuous maximum operating pressure of 420 bar (with intermittent peak limits up to 480 bar). This continuous rating is converted to Megapascals for the simulation block:
+		$$p_{nom} = 42 \text{ MPa}$$
 		
 		\item \textbf{Nominal Shaft Angular Velocity ($W_{nom}$):} The required shaft speed is a function of the system's maximum flow rate requirement ($Q = 361.4 \text{ L/min}$) and the pump's displacement ($D$). Using the flow equation, the speed is determined as:
 		$$W_{nom} = \frac{Q}{D} = \frac{361.4 \text{ L/min}}{163.1 \text{ cm}^3/\text{rev}} \cdot 1000 \approx 2216 \text{ RPM}$$
@@ -1063,17 +1063,17 @@ hyphenation=true    % Hyphenation turn on/off
 		\item \textbf{Total Volume ($V_{actot}$) \& Minimum Gas Volume ($V_{gasmin}$):} The total physical volume of the selected accumulator is 3 Liters ($3 \times 10^{-3} \text{ m}^3$). To prevent the piston from bottoming out against the fluid end cap during severe pressure spikes, a 5\% safety buffer was established for the minimum gas volume:
 		$$V_{gasmin} = 0.05 \cdot 3 \times 10^{-3} = 1.5 \times 10^{-4} \text{ m}^3$$
 		
-		\item \textbf{Nominal Pressure ($P_{acnom}$):} The nominal operating pressure of the accumulator is equal to the baseline operating pressure of the EHA system.
-		$$P_{acnom} = 20.7 \text{ MPa}$$
+		\item \textbf{Nominal Pressure ($p_{acnom}$):} The nominal operating pressure of the accumulator is equal to the baseline operating pressure of the EHA system.
+		$$p_{acnom} = 20.7 \text{ MPa}$$
 		
-		\item \textbf{Precharge Pressure ($P_{pre}$):} According to standard accumulator sizing guidelines for energy storage applications, a piston accumulator should be precharged to 95\% of the system's minimum expected operating pressure \cite{parker_accumulator_choice}. Assuming high-flow transient maneuvers cause the system pressure to drop momentarily to 150 bar (15 MPa), the precharge was calculated as:
-		$$P_{pre} = 0.95 \cdot 15 \text{ MPa} = 14.25 \text{ MPa}$$
+		\item \textbf{Precharge Pressure ($p_{pre}$):} According to standard accumulator sizing guidelines for energy storage applications, a piston accumulator should be precharged to 95\% of the system's minimum expected operating pressure \cite{parker_accumulator_choice}. Assuming high-flow transient maneuvers cause the system pressure to drop momentarily to 150 bar (15 MPa), the precharge was calculated as:
+		$$p_{pre} = 0.95 \cdot 15 \text{ MPa} = 14.25 \text{ MPa}$$
 		
-		\item \textbf{Nominal Gas Volume ($V_{gasnom}$):} The volume of the nitrogen gas when compressed to the nominal system pressure was calculated using Boyle's Law ($P_1V_1 = P_2V_2$), assuming isothermal compression from the unpressurized precharge state (where the gas occupies the total accumulator volume):
-		$$P_{pre} \cdot V_{actot} = P_{acnom} \cdot V_{gasnom}$$
+		\item \textbf{Nominal Gas Volume ($V_{gasnom}$):} The volume of the nitrogen gas when compressed to the nominal system pressure was calculated using Boyle's Law ($p_1V_1 = p_2V_2$), assuming isothermal compression from the unpressurized precharge state (where the gas occupies the total accumulator volume):
+		$$p_{pre} \cdot V_{actot} = p_{acnom} \cdot V_{gasnom}$$
 		$$V_{gasnom} = \frac{14.25 \cdot 3 \times 10^{-3}}{20.7} \approx 2.06 \times 10^{-3} \text{ m}^3$$
 		
-		\item \textbf{Initialization ($P_{aci}$, $V_{gasi}$):} To initialize the simulation at a pre-pressurized, steady-state equilibrium, the initial accumulator pressure and initial gas volume were set to equal their respective nominal conditions ($P_{aci} = 20.7 \text{ MPa}$ and $V_{gasi} = 2.06 \times 10^{-3} \text{ m}^3$).
+		\item \textbf{Initialization ($p_{aci}$, $V_{gasi}$):} To initialize the simulation at a pre-pressurized, steady-state equilibrium, the initial accumulator pressure and initial gas volume were set to equal their respective nominal conditions ($p_{aci} = 20.7 \text{ MPa}$ and $V_{gasi} = 2.06 \times 10^{-3} \text{ m}^3$).
 	\end{itemize}
 	
 	\subsubsection{Valve Parameterization}
@@ -1102,7 +1102,7 @@ hyphenation=true    % Hyphenation turn on/off
 		The total preload force is the sum of the seal and gland friction at 0 psi (see fig. \ref{fig:sealfrictiongraph} and \ref{fig:glandfrictiongraph}):
 		$$F_{pre} = (30 \text{ lbf} + 35 \text{ lbf}) \cdot 4.448 \text{ N/lbf} = 289.1 \text{ N}$$
 		
-		The Coulomb friction force coefficient represents the linear slope of the friction-to-pressure relationship ($\frac{\Delta F}{\Delta P}$). Taking the average slope from 0 to 3000 psi (see fig. \ref{fig:sealfrictiongraph}):
+		The Coulomb friction force coefficient represents the linear slope of the friction-to-pressure relationship ($\frac{\Delta F}{\Delta p}$). Taking the average slope from 0 to 3000 psi (see fig. \ref{fig:sealfrictiongraph}):
 		$$C_{fc} = \frac{(480 - 30) \text{ lbf} \cdot 4.448 \text{ N/lbf}}{3000 \text{ psi} \cdot 6894.76 \text{ Pa/psi}} \approx 9.68 \times 10^{-5} \text{ N/Pa}$$
 		
 		\begin{figure}[htbp]
@@ -1121,8 +1121,8 @@ hyphenation=true    % Hyphenation turn on/off
 		
 		\item \textbf{Leakage and Hard Stops:} To capture volumetric losses across the piston head, the piston-cylinder clearance was set to $0.02 \text{ mm}$ ($2 \times 10^{-5} \text{ m}$) with a piston head length of $10 \text{ mm}$ ($0.01 \text{ m}$). The mechanical hard stops were initialized with a default high stiffness coefficient ($1 \times 10^{10} \text{ N/m}$) to represent rigid structural boundaries at the limits of the $0.1636 \text{ m}$ stroke.
 		
-		\item \textbf{Initial Conditions ($P_A$, $P_B$, $d_{ini}$):} To ensure the simulation initializes at a stable, steady-state equilibrium without transient startup shock, the pressures in Chambers A and B were balanced against the nominal system pressure ($P_{acnom} = 20.7 \text{ MPa}$). By setting $P_B = P_{acnom}$, the opposing pressure in Chamber A required to achieve a net-zero force ($F_{net} = P_A A_A - P_B A_B = 0$) is calculated as:
-		$$P_A = P_{acnom} \cdot \frac{A_B}{A_A}$$
+		\item \textbf{Initial Conditions ($p_A$, $p_B$, $d_{ini}$):} To ensure the simulation initializes at a stable, steady-state equilibrium without transient startup shock, the pressures in Chambers A and B were balanced against the nominal system pressure ($p_{acnom} = 20.7 \text{ MPa}$). By setting $p_B = p_{acnom}$, the opposing pressure in Chamber A required to achieve a net-zero force ($F_{net} = p_A A_A - p_B A_B = 0$) is calculated as:
+		$$p_A = p_{acnom} \cdot \frac{A_B}{A_A}$$
 		The initial piston displacement ($d_{ini}$) was set to $0.0885 \text{ m}$, placing the actuator near its mid-stroke neutral position at $t=0$.
 	\end{itemize}
 	
@@ -1160,7 +1160,7 @@ hyphenation=true    % Hyphenation turn on/off
 		\item \textbf{Density ($IL_{density}$):} The MIL-PRF-83282D standard dictates that the specific gravity of conformance batches must remain within $\pm 0.008$ of the manufacturer's originally qualified baseline. Therefore, a standard commercial baseline density for qualified fluids (such as AeroShell Fluid 31) was utilized:
 		$$IL_{density} = 850 \text{ kg/m}^3$$
 		
-		\item \textbf{Solver Constants ($AP$, $P_{minv}$):} Atmospheric pressure ($AP$) was set to the standard $0.101325 \text{ MPa}$ to establish the baseline for gauge pressure calculations. To ensure the mathematical stability of the Simscape solver during extreme transient events (such as load-induced cavitation), the minimum valid absolute pressure ($P_{minv}$) was restricted to $1 \text{ Pa}$, preventing zero-crossing and infinite-state numerical divergence.
+		\item \textbf{Solver Constants ($p_{atm}$, $p_{minv}$):} Atmospheric pressure ($p_{atm}$) was set to the standard $0.101325 \text{ MPa}$ to establish the baseline for gauge pressure calculations. To ensure the mathematical stability of the Simscape solver during extreme transient events (such as load-induced cavitation), the minimum valid absolute pressure ($p_{minv}$) was restricted to $1 \text{ Pa}$, preventing zero-crossing and infinite-state numerical divergence.
 	\end{itemize}
 	
 	\newpage
