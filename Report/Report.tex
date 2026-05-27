@@ -423,139 +423,6 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\subsection{Actuator model}
 	
-	A table with assumed equations
-	
-	Table~\ref{table:component_summary} consolidates the four selected EHA components and their primary justification.
-	
-	\begin{table}[htbp]
-		\centering
-		\begin{tabular}{l l l}
-			\toprule
-			Component & Selected Product & Primary Justification \\
-			\midrule
-			Hydraulic Pump & Parker F12-162 & Delivers 361 L/min at 207 bar; \\
-			&                & 2{,}216 RPM within operating envelope \\
-			\addlinespace
-			DC Drive Motor & Parker GVM310-200-BA1-W & 542 Nm / 138 kW rated continuous; \\
-			&                         & designed for EHP pump drives \\
-			\addlinespace
-			Accumulator    & Parker EHP Piston (3 L) & 350 bar maximum rated; piston type for \\
-			&                          & high flow and aerospace duty cycle \\
-			Fluid         &     MIL-PRF-83282D  & Standard hydraulic fluid in US millitary\\ &                           & Manufacturer advice\\
-			\bottomrule
-		\end{tabular}
-		\caption{Summary of selected EHA components.}
-		\label{table:component_summary}
-	\end{table}
-	
-	A table with Simscape parameters
-	
-	\subsection{Sensor}
-	
-	To accurately simulate the physical characteristics of the feedback loop, the measurement noise was modeled directly from the hardware specifications of the Balluff position sensor. According to the manufacturer data sheet \cite{parker2hx3hx}, the digital PWM output features a minimum update rate of 0.5\,ms and a position repeatability of 2\,$\mu$m. To replicate this behavior within the Simulink environment, a Band-Limited White Noise block was implemented. The sample time ($T_s$) was strictly set to 0.0005\,s to match the hardware's digital update frequency. To achieve the corresponding physical noise amplitude (a standard deviation of $\sigma = 2 \times 10^{-6}$\,m), the required noise power was calculated using the relation $\text{Noise Power} = \sigma^2 \cdot T_s$. Consequently, the noise power parameter was configured to $2 \times 10^{-15}$. This exact parametrization ensures that the controller's derivative and filter terms are evaluated against realistic hardware signal jitter rather than arbitrary simulation noise (see fig. \ref{fig:simulinksensorsubsystem}).
-	
-	\begin{figure}[htbp]
-		\centering
-		\includegraphics[width=1\linewidth]{Media/Simulink_sensor_subsystem}
-		\caption{The Simulink sensor subsystem incorporating Band-Limited White Noise to replicate the Balluff position sensor's parameters.}
-		\label{fig:simulinksensorsubsystem}
-	\end{figure}
-	
-	\subsection{Controller}
-	
-	\begin{table}[htbp]
-		\centering
-		\begin{tabular}{lcp{7cm}}
-			\hline
-			\textbf{Parameter} & \textbf{Requirement} & \textbf{Justification} \\
-			\hline
-			Overshoot & $\leq 5\%$ & At high velocities, excessive deflection beyond the commanded angle generates large aerodynamic loads, risking structural overload and loss of control. \\
-			\addlinespace
-			Settling Time & $\leq 1$ s & The flight control system must respond quickly to pilot inputs to maintain 
-			stability, particularly at 450 m/s where the aircraft dynamics are fast.The 1 s settling time ensures the pilot retains meaningful control before the aircraft has travelled too far. \\
-			\addlinespace
-			Steady-State Error & $\leq 0.2^\circ$ & An absolute angle is required because percentage based limits allow larger, unacceptable errors during wide maneuvers. Keeping the error around $0.2^\circ$ stops the tail from catching excess air at 450 m/s, preventing fuel wasting drag and autopilot drift. \\
-			\hline
-		\end{tabular}
-		\caption{PID control performance requirements}
-		\label{tab:pid_requirements}
-	\end{table}
-	
-	Initial attempts to utilize the automated Simulink PID Tuner app resulted in failed linearizations, with the software proposing absurdly high, unstable controller gains in the millions. These automated values were discarded, as they failed to account for the physical saturation limits and non-linear dynamics of the actuator model. Following the implementation of the accurate Balluff sensor noise profile, a rigorous manual tuning methodology was employed to bring the system under control. The final, successful operational gains were manually tuned and locked in at $P = 100{,}000$, $I = 50{,}000$, and $D = 20{,}000$, utilizing an active filtered derivative with a coefficient of $N = 1$. Integrator saturation was set to $\pm30$ to prevent the I term from creating excessive overshoot while still allowing it to drive the actual signal toward the commanded one in steady state. Overall output saturation was set to $\pm350$ since it corresponds to the standard $\pm350 \text{V}$ operating range of a DC bus
-	(see fig. \ref{fig:simulinkcontrollersubsystem}).
-	
-	To verify the performance of the manually tuned PID controller ($P = 100{,}000$, $I = 50{,}000$, $D = 20{,}000$, $N = 1$), the system was evaluated against a $-20^\circ$ target deflection. The simulated response demonstrated exceptional tracking capabilities, achieving a settling time of exactly $0.34$\,s for the deflection of $-20^\circ$, which falls well within the strict $1.0$\,s maximum requirement. Furthermore, the transient response exhibited a near-zero overshoot of only $0.1^\circ$, easily satisfying the sub-$5\%$ constraint, while the final steady-state error stabilized at a minimal $0.2^\circ$. These final metrics confirm that the control architecture successfully manages the simulated hardware constraints and aerodynamic loads, strictly satisfying all defined design requirements for the stabilator system (see Table \ref{tab:pid_requirements}).
-	
-	\begin{figure}[htbp]
-		\centering
-		\includegraphics[width=1\linewidth]{Media/Simulink_controller_subsystem}
-		\caption{The Simulink controller subsystem featuring the inverted manually tuned PID.}
-		\label{fig:simulinkcontrollersubsystem}
-	\end{figure}
-	
-	\section{System Architecture and Dependencies}
-	
-	MATLAB (R2025b version was used for development) and Simulink are required to run the system. Within Simulink the following Add-Ons have to be installed: Simscape, Simscape Electrical, Simscape Fluids.
-	
-	The repository is organized in the following way:
-	
-	\dirtree{%
-		.1 Root.
-		.2 \dots Git and GitHub files.
-		.2 Horizontal-Stabilator-Control-F22.prj.
-		.2 Code\_files.
-		.3 EHA\_initialization.m.
-		.3 f\_22\_stabilator\_control.slx.
-		.3 import\_aerodynamic\_coefficients.m.
-		.3 plot\_data.m.
-		.3 Relation.m.
-		.3 Requirements\_calculation.m.
-		.3 Re\_calculations.m.
-		.3 Variable\_mass.ssc.
-		.3 airfoil\_analysis.
-		.4 airfoil.xfl.
-		.4 REmax\_results.csv.
-		.4 REmin\_results.csv.
-		.2 Report.
-		.3 \dots \LaTeX\ build files and media.
-		.2 resources.
-		.3 \dots Project metadata (XML).
-		.2 slprj.
-		.3 \dots Simulink build cache.
-	}
-	
-	To run the simulation, the user has to open the file named \path{f_22_stabilator_control.slx}. The callback is set up so that before the simulation starts the files \path{Relation.m} and \path{EHA_initialization.m} will be executed providing the necessary input data for the simulation. The \path{Relation.m} script calls the \path{Re_calculations.m} function where all the stabilator and aircraft performance parameters are calculated. The aerodynamic coefficients are imported from the \path{airfoil_analysis} folder using the \path{import_aerodynamic_coefficients.m} script. 
-	
-	\path{plot_data.m} is called by \path{Relation.m} only when \path{Relation.m} is executed manually and not as a callback function. This script automatically generates all the plots found in the report and places them in the appropriate folder.
-	
-	\path{Requirements_calculation.m} is a separate function used solely to derive the theoretical actuator requirements and neither it nor \path{plot_data.m} is executed within the callback.
-	
-	\path{Variable_mass.ssc} defines a custom Variable Mass block which was not provided by Simulink/Simscape.
-
-	\section{Dynamic Response}
-	
-	The system's dynamic response to a command is demonstrated by the scope outputs (see fig. \ref{fig:simulinkdeflectionscope}).
-	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width=1\linewidth]{Media/Simulink_deflection_scope}
-		\caption{Simulink scope outputs demonstrating the system's dynamic response to a $-20^\circ$ target deflection command at $t = 3$ s. The scopes display the commanded voltage, actual versus desired deflection tracking, actuator slew rate, and the resulting aerodynamic load.}
-		\label{fig:simulinkdeflectionscope}
-	\end{figure}
-	
-	\section{Conclusion}
-	
-	The F-22 stabilator actuator control system was successfully designed as a result of the project. Manufacturer's data sheets were used to ensure realistic behavior of the system. The real system likely includes the EKF to filter out process noise. Neither of the two fall within the scope of the project and both were consequently omitted.
-	
-	\newpage
-	
-	\setcounter{section}{0}
-	\renewcommand{\thesection}{\Alph{section}}
-	
-	\section{Actuator modeling}
-	
-	\subsection{Theoretical framework}
-	
 	The actuator architecture selected for this system is an Electro-Hydrostatic Actuator (EHA), specifically the Fixed Pump displacement and Variable Motor speed (FPVM) EHA configuration \cite{ActuatormodelSimulink}. In this setup, a bi-directional hydraulic pump is driven by a DC Motor, which rotates at variable speeds and directions to control the oil flow and supply pressure to a symmetrical hydraulic actuator. To maintain closed-circuit operation and compensate for fluid leakage, a refeeding circuit consisting of an accumulator and check valves is integrated into the system. (see fig. \ref{fig:simulinkactuatormodel})
 	
 	The mathematical model of the FPVM-EHA can be decomposed into three primary subsystems: the DC motor, the hydraulic pump, and the hydraulic jack.
@@ -696,6 +563,136 @@ hyphenation=true    % Hyphenation turn on/off
 		F_{fric}(\dot{x}_{t}, p_{sys}) = \left[ F_c(p_{sys}) + (F_s(p_{sys}) - F_c(p_{sys})) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
 	\end{equation}
 	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
+	
+	
+	Table~\ref{table:component_summary} consolidates the four selected EHA components and their primary justification.
+	
+	\begin{table}[htbp]
+		\centering
+		\begin{tabular}{l l l}
+			\toprule
+			Component & Selected Product & Primary Justification \\
+			\midrule
+			Hydraulic Pump & Parker F12-162 & Delivers 361 L/min at 207 bar; \\
+			&                & 2{,}216 RPM within operating envelope \\
+			\addlinespace
+			DC Drive Motor & Parker GVM310-200-BA1-W & 542 Nm / 138 kW rated continuous; \\
+			&                         & designed for EHP pump drives \\
+			\addlinespace
+			Accumulator    & Parker EHP Piston (3 L) & 350 bar maximum rated; piston type for \\
+			&                          & high flow and aerospace duty cycle \\
+			Fluid         &     MIL-PRF-83282D  & Standard hydraulic fluid in US millitary\\ &                           & Manufacturer advice\\
+			\bottomrule
+		\end{tabular}
+		\caption{Summary of selected EHA components.}
+		\label{table:component_summary}
+	\end{table}
+	
+	A table with Simscape parameters
+	
+	\subsection{Sensor}
+	
+	To accurately simulate the physical characteristics of the feedback loop, the measurement noise was modeled directly from the hardware specifications of the Balluff position sensor. According to the manufacturer data sheet \cite{parker2hx3hx}, the digital PWM output features a minimum update rate of 0.5\,ms and a position repeatability of 2\,$\mu$m. To replicate this behavior within the Simulink environment, a Band-Limited White Noise block was implemented. The sample time ($T_s$) was strictly set to 0.0005\,s to match the hardware's digital update frequency. To achieve the corresponding physical noise amplitude (a standard deviation of $\sigma = 2 \times 10^{-6}$\,m), the required noise power was calculated using the relation $\text{Noise Power} = \sigma^2 \cdot T_s$. Consequently, the noise power parameter was configured to $2 \times 10^{-15}$. This exact parametrization ensures that the controller's derivative and filter terms are evaluated against realistic hardware signal jitter rather than arbitrary simulation noise (see fig. \ref{fig:simulinksensorsubsystem}).
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_sensor_subsystem}
+		\caption{The Simulink sensor subsystem incorporating Band-Limited White Noise to replicate the Balluff position sensor's parameters.}
+		\label{fig:simulinksensorsubsystem}
+	\end{figure}
+	
+	\subsection{Controller}
+	
+	\begin{table}[htbp]
+		\centering
+		\begin{tabular}{lcp{7cm}}
+			\hline
+			\textbf{Parameter} & \textbf{Requirement} & \textbf{Justification} \\
+			\hline
+			Overshoot & $\leq 5\%$ & At high velocities, excessive deflection beyond the commanded angle generates large aerodynamic loads, risking structural overload and loss of control. \\
+			\addlinespace
+			Settling Time & $\leq 1$ s & The flight control system must respond quickly to pilot inputs to maintain 
+			stability, particularly at 450 m/s where the aircraft dynamics are fast.The 1 s settling time ensures the pilot retains meaningful control before the aircraft has travelled too far. \\
+			\addlinespace
+			Steady-State Error & $\leq 0.2^\circ$ & An absolute angle is required because percentage based limits allow larger, unacceptable errors during wide maneuvers. Keeping the error around $0.2^\circ$ stops the tail from catching excess air at 450 m/s, preventing fuel wasting drag and autopilot drift. \\
+			\hline
+		\end{tabular}
+		\caption{PID control performance requirements}
+		\label{tab:pid_requirements}
+	\end{table}
+	
+	Initial attempts to utilize the automated Simulink PID Tuner app resulted in failed linearizations, with the software proposing absurdly high, unstable controller gains in the millions. These automated values were discarded, as they failed to account for the physical saturation limits and non-linear dynamics of the actuator model. Following the implementation of the accurate Balluff sensor noise profile, a rigorous manual tuning methodology was employed to bring the system under control. The final, successful operational gains were manually tuned and locked in at $P = 100{,}000$, $I = 50{,}000$, and $D = 20{,}000$, utilizing an active filtered derivative with a coefficient of $N = 1$. Integrator saturation was set to $\pm30$ to prevent the I term from creating excessive overshoot while still allowing it to drive the actual signal toward the commanded one in steady state. Overall output saturation was set to $\pm350$ since it corresponds to the standard $\pm350 \text{V}$ operating range of a DC bus
+	(see fig. \ref{fig:simulinkcontrollersubsystem}).
+	
+	To verify the performance of the manually tuned PID controller ($P = 100{,}000$, $I = 50{,}000$, $D = 20{,}000$, $N = 1$), the system was evaluated against a $-20^\circ$ target deflection. The simulated response demonstrated exceptional tracking capabilities, achieving a settling time of exactly $0.34$\,s for the deflection of $-20^\circ$, which falls well within the strict $1.0$\,s maximum requirement. Furthermore, the transient response exhibited a near-zero overshoot of only $0.1^\circ$, easily satisfying the sub-$5\%$ constraint, while the final steady-state error stabilized at a minimal $0.2^\circ$. These final metrics confirm that the control architecture successfully manages the simulated hardware constraints and aerodynamic loads, strictly satisfying all defined design requirements for the stabilator system (see Table \ref{tab:pid_requirements}).
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_controller_subsystem}
+		\caption{The Simulink controller subsystem featuring the inverted manually tuned PID.}
+		\label{fig:simulinkcontrollersubsystem}
+	\end{figure}
+	
+	\section{System Architecture and Dependencies}
+	
+	MATLAB (R2025b version was used for development) and Simulink are required to run the system. Within Simulink the following Add-Ons have to be installed: Simscape, Simscape Electrical, Simscape Fluids.
+	
+	The repository is organized in the following way:
+	
+	\dirtree{%
+		.1 Root.
+		.2 \dots Git and GitHub files.
+		.2 Horizontal-Stabilator-Control-F22.prj.
+		.2 Code\_files.
+		.3 EHA\_initialization.m.
+		.3 f\_22\_stabilator\_control.slx.
+		.3 import\_aerodynamic\_coefficients.m.
+		.3 plot\_data.m.
+		.3 Relation.m.
+		.3 Requirements\_calculation.m.
+		.3 Re\_calculations.m.
+		.3 Variable\_mass.ssc.
+		.3 airfoil\_analysis.
+		.4 airfoil.xfl.
+		.4 REmax\_results.csv.
+		.4 REmin\_results.csv.
+		.2 Report.
+		.3 \dots \LaTeX\ build files and media.
+		.2 resources.
+		.3 \dots Project metadata (XML).
+		.2 slprj.
+		.3 \dots Simulink build cache.
+	}
+	
+	To run the simulation, the user has to open the file named \path{f_22_stabilator_control.slx}. The callback is set up so that before the simulation starts the files \path{Relation.m} and \path{EHA_initialization.m} will be executed providing the necessary input data for the simulation. The \path{Relation.m} script calls the \path{Re_calculations.m} function where all the stabilator and aircraft performance parameters are calculated. The aerodynamic coefficients are imported from the \path{airfoil_analysis} folder using the \path{import_aerodynamic_coefficients.m} script. 
+	
+	\path{plot_data.m} is called by \path{Relation.m} only when \path{Relation.m} is executed manually and not as a callback function. This script automatically generates all the plots found in the report and places them in the appropriate folder.
+	
+	\path{Requirements_calculation.m} is a separate function used solely to derive the theoretical actuator requirements and neither it nor \path{plot_data.m} is executed within the callback.
+	
+	\path{Variable_mass.ssc} defines a custom Variable Mass block which was not provided by Simulink/Simscape.
+
+	\section{Dynamic Response}
+	
+	The system's dynamic response to a command is demonstrated by the scope outputs (see fig. \ref{fig:simulinkdeflectionscope}).
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Simulink_deflection_scope}
+		\caption{Simulink scope outputs demonstrating the system's dynamic response to a $-20^\circ$ target deflection command at $t = 3$ s. The scopes display the commanded voltage, actual versus desired deflection tracking, actuator slew rate, and the resulting aerodynamic load.}
+		\label{fig:simulinkdeflectionscope}
+	\end{figure}
+	
+	\section{Conclusion}
+	
+	The F-22 stabilator actuator control system was successfully designed as a result of the project. Manufacturer's data sheets were used to ensure realistic behavior of the system. The real system likely includes the EKF to filter out process noise. Neither of the two fall within the scope of the project and both were consequently omitted.
+	
+	\newpage
+	
+	\setcounter{section}{0}
+	\renewcommand{\thesection}{\Alph{section}}
+	
+	\section{Actuator modeling}
 	
 	\subsection{Required actuator parameters}
 	
