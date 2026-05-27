@@ -2,13 +2,16 @@ function plot_data(deflection, extension, F_act, CL, CD, CM, F_x_stab, ...
     F_y_stab, M_stab, Re_high, Re_low, velocity, max_controlled_deflection, min_controlled_deflection, ...
     max_allowed_deflection, min_allowed_deflection)
 
+set(groot, 'defaultTextInterpreter', 'latex', ...
+    'defaultAxesTickLabelInterpreter', 'latex', ...
+    'defaultLegendInterpreter', 'latex');
+
 % 1.1 Plotting
 figure('Name', 'Actuator vs Deflection Relation')
 plot(extension*100, deflection, 'black', LineWidth=2);
 ylabel('Deflection (degrees)');
 xlabel('Actuator Extension (cm)');
 xlim([min(extension*100) max(extension*100)])
-title('Deflection vs. Actuator Extension');
 grid on;
 
 % 1.2 Save the figure
@@ -29,7 +32,6 @@ ylabel('Force on the Actuator (Newtons)');
 xlabel('Deflection (degrees)');
 xlim([min(deflection) max(deflection)])
 legend(sprintf('Re = %.2E', Re_high), sprintf('Re = %.2E', Re_low), Location='best')
-title('Force on the Actuator vs Deflection Relation');
 grid on;
 
 % 2.2 Save the figure
@@ -57,7 +59,6 @@ legend(sprintf('C_L (Re = %.2E)', Re_high), sprintf('C_L (Re = %.2E)', Re_low), 
     sprintf('C_D (Re = %.2E)', Re_high), sprintf('C_D (Re = %.2E)', Re_low), ...
     sprintf('C_M (Re = %.2E)', Re_high), sprintf('C_M (Re = %.2E)', Re_low), ...
     Location='northwest')
-title('Aerodynamic Coefficients vs Deflection Relation');
 grid on;
 
 % 3.2 Save the figure
@@ -85,7 +86,6 @@ legend(sprintf('F_y (Re = %.2E)', Re_high), sprintf('F_y (Re = %.2E)', Re_low), 
     sprintf('F_x (Re = %.2E)', Re_high), sprintf('F_x (Re = %.2E)', Re_low), ...
     sprintf('M (Re = %.2E)', Re_high), sprintf('M (Re = %.2E)', Re_low), ...
     Location='south')
-title('External Loads vs Deflection Relation');
 grid on;
 
 % 4.2 Save the figure
@@ -134,7 +134,6 @@ yline(-25, '--k', 'Lower Structural Limit (-25^\circ)', ...
 grid on;
 xlabel('Velocity [m/s]');
 ylabel('Allowed Deflection [\circ]');
-title('F-22 Stabilator Blowdown Limits Envelope');
 legend([ha hp], 'Allowed deflection', 'Controlled deflection', 'Location', 'west');
 ylim([-30 35]);
 xlim([min(velocity) max(velocity)])

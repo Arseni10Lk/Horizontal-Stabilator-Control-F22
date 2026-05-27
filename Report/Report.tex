@@ -304,7 +304,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Force_on_Actuator}
-		\caption{Force on the actuator for two extreme cases - minimum and maximum velocities}
+		\caption{Force on the actuator vs deflection for two extreme cases - minimum and maximum velocities}
 		\label{fig:forceonactuator}
 	\end{figure}
 	
@@ -313,7 +313,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1\linewidth]{Media/Actuator_Loads_3D}
-		\caption{Force on the actuator for all the analyzed cases.}
+		\caption{Actuator Load as a function of velocity. Force on the actuator for all the analyzed cases.}
 		\label{fig:actuatorloads3d}
 	\end{figure}
 	
@@ -777,13 +777,34 @@ hyphenation=true    % Hyphenation turn on/off
 
 	\section{Dynamic Response}
 	
-	The system's dynamic response to a command is demonstrated by the scope outputs (see fig. \ref{fig:simulinkdeflectionscope}).
+	The system's dynamic response to a multi-step command sequence is demonstrated by the scope outputs (see figs. \ref{fig:deflectiontrackingsimulink} to \ref{fig:systempressuressimulink}). To fully validate the tracking accuracy, actuator effort, and hydraulic limits, the system was subjected to a rigorous sequence of step commands: $+20^\circ$ at $t = 3$ s, $-10^\circ$ at $t = 5$ s, and $+5^\circ$ at $t = 6$ s. The results confirm that the closed-loop system effectively manages the physical constraints of the EHA. The actuator tracks the commanded targets linearly due to the physical slew rate limits, manages the massive transient aerodynamic loads, and stabilizes with minimal steady-state error without exceeding the available electrical or hydraulic envelopes.
 	
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=1\linewidth]{Media/Simulink_deflection_scope}
-		\caption{Simulink scope outputs demonstrating the system's dynamic response to a $-20^\circ$ target deflection command at $t = 3$ s. The scopes display the commanded voltage, actual versus desired deflection tracking, actuator slew rate, and the resulting aerodynamic load.}
-		\label{fig:simulinkdeflectionscope}
+		\includegraphics[width=1\linewidth]{Media/Deflection_Tracking_Simulink}
+		\caption{Commanded target deflection versus the actual stabilator position over an 8-second simulation. The system successfully tracks the $+20^\circ$, $-10^\circ$, and $+5^\circ$ step commands. The stepped descent around the fifth second is due to blowdown limits. However, the delay in the fall after the stepped descent is caused by the place of the rate limiter in the system. For the system to behave \enquote*{more realistically}, the rate limiter block would have to be a part of the controller subsystem which would slightly complicate the system. For that reason, this is not implemented as a part of this  project.}
+		\label{fig:deflectiontrackingsimulink}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Control_Dynamics_Simulink}
+		\caption{Controller voltage output (top) and corresponding actuator slew rate (bottom). The PID controller pushes the voltage to the $\pm 292.4$ V saturation limits to accelerate the actuator during large step commands. The bottom scope confirms the physical slew rate caps out near the theoretical limits during maximum control effort, exhibiting expected oscillatory transients as the position stabilizes.}
+		\label{fig:controldynamicssimulink}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/Aerodynamic_Loads_Simulink}
+		\caption{Total aerodynamic load acting on the actuator across the simulation timeline. The forces vary dynamically with the stabilator's deflection angle and instantaneous velocity, reaching massive absolute peaks exceeding $400$ kN during the most aggressive transient maneuvers.}
+		\label{fig:aerodynamicloadssimulink}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=1\linewidth]{Media/System_Pressures_Simulink}
+		\caption{Internal pressure dynamics of the hydraulic jack and refeeding circuit. The plot captures the severe pressure spikes in Chamber A and Chamber B required to overcome the aerodynamic hinge moments and inertial loads. The accumulator pressure (black dashed line) dynamically drops and recovers, proving the refeeding circuit successfully compensates for the unequal fluid volumes of the asymmetrical cylinder during stroke reversals.}
+		\label{fig:systempressuressimulink}
 	\end{figure}
 	
 	\section{Conclusion}
