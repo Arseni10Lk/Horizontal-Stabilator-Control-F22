@@ -450,7 +450,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\begin{equation}
 		T_{e} = J\dot{\omega} + \lambda\omega + T_{l}
 	\end{equation}
-	where $U_c$ is the command voltage, $i$ is the current, $E$ is the back electromotive force, $T_e$ is the electromagnetic torque, $\omega$ is the rotational speed, $J$ represents the total inertia of the motor and pump, $\lambda$ is the viscous rotor damping coefficient, and $T_l$ is the load torque.
+	where $U_c$ is the command voltage [\text{V}], $i$ is the current [\text{A}], $E$ is the back electromotive force [\text{V}], $L$ is the armature inductance [\text{H}], $R$ is the armature resistance [$\Omega$], $T_e$ is the electromagnetic torque [\text{N}$\cdot$\text{m}], $\omega$ is the rotational speed [\text{rad/s}], $K_e$ is the back EMF constant [\text{V}$\cdot$\text{s/rad}], $K_t$ is the torque constant [\text{N}$\cdot$\text{m/A}], $J$ represents the total inertia of the motor and pump [\text{kg}$\cdot$\text{m}$^2$], $\lambda$ is the viscous rotor damping coefficient [\text{N}$\cdot$\text{m}$\cdot$\text{s/rad}], and $T_l$ is the load torque [\text{N}$\cdot$\text{m}].
 	
 	The corresponding block diagram implementation of these electrical dynamics is shown in figure \ref{fig:simulinkdcmotormodel}.
 	
@@ -462,7 +462,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\end{figure}
 	
 	\subsubsection{Pump Flow Equations}
-	Unlike theoretical models that separate internal and external leakage to a case drain, the Simscape Isothermal Liquid pump block models a lumped analytical leakage flow based on the prescribed nominal operating parameters. The theoretical ideal volumetric flow ($Q_{ideal}$) is defined by the geometric displacement ($D$) and the rotational speed ($\omega$):
+	Unlike theoretical models that separate internal and external leakage to a case drain, the Simscape Isothermal Liquid pump block models a lumped analytical leakage flow based on the prescribed nominal operating parameters. The theoretical ideal volumetric flow ($Q_{ideal}$) [\text{m}$^3$\text{/s}] is defined by the geometric displacement ($D$) [\text{m}$^3$\text{/rad}] and the rotational speed ($\omega$) [\text{rad/s}]::
 	\begin{equation}
 		Q_{ideal} = D\omega
 	\end{equation}
@@ -514,7 +514,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\begin{equation}
 		p_{ac} = \frac{p_{aci} V_{gasi}^k}{(V_{gasi} - \int Q_{ac\_net} dt)^k}
 	\end{equation}
-	where $p_{aci}$ is the initial accumulator pressure, $V_{gasi}$ is the initial gas volume, and $k$ is the polytropic exponent.
+	where $p_{aci}$ is the initial accumulator pressure [\text{Pa}], $V_{gasi}$ is the initial gas volume [\text{m}$^3$], $Q_{ac\_net}$ is the net flow [\text{m}$^3$\text{/s}], and $k$ is the dimensionless polytropic exponent.
 	
 	\subsubsection{Chamber Flow Equations}
 	To connect the fluid flow from the pump to the pressure acting on the piston, the flow continuity equations for the two working chambers of the hydraulic jack must be established. Because the selected actuator is asymmetrical, these equations account for the distinct bore area ($A_A$) and annular area ($A_B$), as well as fluid compressibility:
@@ -524,7 +524,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\begin{equation}
 		Q_{2f} = -A_{B}\dot{x}_{t} + \frac{V_{20} - A_{B}x_{t}}{B}\dot{p}_{2} - Q_{leak}
 	\end{equation}
-	where $Q_{1f}$ and $Q_{2f}$ are the flows into the respective chambers, $x_{t}$ and $\dot{x}_{t}$ are the piston displacement and velocity, $V_{10}$ and $V_{20}$ are the initial chamber volumes, and $B$ is the fluid bulk modulus (calculated dynamically based on the isothermal fluid properties). 
+	where $Q_{1f}$ and $Q_{2f}$ are the flows into the respective chambers [\text{m}$^3$\text{/s}], $A_{A}$ and $A_{B}$ are the cross-sectional areas [\text{m}$^2$], $x_{t}$ and $\dot{x}_{t}$ are the piston displacement [\text{m}] and velocity [\text{m/s}], $V_{10}$ and $V_{20}$ are the initial chamber volumes [\text{m}$^3$], $\dot{p}_{1}$ and $\dot{p}_{2}$ are the rates of pressure change [\text{Pa/s}], $Q_{leak}$ is the internal leakage [\text{m}$^3$\text{/s}], and $B$ is the fluid bulk modulus [\text{Pa}] (calculated dynamically based on the isothermal fluid properties). 
 	
 	Unlike simplified linear models, the internal leakage ($Q_{leak}$) across the piston is modeled dynamically by the solver using Laminar (Poiseuille) flow equations for concentric cylinders. This calculation is driven by the instantaneous pressure differential ($p_1 - p_2$), the fluid's kinematic viscosity, and the physical geometry of the piston-cylinder clearance ($c$) and piston head length ($L$).
 	
@@ -535,8 +535,7 @@ hyphenation=true    % Hyphenation turn on/off
 		p_{1}A_{A} - p_{2}A_{B} = M_{eq}\ddot{x}_{t} + F_{ex} + F_{fric} + F_{HS}
 		\label{eq:jack_eq}
 	\end{equation}
-	
-	where $\ddot{x}_{t}$ represents the linear acceleration of the actuator.
+	where $p_{1}$ and $p_{2}$ are the chamber pressures [\text{Pa}], $A_{A}$ and $A_{B}$ are the effective areas [\text{m}$^2$], $M_{eq}$ is the equivalent dynamic mass [\text{kg}], $\ddot{x}_{t}$ represents the linear acceleration of the actuator [\text{m/s}$^2$], and $F_{ex}$, $F_{fric}$, and $F_{HS}$ are the external, friction, and hard stop forces respectively [\text{N}].
 	
 	The hard stop force ($F_{HS}$) represents the nonlinear structural compliance at the extremes of the piston stroke (full extension or retraction). Modeled as a high-stiffness spring-damper system, $F_{HS} = 0$ during normal stroke operation but applies severe opposing force when the piston encroaches upon the predefined boundaries of the 163.61 mm stroke limit.
 	
@@ -556,13 +555,13 @@ hyphenation=true    % Hyphenation turn on/off
 	\begin{equation}
 		F_c(p_{sys}) = F_{pre} + C_{fc} \cdot p_{sys}
 	\end{equation}
-	where $F_{pre}$ is the zero-pressure preload force (the combined mechanical resistance of the seal and gland), and $C_{fc}$ is the Coulomb friction force coefficient representing the linear slope of the friction-to-pressure relationship.
+	where $F_{pre}$ is the zero-pressure preload force [\text{N}] (the combined mechanical resistance of the seal and gland), $p_{sys}$ is the effective internal system pressure [\text{Pa}], and $C_{fc}$ is the Coulomb friction force coefficient [\text{N/Pa}] representing the linear slope of the friction-to-pressure relationship.
 	
 	The total continuous friction force opposing the piston motion ($F_{fric}$) incorporates this pressure-dependent boundary into a smoothed Stribeck velocity transition model to avoid numerical discontinuities during simulation:
 	\begin{equation}
 		F_{fric}(\dot{x}_{t}, p_{sys}) = \left[ F_c(p_{sys}) + (F_s(p_{sys}) - F_c(p_{sys})) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
 	\end{equation}
-	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction, $K_{vis}$ is the viscous friction coefficient, $\dot{x}_{t}$ is the piston velocity, and $\alpha$ and $\beta$ are reference speed parameters used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
+	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction [\text{N}], $K_{vis}$ is the viscous friction coefficient [\text{N}$\cdot$\text{s/m}], $\dot{x}_{t}$ is the piston velocity [\text{m/s}], and $\alpha$ and $\beta$ are reference speed parameters [\text{m/s}] used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
 	
 	
 	Table~\ref{table:component_summary} consolidates the four selected EHA components and their primary justification.
