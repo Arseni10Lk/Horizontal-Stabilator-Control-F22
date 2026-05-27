@@ -437,7 +437,7 @@ hyphenation=true    % Hyphenation turn on/off
 	Considering the multitude of effects taken into account, the equations are expected to be stiff and \textit{ode15s} solver is used for that reason.
 	
 	\subsubsection{Motor Dynamics}
-	The DC Motor acts as the primary driver for the pump. The electrical and mechanical governing equations for the motor are expressed as follows:
+	The DC Motor acts as the primary driver for the pump. The electrical and mechanical governing equations for the motor are expressed as follows \cite{mw:dcmotor}:
 	\begin{equation}
 		U_{c} = E + L\frac{di}{dt} + Ri
 	\end{equation}
@@ -462,7 +462,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\end{figure}
 	
 	\subsubsection{Pump Flow Equations}
-	Unlike theoretical models that separate internal and external leakage to a case drain, the Simscape Isothermal Liquid pump block models a lumped analytical leakage flow based on the prescribed nominal operating parameters. The theoretical ideal volumetric flow ($Q_{ideal}$) [\text{m}$^3$\text{/s}] is defined by the geometric displacement ($D$) [\text{m}$^3$\text{/rad}] and the rotational speed ($\omega$) [\text{rad/s}]::
+	Unlike theoretical models that separate internal and external leakage to a case drain, the Simscape Isothermal Liquid pump block models a lumped analytical leakage flow based on the prescribed nominal operating parameters \cite{mw:pump}. The theoretical ideal volumetric flow ($Q_{ideal}$) [\text{m}$^3$\text{/s}] is defined by the geometric displacement ($D$) [\text{m}$^3$\text{/rad}] and the rotational speed ($\omega$) [\text{rad/s}]:
 	\begin{equation}
 		Q_{ideal} = D\omega
 	\end{equation}
@@ -482,7 +482,7 @@ hyphenation=true    % Hyphenation turn on/off
 	To manage this, the circuit integrates two distinct valve assemblies connected to the central accumulator line:
 	
 	\begin{enumerate}
-		\item \textbf{Anti-Cavitation Check Valves:} Two standard check valves connect the accumulator to the main hydraulic lines. They open automatically to supply make-up fluid if the pressure in either main line ($p_1$ or $p_2$) drops below the accumulator pressure ($p_{ac}$):
+		\item \textbf{Anti-Cavitation Check Valves:} Two standard check valves connect the accumulator to the main hydraulic lines \cite{mw:checkvalve}. They open automatically to supply make-up fluid if the pressure in either main line ($p_1$ or $p_2$) drops below the accumulator pressure ($p_{ac}$):
 		\begin{equation}
 			Q_{ac \to 1} = f(p_{ac} - p_1) \quad \text{for} \quad p_1 < p_{ac}
 		\end{equation}
@@ -490,7 +490,7 @@ hyphenation=true    % Hyphenation turn on/off
 			Q_{ac \to 2} = f(p_{ac} - p_2) \quad \text{for} \quad p_2 < p_{ac}
 		\end{equation}
 		
-		\item \textbf{Pilot-Operated Venting Valves:} To dump excess fluid during unbalanced operations, two pilot-operated check valves are cross-connected to the main lines. The high-pressure supply line acts as the pilot signal to open the check valve on the low-pressure return line.
+		\item \textbf{Pilot-Operated Venting Valves:} To dump excess fluid during unbalanced operations, two pilot-operated check valves are cross-connected to the main lines \cite{mw:pilotcheckvalve}. The high-pressure supply line acts as the pilot signal to open the check valve on the low-pressure return line.
 		\begin{itemize}
 			\item When $p_2$ is pressurized (retraction), it pilots the top valve open, allowing excess return fluid from Chamber A to flow through the valve into the accumulator ($Q_{1 \to ac}$).
 			\item When $p_1$ is pressurized (extension), it pilots the bottom valve open, allowing fluid from Chamber B to flow into the accumulator ($Q_{2 \to ac}$). The physical block network capturing these refeeding dynamics is illustrated in fig.~\ref{fig:simulinkrefeedingaccumulatormodel}.
@@ -549,7 +549,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\end{figure}
 	
 	\subsubsection{Friction Model}
-	An accurate representation of friction is critical for predicting the dynamic performance of the actuator, particularly around zero velocity. The Simscape Double-Acting Actuator block models cylinder friction as a combination of Stribeck, Coulomb, and viscous effects. Crucially, the magnitude of the friction is not constant; it is calculated dynamically based on the instantaneous pressure difference between the cylinder chambers.
+	An accurate representation of friction is critical for predicting the dynamic performance of the actuator, particularly around zero velocity. The Simscape Double-Acting Actuator block models cylinder friction as a combination of Stribeck, Coulomb, and viscous effects \cite{mw:actuator}. Crucially, the magnitude of the friction is not constant; it is calculated dynamically based on the instantaneous pressure difference between the cylinder chambers.
 	
 	To align with the empirical data derived from the KF-type seal performance graphs, the base Coulomb friction term is modeled as a function of the effective internal system pressure ($p_{sys}$):
 	\begin{equation}
@@ -563,6 +563,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\end{equation}
 	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction [\text{N}], $K_{vis}$ is the viscous friction coefficient [\text{N}$\cdot$\text{s/m}], $\dot{x}_{t}$ is the piston velocity [\text{m/s}], and $\alpha$ and $\beta$ are reference speed parameters [\text{m/s}] used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
 	
+	\subsubsection{Commercial product selection}
 	
 	Table~\ref{table:component_summary} consolidates the four selected EHA components and their primary justification.
 	
@@ -587,8 +588,108 @@ hyphenation=true    % Hyphenation turn on/off
 		\label{table:component_summary}
 	\end{table}
 	
-	A table with Simscape parameters
+	More detailed justification can be found in Appendix \ref{sec:component-selection}
 	
+	\subsubsection{EHA parameter estimation}
+	
+	The parameters estimated based on the selected components are presented in Tables~\ref{table:eha_mech_params}~and~\ref{table:eha_fluid_params}. The derivation can be found in Appendix \ref{sec:parameter-derivation}.
+	
+	\begin{table}[htbp]
+		\centering
+		\small
+		\begin{tabular}{llcl}
+			\toprule
+			\textbf{Parameter Name} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\ 
+			\midrule
+			\multicolumn{4}{c}{\textbf{DC Motor}} \\
+			\midrule
+			Rotor Inertia & $J$ & $0.205$ & $\text{kg} \cdot \text{m}^2$ \\
+			Armature Resistance & $R$ & $0.017$ & $\Omega$ \\
+			Armature Inductance & $L$ & $1.95 \times 10^{-5}$ & \text{H} \\
+			Back EMF Constant & $K_e$ & $0.132$ & \text{V/rpm} \\
+			Rotor Dampening & $\lambda$ & $0$ & $\text{N} \cdot \text{m} \cdot \text{s/rad}$ \\
+			Initial Rotor Speed & $\omega_{init}$ & $0$ & \text{rpm} \\
+			Viscous Friction Coefficient & $K_{vism}$ & $1$ & $\text{N} \cdot \text{m}/(\text{rad/s})$ \\
+			\midrule
+			\multicolumn{4}{c}{\textbf{Fixed Displacement Pump}} \\
+			\midrule
+			Displacement & $D$ & $163.1$ & $\text{cm}^3\text{/rev}$ \\
+			Nominal Pressure Gain & $p_{nom}$ & $42$ & \text{MPa} \\
+			Nominal Shaft Velocity & $\omega_{nom}$ & $2216$ & \text{rpm} \\
+			Volumetric Efficiency & $\eta_v$ & $0.92$ & -- \\
+			Mechanical Efficiency & $\eta_{hm}$ & $0.88$ & -- \\
+			No Load Torque & $T_{NL}$ & $0$ & $\text{N} \cdot \text{m}$ \\
+			\midrule
+			\multicolumn{4}{c}{\textbf{Double Acting Actuator}} \\
+			\midrule
+			Chamber A Area & $A_A$ & $0.0324$ & $\text{m}^2$ \\
+			Chamber B Area & $A_B$ & $0.026222$ & $\text{m}^2$ \\
+			Stroke & $\Delta x_{total}$ & $0.1636$ & \text{m} \\
+			Dead Volume (Chambers A \& B) & $V_{dead}$ & $3 \times 10^{-5}$ & $\text{m}^3$ \\
+			Hard Stop Stiffness Coefficient & $\xi_s$ & $1 \times 10^{10}$ & \text{N/m} \\
+			Hard Stop Dampening Coefficient & $\xi_d$ & $1500$ & $\text{N} \cdot \text{s/m}$ \\
+			Transition Region & $\zeta$ & $0.1$ & \text{mm} \\
+			Breakaway to Coulomb Ratio & $R_{bc}$ & $1.2$ & -- \\
+			Breakaway Friction Velocity & $V_{brk}$ & $1 \times 10^{-4}$ & \text{m/s} \\
+			Preload Force & $F_{pre}$ & $289.12$ & \text{N} \\
+			Coulomb Friction Coefficient & $C_{fc}$ & $9.68 \times 10^{-5}$ & \text{N/Pa} \\
+			Viscous Friction Coefficient & $K_{vis}$ & $1 \times 10^6$ & $\text{N} \cdot \text{s/m}$ \\
+			Piston Cylinder Clearance & $c$ & $2 \times 10^{-5}$ & \text{m} \\
+			Piston Head Length & $L$ & $0.01$ & \text{m} \\
+			Initial Piston Displacement & $d_{ini}$ & $0.0885$ & \text{m} \\
+			Initial Pressure (Chamber A) & $p_A$ & $16.75$ & \text{MPa} \\
+			Initial Pressure (Chamber B) & $p_B$ & $20.7$ & \text{MPa} \\
+			\bottomrule
+		\end{tabular}
+		\caption{Simscape initialization parameters for the Electromechanical and Actuator components.}
+		\label{table:eha_mech_params}
+	\end{table}
+	
+	\begin{table}[htbp]
+		\centering
+		\small
+		\begin{tabular}{llcl}
+			\toprule
+			\textbf{Parameter Name} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\ 
+			\midrule
+			\multicolumn{4}{c}{\textbf{Gas Charged Accumulator}} \\
+			\midrule
+			Total Accumulator Volume & $V_{actot}$ & $3 \times 10^{-3}$ & $\text{m}^3$ \\
+			Minimum Gas Volume & $V_{gasmin}$ & $1.5 \times 10^{-4}$ & $\text{m}^3$ \\
+			Precharge Pressure & $p_{pre}$ & $14.25$ & \text{MPa} \\
+			Specific Heat Ratio & $\kappa$ & $1.4$ & -- \\
+			Hard Stop Stiffness Coefficient & $S_{hs}$ & $1 \times 10^4$ & $\text{MPa/m}^3$ \\
+			Nominal Liquid Pressure & $p_{acnom}$ & $20.7$ & \text{MPa} \\
+			Initial Accumulator Pressure & $p_{aci}$ & $20.7$ & \text{MPa} \\
+			Nominal Gas Volume & $V_{gasnom}$ & $2.06 \times 10^{-3}$ & $\text{m}^3$ \\
+			Initial Gas Volume & $V_{gasi}$ & $2.06 \times 10^{-3}$ & $\text{m}^3$ \\
+			\midrule
+			\multicolumn{4}{c}{\textbf{Valves (Standard \& Pilot-Operated)}} \\
+			\midrule
+			Cracking Pressure Diff. (Standard) & $p_{crack}$ & $0.01$ & \text{MPa} \\
+			Max Opening Pressure Diff. & $p_{omax}$ / $p_{diff\_max}$ & $0.1$ & \text{MPa} \\
+			Pilot Ratio (Pilot Valve) & $\Xi$ & $1$ & -- \\
+			Maximum Opening Area & $A_{omax}$ / $A_{max}$ & $1 \times 10^{-3}$ & $\text{m}^2$ \\
+			Leakage Area & $A_{cleak}$ / $A_{pleak}$ & $1 \times 10^{-10}$ & $\text{m}^2$ \\
+			Cross Sectional Area (A\&B) & $A_{cAB}$ / $A_{pAB}$ & $\infty$ & $\text{m}^2$ \\
+			Discharge Coefficient & $C_{cdis}$ / $C_{pdis}$ & $0.64$ & -- \\
+			Critical Reynolds Number & $Re_{crit}$ / $Re_{pcrit}$ & $150$ & -- \\
+			Smoothing Factor & $F_{sm}$ / $F_{psm}$ & $0.01$ & -- \\
+			\midrule
+			\multicolumn{4}{c}{\textbf{Isothermal Liquid Properties}} \\
+			\midrule
+			Density (at Atm. Pressure) & $\rho$ & $850$ & $\text{kg/m}^3$ \\
+			Bulk Modulus (at Atm. Pressure) & $B$ & $1.379 \times 10^9$ & \text{Pa} \\
+			Kinematic Viscosity (at Atm. Pressure) & $\nu$ & $14.0 \times 10^{-6}$ & $\text{m}^2\text{/s}$ \\
+			Atmospheric Pressure & $p_{atm}$ & $0.101325$ & \text{MPa} \\
+			Minimum Valid Pressure & $p_{minv}$ & $1$ & \text{Pa} \\
+			\bottomrule
+		\end{tabular}
+		\caption{Simscape initialization parameters for the Hydraulic and Fluid components.}
+		\label{table:eha_fluid_params}
+	\end{table}
+	
+	\FloatBarrier
 	\subsection{Sensor}
 	
 	To accurately simulate the physical characteristics of the feedback loop, the measurement noise was modeled directly from the hardware specifications of the Balluff position sensor. According to the manufacturer data sheet \cite{parker2hx3hx}, the digital PWM output features a minimum update rate of 0.5\,ms and a position repeatability of 2\,$\mu$m. To replicate this behavior within the Simulink environment, a Band-Limited White Noise block was implemented. The sample time ($T_s$) was strictly set to 0.0005\,s to match the hardware's digital update frequency. To achieve the corresponding physical noise amplitude (a standard deviation of $\sigma = 2 \times 10^{-6}$\,m), the required noise power was calculated using the relation $\text{Noise Power} = \sigma^2 \cdot T_s$. Consequently, the noise power parameter was configured to $2 \times 10^{-15}$. This exact parametrization ensures that the controller's derivative and filter terms are evaluated against realistic hardware signal jitter rather than arbitrary simulation noise (see fig. \ref{fig:simulinksensorsubsystem}).
@@ -634,7 +735,7 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\section{System Architecture and Dependencies}
 	
-	MATLAB (R2025b version was used for development) and Simulink are required to run the system. Within Simulink the following Add-Ons have to be installed: Simscape, Simscape Electrical, Simscape Fluids.
+	MATLAB (R2025b version was used for development, no bugs were identified when run on R2026a) and Simulink are required to run the system. Within Simulink the following Add-Ons have to be installed: Simscape, Simscape Electrical, Simscape Fluids.
 	
 	The repository is organized in the following way:
 	
@@ -737,6 +838,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\end{table}
 	
 	\subsection{EHA Component Selection}
+	\label{sec:component-selection}
 	
 	\subsubsection{Actuator}
 	
@@ -1005,6 +1107,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\end{equation}
 	
 	\subsection{EHA Simscape definition}
+	\label{sec:parameter-derivation}
 	
 	\subsubsection{DC Motor}
 	
@@ -1027,7 +1130,7 @@ hyphenation=true    % Hyphenation turn on/off
 		$$J_{310\_250} = J_{210\_100} \cdot \left(\frac{250}{100}\right) \cdot \left(\frac{310}{210}\right)^4$$
 		$$J_{310\_250} = 0.0173 \cdot 2.5 \cdot 4.747 \approx 0.205 \text{ kg}\cdot\text{m}^2$$
 		
-		\item \textbf{Initialization Constants:} The rotor dampening ($Damp\_mtr$) and initial speed ($W\_init$) were set to 0 to represent ideal, stationary starting conditions. The viscous friction coefficient ($K\_vism$) was set to a nominal value of $1 \text{ N}\cdot\text{m}/(\text{rad/s})$ to provide baseline numerical stability for the solver in the absence of empirical mechanical friction data. All three values are default values for the \enquote{DC Motor} Simscape block
+		\item \textbf{Initialization Constants:} The rotor dampening ($Damp\_mtr$) and initial speed ($W\_init$) were set to 0 to represent ideal, stationary starting conditions. The viscous friction coefficient ($K\_vism$) was set to a nominal value of $1 \text{ N}\cdot\text{m}/(\text{rad/s})$ to provide baseline numerical stability for the solver in the absence of empirical mechanical friction data. All three values are default values for the \enquote{DC Motor} Simscape block \cite{mw:dcmotor}
 	\end{itemize}
 	
 	\subsubsection{Pump}
@@ -1074,7 +1177,7 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\subsubsection{Valve Parameterization}
 	
-	The EHA model utilizes two types of valves within the refeeding circuit: standard check valves for anti-cavitation fluid replenishment, and pilot-operated check valves for asymmetrical flow venting. The parameters for both valve types were defined to accommodate the high flow rates of the system while prioritizing numerical stability in the Simscape solver.
+	The EHA model utilizes two types of valves within the refeeding circuit: standard check valves for anti-cavitation fluid replenishment \cite{mw:checkvalve}, and pilot-operated check valves for asymmetrical flow venting \cite{mw:pilotcheckvalve}. The parameters for both valve types were defined to accommodate the high flow rates of the system while prioritizing numerical stability in the Simscape solver.
 	
 	\begin{itemize}
 		\item \textbf{Cracking and Opening Pressures:} The standard check valves must immediately route fluid from the accumulator to the suction side of the pump to prevent cavitation. Consequently, the cracking pressure was set to a near-zero nominal value ($0.01 \text{ MPa}$) with a rapid full-opening threshold ($0.1 \text{ MPa}$). Similarly, the pilot-operated check valves were configured with a maximum opening pressure differential of $0.1 \text{ MPa}$ and a nominal pilot ratio of $1$, ensuring highly responsive flow venting when triggered by the opposing main line pressure.
