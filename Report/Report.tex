@@ -116,18 +116,21 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\section{Assumptions}
 	
-	The following assumptions were made to simplify the modeling
-	
-	Add more assumptions that cover the entire project
+	The following general assumptions were made to establish the boundaries of the simulation and simplify the mathematical modeling of the stabilator system:
 	
 	\begin{enumerate}
-		\item Rigid Body Motion
+		\item \textbf{Rigid Body Motion}
 		\begin{itemize}
-			\item Internal deformation is neglected
-			\item Focus on Translation and Rotational motion
+			\item Internal structural deformation and aeroelastic effects (e.g., flutter) are neglected.
+			\item The analysis is restricted to purely translational and rotational kinematics.
 		\end{itemize}
-		\item Approximate sizing by visual data
-		\item 3D to 2D mapping
+		\item \textbf{Approximate Sizing:} In the absence of classified Lockheed Martin blueprints, dimensional parameters were approximated using 2D-to-3D visual mapping of available schematic data.
+		\item \textbf{Steady-State Aerodynamics:} Unsteady aerodynamic phenomena, such as dynamic stall, are neglected. The XFOIL-derived aerodynamic coefficients are assumed to be pseudo-static, varying only with the angle of attack and instantaneous velocity.
+		\item \textbf{Standard Atmospheric Environment:} Flight conditions are simulated at a constant altitude of \qty{60000}{ft}, meaning atmospheric density ($\rho$) and dynamic viscosity ($\mu$) are treated as static constants.
+		\item \textbf{Isothermal Hydraulic System:} The hydraulic fluid (MIL-PRF-83282D) is assumed to remain at a constant nominal operating temperature. Heat generation from friction or pump inefficiencies is neglected, keeping fluid properties like bulk modulus and kinematic viscosity constant.
+		\item \textbf{Idealized Mechanical Linkages:} The pivot shaft and actuator pin joints are modeled as ideal connections with zero mechanical backlash, free-play, or localized joint friction.
+		\item \textbf{Negligible Actuator Body Mass:} While the equivalent dynamic mass of the piston rod is accounted for in the load balance, the static mass of the actuator cylinder body itself is assumed weightless relative to the overwhelming aerodynamic hinge moments.
+		\item \textbf{Nominal Operating Conditions:} The simulation is restricted to standard flight operations. Fault conditions, structural yielding, and extreme thermal degradation fall outside the scope of this model.
 	\end{enumerate}
 	
 	\section{Key operation principle}
@@ -792,7 +795,7 @@ hyphenation=true    % Hyphenation turn on/off
 	\setcounter{section}{0}
 	\renewcommand{\thesection}{\Alph{section}}
 	
-	\section{Actuator modeling}
+	\section{Actuator modeling parameter derivation}
 	
 	\subsection{Required actuator parameters}
 	
