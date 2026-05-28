@@ -20,7 +20,7 @@ hyphenation=true    % Hyphenation turn on/off
 	extendedchars=true,
 	literate={θ}{{$\theta$}}1
 }
-\usepackage{dirtree}
+\usepackage{dirtreex}
 \usepackage{graphicx}   % For images
 \usepackage{float}      % For figure placement
 \usepackage{url}
@@ -742,30 +742,35 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	The repository is organized in the following way:
 	
-	\dirtree{%
-		.1 Root.
-		.2 \dots Git and GitHub files.
-		.2 Horizontal-Stabilator-Control-F22.prj.
-		.2 Code\_files.
-		.3 EHA\_initialization.m.
-		.3 f\_22\_stabilator\_control.slx.
-		.3 import\_aerodynamic\_coefficients.m.
-		.3 plot\_data.m.
-		.3 Relation.m.
-		.3 Requirements\_calculation.m.
-		.3 Re\_calculations.m.
-		.3 Variable\_mass.ssc.
-		.3 airfoil\_analysis.
-		.4 airfoil.xfl.
-		.4 REmax\_results.csv.
-		.4 REmin\_results.csv.
-		.2 Report.
-		.3 \dots \LaTeX\ build files and media.
-		.2 resources.
-		.3 \dots Project metadata (XML).
-		.2 slprj.
-		.3 \dots Simulink build cache.
-	}
+	\begin{dirtreex}[
+		elbow radius=3pt,
+		box = {false},
+		pagebreak={false}]
+		\dir{Root}{}{
+			\file{\dots Git and GitHub files}{}
+			\file{Horizontal-Stabilator-Control-F22.prj}{MATLAB Project wrapper}
+			\dir{Code\_files}{}{
+				\file{EHA\_initialization.m}{}
+				\file{f\_22\_stabilator\_control.slx}{}
+				\file{import\_aerodynamic\_coefficients.m}{}
+				\file{plot\_data.m}{}
+				\file{Relation.m}{}
+				\file{Requirements\_calculation.m}{}
+				\file{Re\_calculations.m}{}
+				\file{Variable\_mass.ssc}{}
+				\file{signal\_3\_2\_1\_1.m}{}
+				\file{Simulink\_visualization.m}{}
+				\dir{airfoil\_analysis}{Data from XFOIL}{
+					\file{airfoil.xfl}{}
+					\file{REmax\_results.csv}{}
+					\file{REmin\_results.csv}{}
+				}
+			}
+			\dir{Report}{\LaTeX\ build files and media}{}
+			\dir{resources}{Project metadata (XML)}{}
+			\dir{slprj}{Simulink build cache}{}
+		}
+	\end{dirtreex}
 	
 	To run the simulation, the user has to open the file named \path{f_22_stabilator_control.slx}. The callback is set up so that before the simulation starts the files \path{Relation.m} and \path{EHA_initialization.m} will be executed providing the necessary input data for the simulation. The \path{Relation.m} script calls the \path{Re_calculations.m} function where all the stabilator and aircraft performance parameters are calculated. The aerodynamic coefficients are imported from the \path{airfoil_analysis} folder using the \path{import_aerodynamic_coefficients.m} script. 
 	
@@ -774,6 +779,8 @@ hyphenation=true    % Hyphenation turn on/off
 	\path{Requirements_calculation.m} is a separate function used solely to derive the theoretical actuator requirements and neither it nor \path{plot_data.m} is executed within the callback.
 	
 	\path{Variable_mass.ssc} defines a custom Variable Mass block which was not provided by Simulink/Simscape.
+	
+	\path{signal_3_2_1_1.m} is used to define a control signal for the deflection while \path{Simulink_visualization.m} plots the outcomes of running \path{f_22_stabilator_control.slx} which automatically exports key parameters to the workspace using a callback.
 
 	\section{Dynamic Response}
 	
