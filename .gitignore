@@ -47,7 +47,6 @@ desktop.ini
 *.autosave
 
 # And LaTeX also
-*.pdf
 *.toc
 *.aux
 *.bcf
