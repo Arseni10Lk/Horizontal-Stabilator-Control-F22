@@ -835,13 +835,15 @@ hyphenation=true    % Hyphenation turn on/off
 		\Delta x_{total} = \Delta x_{max} - \Delta x_{min} = 75.1 \text{ mm} - (-88.5) \text{ mm} = 163.61 \text{ mm}
 	\end{equation}
 	
-	A deflection rate limit has to be assumed to define the dynamic requirement. The value of $\dot{\alpha}_{max} = 60^\circ/\text{s}$ is assumed since it is a standard limit among American fighter jets \cite{deflectionrate}, although the data for the F-22 specifically is not available.
-	
+   A deflection rate limit must be assumed to define the dynamic requirements for the flight control system simulation. Because the exact operational specifications of the F-22 remain classified, a baseline limit of $\dot{\alpha}_{max} = 60^{\circ}/\text{s}$ was selected. This choice alligns with the representative aircraft parameters used in generalized fault tolerant studies \cite{Hess1999Accommodating},and matches design limitations established in foundational NASA evaluations of fly-by-wire, relaxed static stability fighter platforms like the F-16 \cite{Nguyen1979Simulator}, as well as the Aircraft Design Analysis for a Fifth-Generation Fighter Jet \cite{DeflectionLimits}.
+   
 	The linear slew rate ($v_{act}$) dictates how fast the actuator must extend or retract to achieve this angular rotation rate. The maximum linear velocity is calculated using the highest rate of change of the extension with respect to the deflection angle:
 	
 	\begin{equation}
 		v_{act} = \max \left| \frac{d(\Delta x)}{d(\Delta \alpha)} \right| \cdot \dot{\alpha}_{max} = 185.84 \text{ mm/s}
 	\end{equation}
+	
+	The use of $\Delta x$ and $\Delta\alpha$ in Equation~(A.2) reflects the incremental nature of the kinematic analysis. Rather than absolute positions, $\Delta x$ and $\Delta\alpha$ represent displacements measured relative to a neutral reference, consistent with the stroke derivation in Equation~(A.1), where the total stroke is defined as the difference between maximum and minimum actuator positions.
 	
 	\subsubsection{Load and Envelope Limiting Strategy}
 	The theoretical structural loads ($F_{act}$) and corresponding power requirements ($P_{mech, max}$ and $P_{elec, max}$) are mathematically derived by evaluating the absolute extremes across all simulated velocities and deflection angles. 
