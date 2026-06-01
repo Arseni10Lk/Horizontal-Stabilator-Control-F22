@@ -168,9 +168,9 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	To account for the non-uniform density distribution, the total mass $M_{total}$ is divided into the honeycomb shell $M_{shell}$ and the composite pivot shaft $M_{shaft}$:
 	\begin{equation}
-		M_{total} = (V_{total} \cdot \rho_{bulk}) + M_{shaft}
+		M_{total} = (V_{total} \cdot \iota_{bulk}) + M_{shaft}
 	\end{equation}
-	An effective bulk density $\rho_{bulk} = 150 \text{ kg/m}^3$ was utilized to represent the combined weight of the hollow titanium honeycomb and composite skins. The pivot shaft mass was estimated at $60 \text{ kg}$ based on reported automated fiber placement (AFP) composite manufacturing data.
+	An effective bulk density $\iota_{bulk} = 150 \text{ kg/m}^3$ was utilized to represent the combined weight of the hollow titanium honeycomb and composite skins. The pivot shaft mass was estimated at $60 \text{ kg}$ based on reported automated fiber placement (AFP) composite manufacturing data.
 	
 	The global Center of Gravity $(\bar{X}, \bar{Y})$ was determined using a weighted average of the geometric centroids of the individual panels and the localized mass of the pivot shaft:
 	\begin{equation}
@@ -340,14 +340,14 @@ hyphenation=true    % Hyphenation turn on/off
 		\alpha = \arcsin\left(\frac{d}{a}\right)
 	\end{equation}
 	
-	When the actuator extends by $\Delta x$, the new length of the actuator assembly becomes $d + \Delta x$. The pin rotates along a circular trajectory (the pivot shaft), changing the internal angle at the pivot to $\alpha + \Delta \alpha$. 
+	When the actuator extends by $\Delta x$, the new length of the actuator assembly becomes $d + \Delta x$. The pin rotates along a circular trajectory (the pivot shaft), changing the internal angle at the pivot to $\alpha - \Delta \alpha$. 
 	
 	Applying the Law of Cosines to the newly formed oblique triangle with sides $a$, $r$, and $(d + \Delta x)$:
 	\begin{equation}
 		(d + \Delta x)^2 = a^2 + r^2 - 2ar \cos(\alpha - \Delta \alpha)
 	\end{equation}
 	
-	To find the stabilator deflection angle $\Delta \alpha$ as a function of the actuator extension $\Delta x$, the Law of Cosines equation is rearranged to isolate $\cos(\alpha + \Delta \alpha)$:
+	To find the stabilator deflection angle $\Delta \alpha$ as a function of the actuator extension $\Delta x$, the Law of Cosines equation is rearranged to isolate $\cos(\alpha - \Delta \alpha)$:
 	\begin{equation}
 		-2ar \cos(\alpha - \Delta \alpha) = (d + \Delta x)^2 - a^2 - r^2
 	\end{equation}
@@ -563,9 +563,9 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	The total continuous friction force opposing the piston motion ($F_{fric}$) incorporates this pressure-dependent boundary into a smoothed Stribeck velocity transition model to avoid numerical discontinuities during simulation:
 	\begin{equation}
-		F_{fric}(\dot{x}_{t}, p_{sys}) = \left[ F_c(p_{sys}) + (F_s(p_{sys}) - F_c(p_{sys})) \cdot e^{-|\dot{x}_{t}|/\alpha} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
+		F_{fric}(\dot{x}_{t}, p_{sys}) = \left[ F_c(p_{sys}) + (F_s(p_{sys}) - F_c(p_{sys})) \cdot e^{-|\dot{x}_{t}|/\psi} + K_{vis}|\dot{x}_{t}| \right] \cdot \tanh\left(\frac{\dot{x}_{t}}{\beta}\right)
 	\end{equation}
-	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction [\text{N}], $K_{vis}$ is the viscous friction coefficient [\text{N}$\cdot$\text{s/m}], $\dot{x}_{t}$ is the piston velocity [\text{m/s}], and $\alpha$ and $\beta$ are reference speed parameters [\text{m/s}] used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
+	where $F_s(p_{sys})$ is the pressure-dependent maximum static friction [\text{N}], $K_{vis}$ is the viscous friction coefficient [\text{N}$\cdot$\text{s/m}], $\dot{x}_{t}$ is the piston velocity [\text{m/s}], and $\psi$ and $\beta$ are reference speed parameters [\text{m/s}] used to govern the Stribeck transition and smooth the mathematical region near zero velocity.
 	
 	\subsubsection{Commercial product selection}
 	
@@ -610,7 +610,8 @@ hyphenation=true    % Hyphenation turn on/off
 			Rotor Inertia & $J$ & $0.205$ & $\text{kg} \cdot \text{m}^2$ \\
 			Armature Resistance & $R$ & $0.017$ & $\Omega$ \\
 			Armature Inductance & $L$ & $1.95 \times 10^{-5}$ & \text{H} \\
-			Back EMF Constant & $K_e$ & $0.132$ & \text{V/rpm} \\
+			Back EMF Constant & $K_e$ & $0.132$ & \text{V}$\cdot$\text{s/rad} \\
+			Torque Constant & $K_t$ & $1.26$ & $\text{N} \cdot \text{m/A}$ \\
 			Rotor Dampening & $\lambda$ & $0$ & $\text{N} \cdot \text{m} \cdot \text{s/rad}$ \\
 			Initial Rotor Speed & $\omega_{init}$ & $0$ & \text{rpm} \\
 			Viscous Friction Coefficient & $K_{vism}$ & $1$ & $\text{N} \cdot \text{m}/(\text{rad/s})$ \\
@@ -682,7 +683,7 @@ hyphenation=true    % Hyphenation turn on/off
 			\midrule
 			\multicolumn{4}{c}{\textbf{Isothermal Liquid Properties}} \\
 			\midrule
-			Density (at Atm. Pressure) & $\rho$ & $850$ & $\text{kg/m}^3$ \\
+			Density (at Atm. Pressure) & $\iota$ & $850$ & $\text{kg/m}^3$ \\
 			Bulk Modulus (at Atm. Pressure) & $B$ & $1.379 \times 10^9$ & \text{Pa} \\
 			Kinematic Viscosity (at Atm. Pressure) & $\nu$ & $14.0 \times 10^{-6}$ & $\text{m}^2\text{/s}$ \\
 			Atmospheric Pressure & $p_{atm}$ & $0.101325$ & \text{MPa} \\
@@ -832,10 +833,10 @@ hyphenation=true    % Hyphenation turn on/off
 	\subsubsection{Kinematic Requirements}
 	Regardless of high-speed aerodynamic limiting, the actuator must physically be capable of extending and retracting enough to cover the full stabilator deflection range ($-25^\circ$ to $30^\circ$) during low-speed flight and ground operations. The total required stroke ($\Delta x_{total}$) is:
 	\begin{equation}
-		\Delta x_{total} = \Delta x_{max} - \Delta x_{min} = 75.1 \text{ mm} - (-88.5) \text{ mm} = 163.61 \text{ mm}
+		\Delta x_{total} = \Delta x_{max} - \Delta x_{min} = 75.1 \text{ mm} - (-88.51) \text{ mm} = 163.61 \text{ mm}
 	\end{equation}
 	
-   A deflection rate limit must be assumed to define the dynamic requirements for the flight control system simulation. Because the exact operational specifications of the F-22 remain classified, a baseline limit of $\dot{\alpha}_{max} = 60^{\circ}/\text{s}$ was selected. This choice alligns with the representative aircraft parameters used in generalized fault tolerant studies \cite{Hess1999Accommodating},and matches design limitations established in foundational NASA evaluations of fly-by-wire, relaxed static stability fighter platforms like the F-16 \cite{Nguyen1979Simulator}, as well as the Aircraft Design Analysis for a Fifth-Generation Fighter Jet \cite{DeflectionLimits}.
+   A deflection rate limit must be assumed to define the dynamic requirements for the flight control system simulation. Because the exact operational specifications of the F-22 remain classified, a baseline limit of $\dot{\alpha}_{max} = 60^{\circ}/\text{s}$ was selected. This choice alligns with the representative aircraft parameters used in generalized fault tolerant studies \cite{Hess1999Accommodating}, and matches design limitations established in foundational NASA evaluations of fly-by-wire, relaxed static stability fighter platforms like the F-16 \cite{Nguyen1979Simulator}, as well as the Aircraft Design Analysis for a Fifth-Generation Fighter Jet \cite{DeflectionLimits}.
    
 	The linear slew rate ($v_{act}$) dictates how fast the actuator must extend or retract to achieve this angular rotation rate. The maximum linear velocity is calculated using the highest rate of change of the extension with respect to the deflection angle:
 	
