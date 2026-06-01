@@ -126,6 +126,7 @@ hyphenation=true    % Hyphenation turn on/off
 		\end{itemize}
 		\item \textbf{Approximate Sizing:} In the absence of classified Lockheed Martin blueprints, dimensional parameters were approximated using 2D-to-3D visual mapping of available schematic data.
 		\item \textbf{Steady-State Aerodynamics:} Unsteady aerodynamic phenomena, such as dynamic stall, are neglected. The XFOIL-derived aerodynamic coefficients are assumed to be pseudo-static, varying only with the angle of attack and instantaneous velocity.
+		\item \textbf{Local Airflow Simplification:} The effects fo the fuselage and wings on the direction of the airflow hitting the stabilator is neglected. For that reason stabilator deflection is equal to the angle of attack of the stabilator and both will be represented by the same symbol and used interchangeably throughout the report.
 		\item \textbf{Standard Atmospheric Environment:} Flight conditions are simulated at a constant altitude of \qty{60000}{ft}, meaning atmospheric density ($\rho$) and dynamic viscosity ($\mu$) are treated as static constants.
 		\item \textbf{Isothermal Hydraulic System:} The hydraulic fluid (MIL-PRF-83282D) is assumed to remain at a constant nominal operating temperature. Heat generation from friction or pump inefficiencies is neglected, keeping fluid properties like bulk modulus and kinematic viscosity constant.
 		\item \textbf{Idealized Mechanical Linkages:} The pivot shaft and actuator pin joints are modeled as ideal connections with zero mechanical backlash, free-play, or localized joint friction.
