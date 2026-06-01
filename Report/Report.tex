@@ -20,9 +20,9 @@ hyphenation=true    % Hyphenation turn on/off
 	extendedchars=true,
 	literate={θ}{{$\theta$}}1
 }
-\usepackage{dirtreex}
-\usepackage{graphicx}   % For images
-\usepackage{float}      % For figure placement
+\usepackage{dirtreex}   % For images
+\usepackage{graphicx}   % For figure placement
+\usepackage{float}      
 \usepackage{url}
 
 \usepackage{booktabs} % Required for TABLE
@@ -126,6 +126,7 @@ hyphenation=true    % Hyphenation turn on/off
 		\end{itemize}
 		\item \textbf{Approximate Sizing:} In the absence of classified Lockheed Martin blueprints, dimensional parameters were approximated using 2D-to-3D visual mapping of available schematic data.
 		\item \textbf{Steady-State Aerodynamics:} Unsteady aerodynamic phenomena, such as dynamic stall, are neglected. The XFOIL-derived aerodynamic coefficients are assumed to be pseudo-static, varying only with the angle of attack and instantaneous velocity.
+		\item \textbf{Local Airflow Simplification:} The effects fo the fuselage and wings on the direction of the airflow hitting the stabilator is neglected. For that reason stabilator deflection is equal to the angle of attack of the stabilator and both will be represented by the same symbol and used interchangeably throughout the report.
 		\item \textbf{Standard Atmospheric Environment:} Flight conditions are simulated at a constant altitude of \qty{60000}{ft}, meaning atmospheric density ($\rho$) and dynamic viscosity ($\mu$) are treated as static constants.
 		\item \textbf{Isothermal Hydraulic System:} The hydraulic fluid (MIL-PRF-83282D) is assumed to remain at a constant nominal operating temperature. Heat generation from friction or pump inefficiencies is neglected, keeping fluid properties like bulk modulus and kinematic viscosity constant.
 		\item \textbf{Idealized Mechanical Linkages:} The pivot shaft and actuator pin joints are modeled as ideal connections with zero mechanical backlash, free-play, or localized joint friction.
@@ -714,8 +715,7 @@ hyphenation=true    % Hyphenation turn on/off
 			\hline
 			Overshoot & $\leq 5\%$ & At high velocities, excessive deflection beyond the commanded angle generates large aerodynamic loads, risking structural overload and loss of control. \\
 			\addlinespace
-			Settling Time & $\leq 1$ s & The flight control system must respond quickly to pilot inputs to maintain 
-			stability, particularly at 450 m/s where the aircraft dynamics are fast.The 1 s settling time ensures the pilot retains meaningful control before the aircraft has travelled too far. \\
+			Settling Time & $\leq 1$ s & The flight control system must respond quickly to pilot inputs to maintain stability, particularly at 450 m/s where aircraft dynamics are fast. Since the F-22 model's stabilator has deflection limits of $-25^\circ$ to $30^\circ$, and the source \cite{Nguyen1979Simulator} establishes a maximum deflection rate limit of $60^\circ/\text{s}$, a maximum settling time limit of 1 second is a reasonable choice to account for additional delays in the system. This ensures that even during a worst case the actuator can complete the full mechanical travel within 1 second, allowing the pilot to retain meaningful control before the aircraft travels too far. \\
 			\addlinespace
 			Steady-State Error & $\leq 0.2^\circ$ & An absolute angle is required because percentage based limits allow larger, unacceptable errors during wide maneuvers. Keeping the error around $0.2^\circ$ stops the tail from catching excess air at 450 m/s, preventing fuel wasting drag and autopilot drift. \\
 			\hline
@@ -835,13 +835,15 @@ hyphenation=true    % Hyphenation turn on/off
 		\Delta x_{total} = \Delta x_{max} - \Delta x_{min} = 75.1 \text{ mm} - (-88.5) \text{ mm} = 163.61 \text{ mm}
 	\end{equation}
 	
-	A deflection rate limit has to be assumed to define the dynamic requirement. The value of $\dot{\alpha}_{max} = 60^\circ/\text{s}$ is assumed since it is a standard limit among American fighter jets \cite{deflectionrate}, although the data for the F-22 specifically is not available.
-	
+   A deflection rate limit must be assumed to define the dynamic requirements for the flight control system simulation. Because the exact operational specifications of the F-22 remain classified, a baseline limit of $\dot{\alpha}_{max} = 60^{\circ}/\text{s}$ was selected. This choice alligns with the representative aircraft parameters used in generalized fault tolerant studies \cite{Hess1999Accommodating},and matches design limitations established in foundational NASA evaluations of fly-by-wire, relaxed static stability fighter platforms like the F-16 \cite{Nguyen1979Simulator}, as well as the Aircraft Design Analysis for a Fifth-Generation Fighter Jet \cite{DeflectionLimits}.
+   
 	The linear slew rate ($v_{act}$) dictates how fast the actuator must extend or retract to achieve this angular rotation rate. The maximum linear velocity is calculated using the highest rate of change of the extension with respect to the deflection angle:
 	
 	\begin{equation}
 		v_{act} = \max \left| \frac{d(\Delta x)}{d(\Delta \alpha)} \right| \cdot \dot{\alpha}_{max} = 185.84 \text{ mm/s}
 	\end{equation}
+	
+	The use of $\Delta x$ and $\Delta\alpha$ in Equation~(A.2) reflects the incremental nature of the kinematic analysis. Rather than absolute positions, $\Delta x$ and $\Delta\alpha$ represent displacements measured relative to a neutral reference, consistent with the stroke derivation in Equation~(A.1), where the total stroke is defined as the difference between maximum and minimum actuator positions.
 	
 	\subsubsection{Load and Envelope Limiting Strategy}
 	The theoretical structural loads ($F_{act}$) and corresponding power requirements ($P_{mech, max}$ and $P_{elec, max}$) are mathematically derived by evaluating the absolute extremes across all simulated velocities and deflection angles. 
@@ -852,16 +854,16 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{l c c}
+		\begin{tabular}{l c c c}
 			\toprule
-			Parameter & Value & Requirement Type \\
+			Parameter & Symbol & Value & Requirement Type \\
 			\midrule
-			Total Stroke Required & 163.61 mm & Practical \\
-			Max Tensile Load & 852,295 N (191,596 lbf) & Theoretical \\
-			Max Compressive Load & 1,188,203 N (267,108 lbf) & Theoretical \\
-			Max Slew Rate & 185.84 mm/s & Practical \\
-			Max Mechanical Power & 220.82 kW & Theoretical \\
-			Max Electrical Power & 288.65 kW & Theoretical \\
+			Total Stroke Required & $\Delta x_{total}$ & 163.61 mm  & Practical \\
+			Max Tensile Load &$F_{tensile, max}$ & 852,295 N (191,596 lbf)  & Theoretical \\
+			Max Compressive Load & $F_{comp, max}$ & 1,188,203 N (267,108 lbf)& Theoretical \\
+			Max Slew Rate & $v_{act}$  & 185.84 mm/s  & Practical \\
+			Max Mechanical Power & $P_{mech, max}$ & 220.82 kW   & Theoretical \\
+			Max Electrical Power & $P_{elec, max}$ & 288.65 kW  & Theoretical \\
 			\bottomrule
 		\end{tabular}
 		\caption{Derived EHA actuator performance and load requirements. Theoretical requirements correspond to impossible scenarios. An actuator will be chosen based on the practical parameters alone.}
@@ -888,14 +890,14 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{l c c}
+		\begin{tabular}{l c c c}
 			\toprule
-			Parameter & Value & Unit \\
+			Parameter &Symbol & Value  &Unit \\
 			\midrule
-			Operating Pressure & 207 & bar \\
-			Required Flow Rate & 6.0236 & L/s \\
-			Mechanical Power & 124.568 & kW \\
-			Max Slew Rate & 185.84 & mm/s \\
+			Operating Pressure & $p_{o}$ & 207 & bar \\
+			Required Flow Rate & $Q_{rate}$ & 6.0236 & L/s \\
+			Mechanical Power & $P_{mech}$ & 124.568 & kW \\
+			Max Slew Rate & $v_{act}$ & 185.84 & mm/s \\
 			\bottomrule
 		\end{tabular}
 		\caption{EHA performance targets used for component selection.}
@@ -968,14 +970,14 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{l c c}
+		\begin{tabular}{l c c c}
 			\toprule
-			Parameter & Required Value & Basis \\
+			Parameter & Symbol &Required Value & Basis \\
 			\midrule
-			Rated Torque $M_n$ & $\geq 535$ Nm & From pump pressure and displacement \\
-			Rated Speed $N_n$ & $\approx 2,200$ RPM & From pump flow requirement \\
-			Rated Power $P_n$ & $\geq 130$ kW & $P = T \cdot \omega$ with 5\% margin \\
-			Supply Voltage & 270--350 VDC & MIL-STD-704 aircraft bus \\
+			Rated Torque &$M_n$ & $\geq 535$ Nm & From pump pressure and displacement \\
+			Rated Speed& $\omega_{n}$ & $\approx 2,200$ RPM & From pump flow requirement \\
+			Rated Power& $P_n$ & $\geq 130$ kW & $P = T \cdot \omega$ with 5\% margin \\
+			Supply Voltage& V & 270--350 VDC & MIL-STD-704 aircraft bus \\
 			\bottomrule
 		\end{tabular}
 		\caption{Motor selection targets derived from F12-162 pump operating point.}
@@ -990,16 +992,16 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{l c c c}
+		\begin{tabular}{l c c c c}
 			\toprule
-			Parameter & Required & GVM310-250-BA1-W & Verdict \\
+			Parameter & Symbol&Required & GVM310-250-BA1-W & Verdict \\
 			\midrule
-			Rated Torque $M_n$ [Nm] & $\geq 535$ & 542 & \checkmark \\
-			Rated Power $P_n$ [kW] & $\geq 130$ & 138 & \checkmark \\
-			Rated Speed $N_n$ [RPM] & $\approx 2{,}200$ & 2{,}420 & \checkmark \\
-			Supply Voltage [VDC] & 270--350 & 350 & \checkmark \\
-			Peak Torque $M_p$ [Nm] & --- & 1{,}240 & Acceptable margin \\
-			Peak Power $P_p$ [kW] & --- & 166 & Acceptable margin \\
+			Rated Torque [Nm]& $M_n$  & $\geq 535$ & 542 & \checkmark \\
+			Rated Power [kW] &$P_n$  & $\geq 130$ & 138 & \checkmark \\
+			Rated Speed  [RPM] &$\omega_{n}$  & $\approx 2{,}200$ & 2{,}420 & \checkmark \\
+			Supply Voltage [VDC] & V & 270--350 & 350 & \checkmark \\
+			Peak Torque [Nm] & $T_p$  & --- & 1{,}240 & Acceptable margin \\
+			Peak Power [kW] &$P_p$  & --- & 166 & Acceptable margin \\
 			\bottomrule
 		\end{tabular}
 		\caption{GVM310-250-BA1-W specification versus motor selection targets.\cite{parker_gvm310}}
@@ -1037,11 +1039,11 @@ hyphenation=true    % Hyphenation turn on/off
 	\textbf{Key Physical Properties}
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{l l}
+		\begin{tabular}{l c}
 			\toprule
 			\textbf{Property} & \textbf{Requirement (Finished Fluid)} \\
-			Kinematic Viscosity at 100°C & 3.45 cSt (min) \\
-			Kinematic Viscosity at -40°C & 2,600 cSt (max) \\
+			Kinematic Viscosity $\nu$  at 100°C & 3.45 cSt (min) \\
+			Kinematic Viscosity $\nu$  at -40°C & 2,600 cSt (max) \\
 			Flash Point  & 205°C (min)  \\
 			Fire Point & 245°C (min)  \\
 			Auto-ignition Temperature & 345°C (min) \\
@@ -1068,7 +1070,7 @@ hyphenation=true    % Hyphenation turn on/off
 				\toprule
 				Parameter & Value \\
 				\midrule
-				Input Power      & +24\,VDC nominal (20--28\,VDC) \\
+				Input Power $P$     & +24\,VDC nominal (20--28\,VDC) \\
 				Outputs          & Analog: 0--10\,V, 4--20\,mA; Digital: PWM \\
 				Update Rate      & Analog: max 4\,kHz; Digital: 0.5\,ms min \\
 				Repeatability    & 2\,\textmu m minimum \\
@@ -1088,18 +1090,18 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{l c}
+		\begin{tabular}{l c c}
 			\toprule
-			Parameter & Value \\
+			Parameter &Symbol &Value \\
 			\midrule
-			Bore Diameter & 0.2032 m \\
-			Rod Diameter & 0.0889 m \\
-			Pressure & 20,680 kPa \\
-			Compressive Force & 670.297 kN \\
-			Tensile Force & 541.998 kN \\
-			Total Stroke & 163.61 mm \\
-			Fluid Flow & 6.0236 L/s \\
-			Mechanical Power & 124.568 kW \\
+			Bore Diameter & $d_{bore}$ & 0.2032 m \\
+			Rod Diameter & $d_{rod}$ &0.0889 m \\
+			Pressure & $p$&20,680 kPa \\
+			Compressive Force&$F_{comp}$ & 670.297 kN \\
+			Tensile Force&$F_{tensile}$  & 541.998 kN \\
+			Total Stroke &$\Delta{x_{total}}$ &163.61 mm \\
+			Fluid Flow & $Q$&6.0236 L/s \\
+			Mechanical Power&$P_{mech}$ & 124.568 kW \\
 			\bottomrule
 		\end{tabular}
 		\caption{Actuator Performance Calculations (Modified Stroke length and Slew Rate)}
@@ -1108,10 +1110,10 @@ hyphenation=true    % Hyphenation turn on/off
 	
 	The following calculations assume ideal hydraulic efficiency and constant pressure operation.
 	
-	The actuator force is determined from the piston and annular areas. For a bore diameter of $D = 0.2032\,\text{m}$ and rod diameter $d = 0.0889\,\text{m}$:
+	The actuator force is determined from the piston and annular areas. For a bore diameter of $d_{bore} = 0.2032\,\text{m}$ and rod diameter $d_{rod} = 0.0889\,\text{m}$:
 	
 	\begin{equation}
-		A_{comp} = \frac{\pi \cdot D^2}{4}\approx 0.0324\,\text{m}^2
+		A_{comp} = \frac{\pi \cdot d^2}{4}\approx 0.0324\,\text{m}^2
 	\end{equation}
 	
 	The tensile (annular) area is given by:
